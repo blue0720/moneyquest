@@ -1,0 +1,381 @@
+@charset "UTF-8";
+
+.quest-tab-header {
+    margin: 24px 0 16px;
+}
+
+.quest-tab-header > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.quest-tab-title {
+    font-size: 16px;
+    font-weight: 800;
+    margin: 0;
+}
+
+.quest-purple-small-btn {
+    border: 0;
+    border-radius: 14px;
+    background: #7c3aed;
+    color: #fff;
+    padding: 10px 18px;
+    font-weight: 800;
+    box-shadow: 0 6px 16px rgba(124, 58, 237, .25);
+}
+
+.quest-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.quest-design-card {
+    position: relative;
+    background: #fff;
+    border: 1px solid #f4d8c6;
+    border-radius: 16px;
+    padding: 14px 18px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, .05);
+}
+
+.quest-card-title {
+    font-weight: 800;
+    font-size: 15px;
+    margin-bottom: 8px;
+}
+
+.quest-user-name {
+    background: #f4efff;
+    color: #7c3aed;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-weight: 800;
+    font-size: 12px;
+}
+
+.quest-card-actions {
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    display: flex;
+    gap: 8px;
+}
+
+.quest-circle-btn {
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 50%;
+    color: #7c3aed;
+    background: #f4efff;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.quest-delete-circle {
+    color: #ef4444;
+    background: #fff1f2;
+}
+
+.quest-card-reward {
+    margin-top: 8px;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.quest-exp {
+    color: #7c3aed;
+}
+
+.quest-money {
+    color: #00a676;
+}
+
+.quest-date {
+    color: #9a7b63;
+    font-weight: 500;
+}
+
+.quest-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .45);
+    z-index: 1000;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.quest-modal-overlay.is-show {
+    display: flex;
+}
+
+.quest-bottom-modal {
+    width: min(900px, 100%);
+    background: #fff;
+    border-radius: 22px 22px 0 0;
+    padding: 18px 22px 24px;
+}
+
+.quest-modal-handle {
+    width: 44px;
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 99px;
+    margin: 0 auto 18px;
+}
+
+.quest-modal-title {
+    color: #7c3aed;
+    font-size: 22px;
+    margin: 0 0 18px;
+}
+
+.quest-modal-label {
+    display: block;
+    margin: 12px 0 7px;
+    font-weight: 800;
+    color: #8a6b4f;
+    font-size: 13px;
+}
+
+.quest-modal-input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #cdbdff;
+    background: #f4f1ff;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 16px;
+}
+
+.quest-child-chip-list {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 8px 0 14px;
+}
+
+.quest-child-chip {
+    display: inline-flex;
+    align-items: center;
+}
+
+.quest-child-chip input {
+    display: none;
+}
+
+.quest-child-chip span {
+    display: inline-block;
+    background: #f4efff;
+    color: #9b7cf6;
+    border-radius: 12px;
+    padding: 9px 14px;
+    font-weight: 800;
+    font-size: 13px;
+}
+
+.quest-child-chip input:checked + span {
+    background: #7c3aed;
+    color: #fff;
+}
+
+.quest-modal-note {
+    color: #9a7b63;
+    font-size: 12px;
+    margin: 10px 0;
+}
+
+.quest-modal-main-btn {
+    width: 100%;
+    border: 0;
+    border-radius: 18px;
+    padding: 16px;
+    margin-top: 18px;
+    background: linear-gradient(90deg, #8b3cf6, #b794f4);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 900;
+}
+
+.quest-center-overlay {
+    align-items: center;
+}
+
+.quest-delete-modal {
+    width: 300px;
+    background: #fff;
+    border-radius: 22px;
+    padding: 28px 22px 22px;
+    text-align: center;
+}
+
+.quest-delete-icon {
+    font-size: 34px;
+}
+
+.quest-delete-title {
+    font-size: 18px;
+    margin: 12px 0;
+}
+
+.quest-delete-text {
+    color: #9a7b63;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.quest-delete-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 18px;
+}
+
+.quest-cancel-btn,
+.quest-delete-btn {
+    border: 0;
+    border-radius: 14px;
+    padding: 12px 20px;
+    font-weight: 800;
+}
+
+.quest-cancel-btn {
+    background: #f1f5f9;
+    color: #334155;
+}
+
+.quest-delete-btn {
+    background: #ef4444;
+    color: #fff;
+}
+
+
+.quest-save-template-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 14px;
+    padding: 14px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.quest-save-template-box input {
+    display: none;
+}
+
+.quest-save-template-check {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: #f3f4f6;
+    flex-shrink: 0;
+}
+
+.quest-save-template-box input:checked + .quest-save-template-check {
+    background: #7c3aed;
+}
+
+.quest-save-template-box input:checked + .quest-save-template-check::after {
+    content: "✓";
+    display: block;
+    color: #fff;
+    text-align: center;
+    line-height: 22px;
+    font-weight: 900;
+}
+
+.quest-save-template-box strong {
+    display: block;
+    font-size: 14px;
+    color: #111827;
+}
+
+.quest-save-template-box small {
+    display: block;
+    margin-top: 4px;
+    font-size: 11px;
+    color: #9a7b63;
+}
+
+.tab-content.quest-tab {
+	background: transparent;
+	box-shadow: none;
+	border: none;
+	padding: 0;
+}
+
+.quest-tab-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin: 24px 0 16px;
+}
+
+.quest-design-card {
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	padding: 0;
+}
+
+.quest-card-top-row {
+	position: relative;
+	background: #fff;
+	border: 1px solid #f4d8c6;
+	border-radius: 16px;
+	padding: 16px 120px 16px 18px;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, .05);
+}
+
+.quest-card-left {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.quest-card-icon {
+	font-size: 24px;
+	flex-shrink: 0;
+}
+
+.quest-card-title {
+	margin: 0;
+	font-weight: 800;
+	font-size: 15px;
+}
+
+.quest-card-reward {
+	margin: 5px 0 0 0;
+	display: flex;
+	gap: 14px;
+	align-items: center;
+	font-size: 12px;
+	font-weight: 800;
+}
+
+.quest-card-description {
+	margin: 8px 0 0 8px;
+	color: #9a7b63;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.quest-card-actions {
+	position: absolute;
+	right: 16px;
+	top: 50%;
+	transform: translateY(-50%);
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>マネークエスト — 管理者</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800&family=Zen+Maru+Gothic:wght@500;700&display=swap" />
+	<link rel="stylesheet" th:href="@{/css/admin-home.css}" />
+</head>
+
+<body>
+
+	<!-- ===== ヘッダー ===== -->
+	<header class="admin-header">
+		<div class="header-bg-circle"></div>
+		<div class="header-inner">
+			<div class="header-top">
+				<span class="header-icon">&#x1F6E1;</span>
+				<div class="header-title">
+					<p class="header-role">管理者画面</p>
+					<p class="header-name">システム管理</p>
+				</div>
+				<button type="button" class="btn-logout" onclick="openLogoutModal()">ログアウト</button>
+			</div>
+			<div class="header-stats">
+				<div class="stat-item">
+					<p class="stat-label">管理者数</p>
+					<p class="stat-value" th:text="${adminCount != null ? adminCount : '—'}">0</p>
+				</div>
+				<div class="stat-item">
+					<p class="stat-label">保護者数</p>
+					<p class="stat-value" th:text="${parentCount != null ? parentCount : '—'}">0</p>
+				</div>
+			</div>
+		</div>
+	</header>
+
+	<!-- ===== タブ ===== -->
+	<div class="tab-wrapper">
+		<div class="tab-bar">
+			<a class="tab-btn" th:classappend="${parentList != null ? ' active' : ''}" th:href="@{/admin/parents}">
+				保護者管理
+			</a>
+			<a class="tab-btn" th:classappend="${adminList != null ? ' active' : ''}" th:href="@{/admin/accounts}">
+				管理者管理
+			</a>
+		</div>
+	</div>
+
+	<!-- ===== 保護者管理タブ ===== -->
+	<main class="tab-content" th:if="${parentList != null}">
+		<div class="search-bar">
+			<svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af"
+				stroke-width="2">
+				<circle cx="11" cy="11" r="8" />
+				<path d="m21 21-4.3-4.3" />
+			</svg>
+			<input type="text" id="searchInput" placeholder="ユーザー名・メールアドレスで検索" oninput="filterParents()" />
+		</div>
+
+		<div class="card-list" id="parentCardList">
+			<div class="user-card" th:each="parent : ${parentList}" th:data-name="${parent.userName}"
+				th:data-email="${parent.mailAddress}">
+				<div class="user-avatar parent-avatar">&#x1F468;</div>
+				<div class="user-info">
+					<p class="user-name" th:text="${parent.userName}">保護者名</p>
+					<p class="user-email" th:text="${parent.mailAddress}">mail@example.com</p>
+					<span class="badge badge-parent">保護者</span>
+				</div>
+				<button class="btn-icon btn-danger" onclick="openDeleteModal(this)" th:data-id="${parent.userId}"
+					th:data-name="${parent.userName}" data-kind="parent">
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2">
+						<polyline points="3 6 5 6 21 6" />
+						<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+					</svg>
+				</button>
+			</div>
+			<div class="empty-state" id="parentEmpty" style="display:none;">
+				<p>該当するユーザーが見つかりません</p>
+			</div>
+		</div>
+	</main>
+
+	<!-- ===== 管理者管理タブ ===== -->
+	<main class="tab-content" th:if="${adminList != null}">
+		<div class="tab-header-row">
+			<span class="tab-subtitle">管理者アカウントの一覧</span>
+			<button class="btn-primary-admin" onclick="openAddAdminModal()">＋ 新規登録</button>
+		</div>
+
+		<div class="card-list">
+			<div class="user-card" th:each="admin : ${adminList}">
+				<div class="user-avatar admin-avatar">&#x1F6E1;</div>
+				<div class="user-info">
+					<p class="user-name">
+						<span th:text="${admin.userName}">管理者名</span>
+						<span class="badge badge-self" th:if="${admin.userId == loginUserId}">あなた</span>
+					</p>
+					<p class="user-email" th:text="${admin.mailAddress}">admin@example.com</p>
+					<span class="badge badge-admin">管理者</span>
+				</div>
+				<div class="action-buttons">
+					<button class="btn-icon btn-neutral" th:if="${admin.userId == loginUserId}"
+						onclick="openEditAdminModal(this)" th:data-id="${admin.userId}" th:data-name="${admin.userName}"
+						th:data-email="${admin.mailAddress}">
+						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2">
+							<path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+						</svg>
+					</button>
+					<button class="btn-icon btn-danger" th:unless="${admin.userId == loginUserId}"
+						onclick="openDeleteModal(this)" th:data-id="${admin.userId}" th:data-name="${admin.userName}"
+						data-kind="admin">
+						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2">
+							<polyline points="3 6 5 6 21 6" />
+							<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+						</svg>
+					</button>
+					<span class="btn-icon btn-locked" th:if="${admin.userId == loginUserId}" title="自分自身は削除できません">
+						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2">
+							<rect width="18" height="11" x="3" y="11" rx="2" />
+							<path d="M7 11V7a5 5 0 0 1 10 0v4" />
+						</svg>
+					</span>
+				</div>
+			</div>
+		</div>
+	</main>
+
+	<!-- ===== 削除確認モーダル ===== -->
+	<div class="modal-overlay" id="deleteModal" style="display:none;" onclick="closeModal('deleteModal')">
+		<div class="modal-card" onclick="event.stopPropagation()">
+			<h2 class="modal-title" id="deleteTitle">削除しますか？</h2>
+			<p class="modal-message" id="deleteMessage">この操作は元に戻せません。</p>
+			<div class="modal-actions">
+				<button class="btn-cancel" onclick="closeModal('deleteModal')">キャンセル</button>
+				<form id="deleteForm" method="post">
+					<input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+					<button type="submit" class="btn-delete">削除する</button>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<!-- ===== 管理者新規登録モーダル ===== -->
+	<div class="modal-overlay" id="addAdminModal" style="display:none;" onclick="closeModal('addAdminModal')">
+		<div class="modal-card" onclick="event.stopPropagation()">
+			<h2 class="modal-title">&#x1F6E1;&#xFE0F; 管理者を新規登録</h2>
+			<form th:action="@{/admin/accounts}" method="post" onsubmit="return validateAddAdmin()">
+				<div class="field">
+					<label class="field-label">ユーザー名</label>
+					<input type="text" name="userName" class="field-input" placeholder="管理者名" required maxlength="20" />
+				</div>
+				<div class="field">
+					<label class="field-label">メールアドレス</label>
+					<input type="email" name="mailAddress" class="field-input" placeholder="admin@example.com" required
+						maxlength="100" />
+				</div>
+				<div class="field">
+					<label class="field-label">パスワード</label>
+					<input type="password" name="password" id="addPw" class="field-input" placeholder="パスワード" required
+						minlength="4" maxlength="20" />
+				</div>
+				<div class="field">
+					<label class="field-label">パスワード（確認）</label>
+					<input type="password" name="passwordConfirm" id="addPwConfirm" class="field-input"
+						placeholder="もう一度入力" required minlength="4" maxlength="20" />
+				</div>
+				<p class="pw-error" id="addPwError" style="display:none;">パスワードが一致しません</p>
+				<button type="submit" class="btn-submit-admin">管理者を登録する</button>
+			</form>
+		</div>
+	</div>
+
+	<!-- ===== 管理者編集モーダル ===== -->
+	<div class="modal-overlay" id="editAdminModal" style="display:none;" onclick="closeModal('editAdminModal')">
+		<div class="modal-card" onclick="event.stopPropagation()">
+			<h2 class="modal-title">&#x270F;&#xFE0F; 自分のアカウントを編集</h2>
+			<form id="editAdminForm" method="post" onsubmit="return validateEditAdmin()">
+				<input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+				<div class="field">
+					<label class="field-label">ユーザー名</label>
+					<input type="text" name="userName" id="editName" class="field-input" required maxlength="20" />
+				</div>
+				<div class="field">
+					<label class="field-label">メールアドレス</label>
+					<input type="email" name="mailAddress" id="editEmail" class="field-input" required
+						maxlength="100" />
+					<p th:if="${editErrorAdminId}" th:text="${errorMessage}"
+						style="color:#e53935;font-size:12px;margin:4px 0 0;"></p>
+				</div>
+				<div class="field">
+					<label class="field-label">パスワード</label>
+					<input type="password" name="password" id="editPw" class="field-input" placeholder="新しいパスワード"
+						minlength="4" maxlength="20" />
+				</div>
+				<div class="field">
+					<label class="field-label">パスワード（確認）</label>
+					<input type="password" name="passwordConfirm" id="editPwConfirm" class="field-input"
+						placeholder="もう一度入力" minlength="4" maxlength="20" />
+				</div>
+				<p class="pw-error" id="editPwError" style="display:none;">パスワードが一致しません</p>
+				<button type="submit" class="btn-submit-admin">保存する</button>
+			</form>
+		</div>
+	</div>
+
+	<!-- ===== ログアウト確認モーダル ===== -->
+	<div class="modal-overlay" id="logoutModal" style="display:none;" onclick="closeModal('logoutModal')">
+		<div class="modal-card" onclick="event.stopPropagation()">
+			<h2 class="modal-title">🛡️ ログアウトしますか？</h2>
+			<p class="modal-message">管理者ログイン画面にもどります。</p>
+			<div class="modal-actions">
+				<button class="btn-cancel" onclick="closeModal('logoutModal')">もどる</button>
+				<form th:action="@{/logout}" method="post">
+					<button type="submit" class="btn-delete">ログアウト</button>
+				</form>
+			</div>
+		</div>
+	</div>
+
+
+	<script>
+		function filterParents() {
+			var q = document.getElementById('searchInput').value.toLowerCase();
+			var cards = document.querySelectorAll('#parentCardList .user-card');
+			var visible = 0;
+			cards.forEach(function (card) {
+				var name = (card.dataset.name || '').toLowerCase();
+				var email = (card.dataset.email || '').toLowerCase();
+				var show = name.includes(q) || email.includes(q);
+				card.style.display = show ? 'flex' : 'none';
+				if (show) visible++;
+			});
+			document.getElementById('parentEmpty').style.display = visible === 0 ? 'block' : 'none';
+		}
+
+		function openDeleteModal(btn) {
+			var id = btn.dataset.id;
+			var name = btn.dataset.name;
+			var kind = btn.dataset.kind;
+			if (kind === 'parent') {
+				document.getElementById('deleteTitle').textContent = '保護者を削除しますか？';
+				document.getElementById('deleteMessage').textContent = '「' + name + '」を削除します。\n※紐づく子供アカウントも削除されます。';
+				document.getElementById('deleteForm').action = '/admin/parents/' + id + '/delete';
+			} else {
+				document.getElementById('deleteTitle').textContent = '管理者を削除しますか？';
+				document.getElementById('deleteMessage').textContent = '「' + name + '」を削除します。\nこの操作は元に戻せません。';
+				document.getElementById('deleteForm').action = '/admin/accounts/' + id + '/delete';
+			}
+			document.getElementById('deleteModal').style.display = 'flex';
+		}
+
+		function openAddAdminModal() {
+			document.getElementById('addAdminModal').style.display = 'flex';
+		}
+
+		function openEditAdminModal(btn) {
+			var id = btn.dataset.id;
+			document.getElementById('editName').value = btn.dataset.name;
+			document.getElementById('editEmail').value = btn.dataset.email;
+			document.getElementById('editPw').value = '';
+			document.getElementById('editPwConfirm').value = '';
+			document.getElementById('editAdminForm').action = '/admin/accounts/' + id + '/edit';
+			document.getElementById('editAdminModal').style.display = 'flex';
+		}
+
+		function closeModal(id) {
+			document.getElementById(id).style.display = 'none';
+			// モーダル内の入力値をリセット
+			document.querySelectorAll('#' + id + ' input:not([type="hidden"]):not([type="radio"]):not([type="checkbox"])').forEach(input => {
+				input.value = '';
+				input.setCustomValidity('');
+			});
+			// エラーメッセージを非表示
+			document.querySelectorAll('#' + id + ' p[style*="color:#e53935"]').forEach(el => {
+				el.style.display = 'none';
+			});
+		}
+
+		function validateAddAdmin() {
+			var pw = document.getElementById('addPw').value;
+			var pw2 = document.getElementById('addPwConfirm').value;
+			if (pw !== pw2) {
+				document.getElementById('addPwError').style.display = 'block';
+				return false;
+			}
+			document.getElementById('addPwError').style.display = 'none';
+			return true;
+		}
+
+		function validateEditAdmin() {
+		    var pw = document.getElementById('editPw').value;
+		    var pw2 = document.getElementById('editPwConfirm').value;
+		    var error = document.getElementById('editPwError');
+
+		    if (pw === '' && pw2 === '') {
+		        error.style.display = 'none';
+		        return true;
+		    }
+
+		    if (pw === '' || pw2 === '') {
+		        error.textContent = 'パスワードを変更する場合は確認用も入力してください';
+		        error.style.display = 'block';
+		        return false;
+		    }
+
+		    if (pw !== pw2) {
+		        error.textContent = 'パスワードが一致しません';
+		        error.style.display = 'block';
+		        return false;
+		    }
+
+		    error.style.display = 'none';
+		    return true;
+		}
+
+
+		function openLogoutModal() {
+			document.getElementById('logoutModal').style.display = 'flex';
+		}
+
+		// 文字数カウント表示
+		document.addEventListener('DOMContentLoaded', () => {
+			document.querySelectorAll('input[maxlength]').forEach(input => {
+				if (input.getAttribute('inputmode') === 'numeric') return;
+				if (input.type === 'password') return;
+				if (input.type === 'email') return;
+				if (input.type === 'hidden') return;
+				if (input.type === 'radio') return;
+
+				const max = parseInt(input.getAttribute('maxlength'));
+
+				const countEl = document.createElement('p');
+				countEl.style.cssText = 'color:#aaa;font-size:11px;margin:2px 0 0;text-align:right;display:none;';
+				countEl.textContent = `0 / ${max}`;
+				input.insertAdjacentElement('afterend', countEl);
+
+				input.addEventListener('focus', () => {
+					countEl.style.display = 'block';
+				});
+
+				input.addEventListener('blur', () => {
+					countEl.style.display = 'none';
+				});
+
+				input.addEventListener('input', () => {
+					const len = input.value.length;
+					countEl.textContent = `${len} / ${max}`;
+					countEl.style.color = len === max ? '#e53935' : '#aaa';
+				});
+			});
+		});
+
+
+
+		// メールアドレスの文字数カウント＋フォーマットチェック
+		document.addEventListener('DOMContentLoaded', () => {
+			document.querySelectorAll('input[type="email"]').forEach(input => {
+				if (input.getAttribute('maxlength')) {
+					const max = parseInt(input.getAttribute('maxlength'));
+					const countEl = document.createElement('p');
+					countEl.style.cssText = 'color:#aaa;font-size:11px;margin:2px 0 0;text-align:right;display:none;';
+					countEl.textContent = `0 / ${max}`;
+					input.insertAdjacentElement('afterend', countEl);
+
+					input.addEventListener('focus', () => countEl.style.display = 'block');
+					input.addEventListener('blur', () => countEl.style.display = 'none');
+					input.addEventListener('input', () => {
+						const len = input.value.length;
+						countEl.textContent = `${len} / ${max}`;
+						countEl.style.color = len >= max ? '#e53935' : '#aaa';
+					});
+
+					const errorEl = document.createElement('p');
+					errorEl.style.cssText = 'color:#e53935;font-size:12px;margin:4px 0 0;display:none;';
+					errorEl.textContent = '正しいメールアドレスの形式で入力してください。';
+					countEl.insertAdjacentElement('afterend', errorEl);
+
+					input.addEventListener('input', () => {
+						const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+						if (input.value && !emailRegex.test(input.value)) {
+							errorEl.style.display = 'block';
+							input.setCustomValidity('正しいメールアドレスの形式で入力してください。');
+						} else {
+							errorEl.style.display = 'none';
+							input.setCustomValidity('');
+						}
+					});
+				}
+			});
+		});
+
+		// パスワード形式チェック（半角英数字4〜20文字）
+		document.addEventListener('DOMContentLoaded', () => {
+			['addPw', 'editPw'].forEach(id => {
+				const input = document.getElementById(id);
+				if (!input) return;
+
+				const errorEl = document.createElement('p');
+				errorEl.style.cssText = 'color:#e53935;font-size:12px;margin:4px 0 0;display:none;';
+				errorEl.textContent = 'パスワードは半角英数字を組み合わせて4文字以上20文字以内で入力してください。';
+				input.insertAdjacentElement('afterend', errorEl);
+
+				input.addEventListener('input', () => {
+					// 4文字未満はチェックしない
+					if (input.value.length < 4) {
+						errorEl.style.display = 'none';
+						input.setCustomValidity('');
+						return;
+					}
+					const pwRegex = /^(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9]{4,20}$/;
+					if (!pwRegex.test(input.value)) {
+						errorEl.style.display = 'block';
+						input.setCustomValidity('パスワードは半角英数字を組み合わせて4文字以上20文字以内で入力してください。');
+					} else {
+						errorEl.style.display = 'none';
+						input.setCustomValidity('');
+					}
+				});
+			});
+		});
+
+		document.addEventListener('DOMContentLoaded', () => {
+			document.querySelectorAll('.modal-overlay').forEach(modal => {
+				modal.addEventListener('click', event => {
+					if (event.target === modal) {
+						closeModal(modal.id);
+					}
+				});
+			});
+		});
+
+
+
+	</script>
+
+	<!-- エラー時に編集モーダルを自動再表示 -->
+	<th:block th:if="${editErrorAdminId}">
+		<script th:inline="javascript">
+			(function () {
+				const adminId = /*[[${editErrorAdminId}]]*/ null;
+				document.getElementById('editName').value = /*[[${userForm?.userName}]]*/ '';
+				document.getElementById('editEmail').value = /*[[${userForm?.mailAddress}]]*/ '';
+				document.getElementById('editPw').value = '';
+				document.getElementById('editPwConfirm').value = '';
+				document.getElementById('editAdminForm').action = '/admin/accounts/' + adminId + '/edit';
+				document.getElementById('editAdminModal').style.display = 'flex';
+			})();
+		</script>
+	</th:block>
+</body>
+
+</html>

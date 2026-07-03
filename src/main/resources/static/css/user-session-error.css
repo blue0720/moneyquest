@@ -1,0 +1,175 @@
+@charset "UTF-8";
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  color: #2f261c;
+}
+
+body {
+  background: #fffaf3;
+}
+
+.error-page {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  background: #fffaf3;
+}
+
+.error-card {
+  width: min(100%, 920px);
+  min-height: 100vh;
+  padding: 28vh 24px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: linear-gradient(180deg, #fff4df 0%, #fff8ed 44%, #f9e9ff 100%);
+}
+
+.coin-wrap {
+  position: relative;
+  width: 112px;
+  height: 128px;
+  margin-bottom: 22px;
+}
+
+.coin-face {
+  position: relative;
+  width: 82px;
+  height: 96px;
+  margin: 0 auto;
+  border: 4px solid #ffd13f;
+  border-radius: 50%;
+  background: #fff4b8;
+  box-shadow: 0 0 0 13px rgba(255, 218, 76, 0.25);
+}
+
+.coin-eye {
+  position: absolute;
+  top: 43px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #3a332c;
+}
+
+.coin-eye-left {
+  left: 28px;
+}
+
+.coin-eye-right {
+  right: 28px;
+}
+
+.coin-brow {
+  position: absolute;
+  top: 33px;
+  width: 17px;
+  height: 4px;
+  border-radius: 4px;
+  background: #3a332c;
+}
+
+.coin-brow-left {
+  left: 21px;
+  transform: rotate(25deg);
+}
+
+.coin-brow-right {
+  right: 21px;
+  transform: rotate(-12deg);
+}
+
+.coin-mouth {
+  position: absolute;
+  left: 31px;
+  top: 61px;
+  width: 25px;
+  height: 13px;
+  border-top: 4px solid #3a332c;
+  border-radius: 50% 50% 0 0;
+  transform: rotate(4deg);
+}
+
+.coin-cheek {
+  position: absolute;
+  top: 54px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #f6a4a6;
+}
+
+.coin-cheek-left {
+  left: 16px;
+}
+
+.coin-cheek-right {
+  right: 13px;
+}
+
+.coin-bandage {
+  position: absolute;
+  left: 15px;
+  top: 39px;
+  color: #ff6b1a;
+  font-size: 27px;
+  font-weight: 800;
+  line-height: 1;
+  transform: rotate(-18deg);
+}
+
+.coin-shadow {
+  position: absolute;
+  left: 27px;
+  bottom: 3px;
+  width: 62px;
+  height: 11px;
+  border-radius: 50%;
+  background: rgba(255, 197, 66, 0.28);
+}
+
+.error-title,
+.error-message {
+  width: min(100%, 380px);
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.8;
+  letter-spacing: 0.03em;
+}
+
+.error-message {
+  margin-top: 4px;
+}
+
+.back-button {
+  width: min(100%, 340px);
+  margin-top: 30px;
+  padding: 17px 20px;
+  border-radius: 22px;
+  background: #ff781f;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  box-shadow: 0 14px 28px rgba(255, 120, 31, 0.22);
+}
+
+.help-text {
+  margin: 20px 0 0;
+  color: #b8a991;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}

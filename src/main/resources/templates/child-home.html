@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>子供ホーム</title>
+	<link rel="stylesheet" th:href="@{/css/child-home.css}">
+	<link rel="stylesheet" th:href="@{/css/child-quest.css}">
+	<link rel="stylesheet" th:href="@{/css/child-graph.css}">
+	<link rel="stylesheet" th:href="@{/css/child-spending.css}">
+	<link rel="stylesheet" th:href="@{/css/child-home-hometab.css}">
+
+</head>
+
+<body>
+
+	<main class="child-page">
+		<header class="child-header">
+			<div class="child-header__inner">
+				<div>
+					<p class="child-header__greeting">
+						こんにちは、<span th:text="${userName}">はなちゃん</span>！
+					</p>
+					<p class="child-header__money" th:text="|¥${#numbers.formatInteger(currentMoney, 1, 'COMMA')}|">
+						¥7,900
+					</p>
+					<p class="child-header__caption">いまのおこづかい</p>
+				</div>
+
+				<button type="button" class="logout-button" onclick="openLogoutModal()">↪ ログアウト</button>
+
+			</div>
+		</header>
+
+		<nav class="child-tabs">
+			<a class="child-tabs__item" th:classappend="${activeTab == 'home'} ? ' is-active'"
+				th:href="@{/child/home}">ホーム</a>
+			<a class="child-tabs__item" th:classappend="${activeTab == 'quest'} ? ' is-active'"
+				th:href="@{/child/quest}">クエスト</a>
+			<a class="child-tabs__item" th:classappend="${activeTab == 'record'} ? ' is-active'"
+				th:href="@{/child/records}">きろく</a>
+			<a class="child-tabs__item" th:classappend="${activeTab == 'limit'} ? ' is-active'"
+				th:href="@{/child/limit}">上限</a>
+			<a class="child-tabs__item" th:classappend="${activeTab == 'graph'} ? ' is-active'"
+				th:href="@{/child/graph}">グラフ</a>
+		</nav>
+
+		<!-- ========== ホームタブ ========== -->
+		<section class="tab-content home-tab" th:classappend="${activeTab == 'home'} ? ' is-show'" id="home">
+
+			<div class="character-card">
+
+				<div class="character-card__header">
+					<span class="character-level-badge">
+						Lv.<span th:text="${character.level}">1</span>
+					</span>
+					<span class="character-name" th:text="${character.characterName}">ぴよすけ</span>
+					<span class="character-exp-label">
+						<span th:text="${character.currentExp}">10</span>
+						/
+						<span th:text="${character.nextLevelExp}">12</span>
+						EXP
+					</span>
+				</div>
+
+				<div class="character-exp-bar">
+					<div class="character-exp-fill"
+						th:style="|width:${character.nextLevelExp == 0 ? 0 : (character.currentExp * 100 / character.nextLevelExp)}%|">
+					</div>
+				</div>
+
+				<div class="character-avatar">
+					<img th:src="${character.level == 0} ? '/images/Lv_0.png'
+			            : (${character.level < 10} ? '/images/Lv_1~10.png'
+			            : (${character.level < 20} ? '/images/Lv_10~20.png'
+			            : (${character.level < 30} ? '/images/Lv_20~30.png'
+			            : (${character.level < 40} ? '/images/Lv_30~40.png'
+			            : (${character.level < 50} ? '/images/Lv_40~50.png'
+			            : '/images/Lv_50.png')))))" th:alt="${character.characterName}" class="character-img">
+				</div>
+
+				<p class="character-next-level"
+					th:if="${character.level > 0
+					         && character.level < 50
+					         && character.level % 10 == 9}">
+					あと <span th:text="${character.nextLevelExp - character.currentExp}">2</span>
+					EXPで進化！
+				</p>
+
+				<p class="character-achievement">
+					🏆 これまでの達成:
+					<span th:text="${character.totalAchievementCount}">0</span> 回
+				</p>
+
+				<button type="button" class="character-edit-btn" onclick="openCharacterNameModal()">
+					✎ なまえをかえる
+				</button>
+
+			</div>
+
+
+			<!-- 今月の使いすぎチェック -->
+			<div class="child-spending-card" th:if="${currentLimit != null}">
+				<div class="child-spending-header">
+					<span class="child-spending-label">💳 今月の使いすぎチェック</span>
+					<span class="child-spending-status"
+						th:classappend="${currentLimit.achieved} ? ' is-ok' : ' is-over'"
+						th:text="${currentLimit.achieved} ? '余裕あり' : '超過！'">
+						余裕あり
+					</span>
+				</div>
+
+				<p class="child-spending-amount">
+					<span class="child-spending-current"
+						th:text="|¥${#numbers.formatInteger(currentLimit.currentExpenseAmount, 1, 'COMMA')}|">
+					</span>
+					<span class="child-spending-limit"
+						th:text="|／¥${#numbers.formatInteger(currentLimit.limitAmount, 1, 'COMMA')}|">
+					</span>
+				</p>
+
+				<div class="child-spending-bar">
+					<div class="child-spending-fill" th:classappend="${!currentLimit.achieved} ? ' is-over'" th:style="${currentLimit.limitAmount == 0} ? 'width:0%'
+							                      : (${currentLimit.currentExpenseAmount >= currentLimit.limitAmount}
+							                         ? 'width:100%'
+							                         : |width:${currentLimit.currentExpenseAmount * 100 / currentLimit.limitAmount}%|)">
+					</div>
+				</div>
+
+				<p class="child-spending-remain">
+					のこり
+					<span
+						th:text="|¥${#numbers.formatInteger(currentLimit.limitAmount - currentLimit.currentExpenseAmount, 1, 'COMMA')}|">
+					</span>
+				</p>
+				<button type="button" class="child-limit-change-btn" onclick="openLimitModal()">
+
+					上限をかえる
+
+				</button>
+
+				<th:block th:if="${pendingLimit != null}">
+					<span class="history-badge history-badge--requesting">
+						申請中 ￥<span th:text="${pendingLimit.limitAmount}"></span>
+					</span>
+				</th:block>
+				</th:block>
+			</div>
+
+		</section>
+
+
+		<!-- ========== クエストタブ ========== -->
+		<section class="tab-content child-quest-tab" th:classappend="${activeTab == 'quest'} ? ' is-show'" id="quest">
+
+			<div class="child-quest-header">
+				<h2 class="child-quest-title">🧾 クエスト一覧</h2>
+				<span class="child-quest-count" th:text="|たっせい ${questList != null ? #lists.size(questList) : 0}こ|">
+					たっせい 0こ
+				</span>
+			</div>
+
+			<div class="child-quest-list" th:if="${questList != null and !#lists.isEmpty(questList)}">
+
+				<div class="child-quest-item" th:each="quest : ${questList}">
+
+					<div class="child-quest-card">
+						<div class="child-quest-icon">🛡️</div>
+
+						<div class="child-quest-main">
+							<p class="child-quest-name" th:text="${quest.title}">
+								食器をかたづける
+							</p>
+							<p class="child-quest-card-exp">
+								<span>★ +</span>
+								<span th:text="${quest.exp != null ? quest.exp : 5}">5</span>
+								<span> EXP</span>
+							</p>
+						</div>
+
+						<form th:if="${quest.status == 0 or quest.status == 4 or quest.status == 5}"
+							th:action="@{/child/quest/{id}/complete(id=${quest.questId})}" method="post">
+							<button type="submit" class="child-quest-complete-btn">○</button>
+						</form>
+
+						<span th:if="${quest.status == 1}" class="child-quest-pending">
+							⏱ 申請中
+						</span>
+					</div>
+
+					<div class="child-quest-detail">
+						<p>
+							<span class="child-quest-reward">
+								ほうび ¥<span th:text="${quest.rewardAmount}">50</span>
+							</span>
+							<span class="child-quest-exp">
+								★ <span th:text="${quest.exp != null ? quest.exp : 5}">5</span> EXP
+							</span>
+						</p>
+
+						<p th:if="${quest.status == 4}" class="child-quest-new">
+							🆕 あたらしいクエスト！
+						</p>
+
+						<p th:if="${quest.status == 5}" class="child-quest-new">
+							✏️ クエストがこうしんされたよ！
+						</p>
+
+						<p th:if="${quest.description != null and !#strings.isEmpty(quest.description)}"
+							class="child-quest-memo">
+							📝 <span th:text="${quest.description}">机の上もきれいにしてね</span>
+						</p>
+					</div>
+
+				</div>
+			</div>
+
+			<div th:if="${questList == null or #lists.isEmpty(questList)}" class="child-empty">
+				<p>まだクエストがありません</p>
+			</div>
+		</section>
+		<!-- ========== きろくタブ ========== -->
+		<section class="tab-content" th:classappend="${activeTab == 'record'} ? ' is-show'" id="record">
+
+			<div class="child-tab-header">
+				<h2 class="child-tab-title">すべてのきろく</h2>
+			</div>
+
+			<div th:if="${incomeExpenseList != null and !#lists.isEmpty(incomeExpenseList)}" class="child-card-list">
+
+				<div th:each="rec : ${incomeExpenseList}">
+
+					<div class="record-card">
+						<div class="record-card__icon" th:classappend="${rec.recordType == 0} ? ' income' : ' expense'">
+							<span th:text="${rec.recordType == 0} ? '✓' : '✗'">✓</span>
+						</div>
+						<div class="record-card__body">
+							<p class="record-card__category" th:text="${rec.category}">おかし</p>
+							<p class="record-card__date"
+								th:text="${#temporals.format(rec.registeredDate, 'yyyy/MM/dd')}">2024/06/01</p>
+						</div>
+						<span class="record-card__amount"
+							th:classappend="${rec.recordType == 0} ? ' income' : ' expense'" th:text="${rec.recordType == 0}
+		                          ? |+¥${#numbers.formatInteger(rec.amount, 1, 'COMMA')}|
+		                          : |-¥${#numbers.formatInteger(rec.amount, 1, 'COMMA')}|">
+							-¥300
+						</span>
+					</div>
+
+					<div class="record-card__actions" th:if="${rec.recordType == 1}">
+						<button type="button" class="record-action-btn edit" th:attr="data-id=${rec.incomeExpenseId},
+					                     data-category=${rec.category},
+					                     data-amount=${rec.amount},
+					                     data-memo=${rec.memo}" onclick="openRecordEditModal(this)">
+							✏️ なおす
+						</button>
+						<button type="button" class="record-action-btn delete" th:attr="data-id=${rec.incomeExpenseId},
+					                     data-category=${rec.category},
+					                     data-amount=${rec.amount}" onclick="openRecordDeleteModal(this)">
+							🗑️ けす
+						</button>
+						<span class="record-action-note">※なおすと残高もかわるよ</span>
+					</div>
+
+				</div>
+
+			</div>
+
+			<div th:if="${incomeExpenseList == null or #lists.isEmpty(incomeExpenseList)}" class="child-empty">
+				<p>まだきろくがありません</p>
+			</div>
+
+		</section>
+
+		<section class="tab-content" th:classappend="${activeTab == 'limit'} ? ' is-show'" id="limit">
+
+			<h2>つかいすぎ上限</h2>
+
+			<!-- 現在の上限 -->
+			<div class="child-spending-card" th:if="${currentLimit != null}">
+
+				<div class="child-spending-header">
+
+					<span class="child-spending-label">
+						💳 今月の使いすぎチェック
+					</span>
+
+					<span class="child-spending-status"
+						th:classappend="${currentLimit.achieved} ? ' is-ok' : ' is-over'"
+						th:text="${currentLimit.achieved} ? '余裕あり' : '超過！'">
+						余裕あり
+					</span>
+
+				</div>
+
+				<p class="child-spending-amount">
+
+					<span class="child-spending-current"
+						th:text="|¥${#numbers.formatInteger(currentLimit.currentExpenseAmount,1,'COMMA')}|">
+						¥450
+					</span>
+
+					<span class="child-spending-limit"
+						th:text="| / ¥${#numbers.formatInteger(currentLimit.limitAmount,1,'COMMA')}|">
+						/ ¥2,000
+					</span>
+
+				</p>
+
+				<div class="child-spending-bar">
+
+					<div class="child-spending-fill" th:style="${currentLimit.limitAmount == 0}
+				                 ? 'width:0%'
+				                 : |width:${currentLimit.currentExpenseAmount * 100 / currentLimit.limitAmount}%|">
+					</div>
+
+				</div>
+
+				<p class="child-spending-remain">
+
+					のこり
+
+					<span
+						th:text="|¥${#numbers.formatInteger(currentLimit.limitAmount - currentLimit.currentExpenseAmount,1,'COMMA')}|">
+						¥1,550
+					</span>
+
+				</p>
+
+				<button type="button" class="child-limit-change-btn" onclick="openLimitModal()">
+
+					上限をかえる
+
+				</button>
+
+				<th:block th:if="${pendingLimit != null}">
+					<span class="history-badge history-badge--requesting">
+						申請中 ￥<span th:text="${pendingLimit.limitAmount}"></span>
+					</span>
+				</th:block>
+				</th:block>
+
+			</div>
+
+
+			<!-- 履歴 -->
+
+			<h3 class="child-limit-section-title">
+				🎯 これまでの上限のもくひょう
+			</h3>
+
+			<div class="child-limit-history-list" th:if="${!#lists.isEmpty(historyList)}">
+
+				<div class="child-limit-history-card" th:each="history : ${historyList}"
+					th:if="${history.requestStatus != 0}">
+
+					<div class="child-limit-history-icon">
+						<span th:if="${history.requestStatus == 1 && history.achieved}">✓</span>
+						<span th:if="${history.requestStatus != 1 || !history.achieved}">🕘</span>
+					</div>
+
+					<div class="child-limit-history-body">
+
+						<p class="child-limit-history-title">
+							<span th:text="${history.targetMonth}">2026-06</span>
+							のもくひょう
+						</p>
+
+						<p class="child-limit-history-text">
+							つかった
+							￥<span th:text="${history.monthlyExpenseAmount}">450</span>
+							/
+							上限
+							￥<span th:text="${history.limitAmount}">2000</span>
+						</p>
+
+					</div>
+
+
+
+					<div class="child-limit-history-status">
+
+						<span th:if="${currentLimit != null
+							                      && history.spendingLimitId == currentLimit.spendingLimitId}"
+							class="history-badge history-badge--requesting">
+							チャレンジ中
+						</span>
+
+						<span th:if="${history.requestStatus == 1
+							                      && history.spendingLimitId != currentLimit.spendingLimitId
+							                      && history.achieved}" class="history-badge history-badge--achieved">
+							たっせい
+						</span>
+
+						<span th:if="${history.requestStatus == 1
+							                      && history.spendingLimitId != currentLimit.spendingLimitId
+							                      && !history.achieved}" class="history-badge history-badge--failed">
+							みたっせい
+						</span>
+						<span th:if="${history.requestStatus == 2}" class="history-badge history-badge--rejected">
+							却下済み
+						</span>
+
+					</div>
+				</div>
+
+			</div>
+
+			<div class="empty-box" th:if="${#lists.isEmpty(historyList)}">
+				申請履歴はありません
+			</div>
+
+		</section>
+
+		<!-- ===== グラフタブ ===== -->
+		<section class="tab-content" th:classappend="${activeTab == 'graph'} ? ' is-show'" id="graph">
+
+			<!-- ===== 貯金額の推移 ===== -->
+			<div class="graph-card" th:if="${graphData != null}">
+				<h3 class="graph-card__title">&#x1F4C8; 貯金額の推移</h3>
+				<div class="graph-card__header">
+					<p class="graph-card__header-label">現在の貯金額</p>
+					<p class="graph-card__header-value"
+						th:text="|¥${#numbers.formatInteger(graphData.saving, 1, 'COMMA')}|">¥7,900</p>
+				</div>
+				<p class="graph-card__sub">&#x25CF; 月ごとの月末ざんだか</p>
+				<canvas id="savingsChart" width="400" height="200"></canvas>
+			</div>
+
+			<!-- ===== 月次収支 ===== -->
+			<div class="graph-card" th:if="${graphData != null}">
+				<h3 class="graph-card__title">&#x1F4CA; 月次収支</h3>
+				<canvas id="monthlyChart" width="400" height="240"></canvas>
+			</div>
+
+			<!-- ===== 累計収支 ===== -->
+			<div class="graph-card" th:if="${graphData != null}">
+				<h3 class="graph-card__title">&#x1F4CB; 累計収支</h3>
+				<div class="cumulative-layout">
+					<div class="cumulative-chart-wrap">
+						<canvas id="cumulativeChart" width="160" height="160"></canvas>
+					</div>
+					<div class="cumulative-detail">
+						<div class="cumulative-row">
+							<span class="cumulative-dot income"></span>
+							<span class="cumulative-label">収入</span>
+							<span class="cumulative-value income"
+								th:text="|¥${#numbers.formatInteger(graphData.totalIncome, 1, 'COMMA')}|">¥14,200</span>
+						</div>
+						<div class="cumulative-row">
+							<span class="cumulative-dot expense"></span>
+							<span class="cumulative-label">支出</span>
+							<span class="cumulative-value expense"
+								th:text="|¥${#numbers.formatInteger(graphData.totalExpense, 1, 'COMMA')}|">¥6,300</span>
+						</div>
+						<div class="cumulative-row total">
+							<span class="cumulative-label">さしひき（貯金）</span>
+							<span class="cumulative-value"
+								th:text="|¥${#numbers.formatInteger(graphData.saving, 1, 'COMMA')}|">¥7,900</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- ===== 収入記録 ===== -->
+			<div class="graph-card" th:if="${incomeRecords != null}">
+				<h3 class="graph-card__title">＋ 収入記録</h3>
+				<div class="child-card-list">
+					<div th:each="rec : ${incomeRecords}">
+						<div class="record-card">
+							<div class="record-card__icon income">
+								<span>✓</span>
+							</div>
+							<div class="record-card__body">
+								<p class="record-card__category" th:text="${rec.category}">おこづかい</p>
+								<p class="record-card__date"
+									th:text="${#temporals.format(rec.registeredDate, 'yyyy/MM/dd')}">2024/06/01</p>
+							</div>
+							<span class="record-card__amount income"
+								th:text="|+¥${#numbers.formatInteger(rec.amount, 1, 'COMMA')}|">+¥3,000</span>
+						</div>
+					</div>
+					<div th:if="${incomeRecords == null or #lists.isEmpty(incomeRecords)}" class="child-empty">
+						<p>きろくがありません</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- ===== 支出記録 ===== -->
+			<div class="graph-card" th:if="${expenseRecords != null}">
+				<h3 class="graph-card__title"> 🛍️ 支出記録</h3>
+				<div class="child-card-list">
+					<div th:each="rec : ${expenseRecords}">
+						<div class="record-card">
+							<div class="record-card__icon expense">
+								<span>✗</span>
+							</div>
+							<div class="record-card__body">
+								<p class="record-card__category" th:text="${rec.category}">おかし</p>
+								<p class="record-card__date"
+									th:text="${#temporals.format(rec.registeredDate, 'yyyy/MM/dd')}">2024/06/05</p>
+							</div>
+							<span class="record-card__amount expense"
+								th:text="|-¥${#numbers.formatInteger(rec.amount, 1, 'COMMA')}|">-¥300</span>
+						</div>
+					</div>
+					<div th:if="${expenseRecords == null or #lists.isEmpty(expenseRecords)}" class="child-empty">
+						<p>きろくがありません</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- データなし -->
+			<div th:if="${graphData == null}" class="graph-empty">
+				<p>グラフデータがありません</p>
+			</div>
+
+		</section>
+
+
+		<!-- バナー（通常フロー） -->
+		<div class="child-bottom-banner" th:classappend="${activeTab == 'home'} ? ' is-show'">
+			<span class="child-bottom-banner__icon">✅</span>
+			<div>
+				<p class="child-bottom-banner__title">クエストたっせいすう</p>
+				<p class="child-bottom-banner__text">
+					きょうまでに
+					<span class="child-bottom-banner__count"
+						th:text="${character != null ? character.totalAchievementCount : 0}">0</span>
+					こ クリア！
+				</p>
+			</div>
+		</div>
+
+		<!-- +ボタン（固定） -->
+		<button class="child-fab" onclick="openRecordAddModal()">＋</button>
+
+		<!-- ========== なまえ変更モーダル ========== -->
+		<div class="child-modal-overlay" id="characterNameModal">
+			<div class="child-bottom-modal">
+				<div class="child-modal-handle"></div>
+
+				<h2 class="child-modal-title">✏️ キャラクターのなまえ</h2>
+
+				<form th:action="@{/child/character/name}" method="post">
+					<label class="child-modal-label">あたらしいなまえ</label>
+					<input class="child-modal-input" type="text" name="characterName"
+						th:value="${character != null ? character.characterName : ''}" maxlength="15" required>
+
+					<button type="submit" class="child-modal-main-btn">
+						けってい ✨
+					</button>
+				</form>
+			</div>
+		</div>
+
+		<!-- ========== きろく追加モーダル ========== -->
+		<div class="child-modal-overlay" id="recordAddModal">
+			<div class="child-bottom-modal">
+				<div class="child-modal-handle"></div>
+
+				<h2 class="child-modal-title">🪙 つかったお金をきろく</h2>
+
+				<p class="child-modal-note">
+					✅ きろくすると、すぐにおこづかいからへるよ。（承認はいらないよ）
+				</p>
+
+				<form th:action="@{/child/records}" method="post" th:object="${incomeExpenseForm}">
+					<input type="hidden" th:field="*{recordType}">
+					<input type="hidden" th:field="*{childUserId}">
+
+					<label class="child-modal-label">なにをかったの？</label>
+					<input class="child-modal-input" type="text" th:field="*{category}" placeholder="例：スティッカー、本…"
+						maxlength="20">
+
+					<label class="child-modal-label">いくら？</label>
+					<input class="child-modal-input" type="text" inputmode="numeric" th:field="*{amount}"
+						placeholder="500" maxlength="6" required>
+
+					<label class="child-modal-label">メモ（任意）</label>
+					<input class="child-modal-input" type="text" th:field="*{memo}" placeholder="例：ともだちとコンビニでかった"
+						maxlength="50">
+
+					<button type="submit" class="child-modal-main-btn">
+						きろくする 🐾
+					</button>
+				</form>
+			</div>
+		</div>
+
+		<!-- ========== きろく編集モーダル ========== -->
+		<div class="child-modal-overlay" id="recordEditModal">
+			<div class="child-bottom-modal">
+				<div class="child-modal-handle"></div>
+
+				<h2 class="child-modal-title">✏️ きろくをなおす</h2>
+
+				<form id="recordEditForm" method="post" th:object="${incomeExpenseForm}">
+					<input type="hidden" th:field="*{recordType}">
+					<input type="hidden" th:field="*{childUserId}">
+					<input type="hidden" id="editIncomeExpenseId" name="incomeExpenseId">
+
+					<label class="child-modal-label">なにをかったの？</label>
+					<input class="child-modal-input" type="text" id="editCategory" name="category"
+						placeholder="例：スティッカー、本…" maxlength="20">
+
+					<label class="child-modal-label">いくら？</label>
+					<input class="child-modal-input" type="text" inputmode="numeric" id="editAmount" name="amount"
+						placeholder="500" maxlength="6" required>
+
+					<label class="child-modal-label">メモ（任意）</label>
+					<input class="child-modal-input" type="text" id="editMemo" name="memo" placeholder="例：ともだちとコンビニでかった"
+						maxlength="50">
+
+					<button type="submit" class="child-modal-main-btn">
+						ほぞんする ✨
+					</button>
+				</form>
+			</div>
+		</div>
+
+		<!-- ========== きろく削除確認モーダル ========== -->
+		<div class="child-modal-overlay child-center-overlay" id="recordDeleteModal">
+			<div class="child-delete-modal">
+				<div class="child-delete-modal__icon">🗑️</div>
+				<h2 class="child-delete-modal__title">このきろくをけす？</h2>
+				<p class="child-delete-modal__desc">
+					「<span id="deleteCategory"></span>」（¥<span id="deleteAmount"></span>）をけします。<br>
+					承認ずみなので、残高ももとります。
+				</p>
+				<div class="child-delete-modal__buttons">
+					<button type="button" class="child-cancel-btn" onclick="closeChildModal('recordDeleteModal')">
+						キャンセル
+					</button>
+					<form id="recordDeleteForm" method="post">
+						<button type="submit" class="child-delete-confirm-btn">
+							けす
+						</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</main>
+
+	<script th:src="@{/js/child-home.js}"></script>
+
+	<!-- 上限変更モーダル -->
+	<div class="limit-modal-overlay" id="limitModal">
+
+		<div class="limit-bottom-modal">
+
+			<div class="limit-modal-handle"></div>
+
+			<h2 class="limit-modal-title">
+				今月のつかえる上限
+			</h2>
+
+			<p class="limit-modal-lead">
+				上限をきめたら、おうちの人に承認をおねがいします。
+			</p>
+
+			<form th:action="@{/child/limit}" method="post">
+
+				<label class="limit-modal-label">
+					今月いくらまでつかう？（円）
+				</label>
+
+				<input class="limit-modal-input" type="text" inputmode="numeric" name="limitAmount" min="1"
+					maxlength="6" placeholder="3000" required>
+
+				<button type="submit" class="limit-modal-submit-btn">
+					承認をおねがいする 🙏
+				</button>
+
+			</form>
+
+		</div>
+
+	</div>
+
+
+
+	<!-- ログアウト確認モーダル -->
+	<div class="child-modal-overlay child-center-overlay" id="logoutModal">
+		<div class="child-delete-modal">
+			<div class="child-delete-modal__icon">👋</div>
+			<h2 class="child-delete-modal__title">ログアウトする？</h2>
+			<p class="child-delete-modal__desc">またあそびにきてね！</p>
+			<div class="child-delete-modal__buttons">
+				<button type="button" class="child-cancel-btn" onclick="closeChildModal('logoutModal')">
+					もどる
+				</button>
+				<form th:action="@{/logout}" method="post">
+					<button type="submit" class="child-delete-confirm-btn">
+						ログアウト
+					</button>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<!--	child-spending.js-->
+	<script th:src="@{/js/child-spending.js}"></script>
+
+
+	<!-- グラフデータ（JSON） -->
+	<th:block th:if="${graphData != null}">
+		<script type="application/json" id="graphLabels" th:inline="javascript">/*[[${graphData.lavels}]]*/[]</script>
+		<script type="application/json" id="graphMonthlyIncome"
+			th:inline="javascript">/*[[${monthlyIncome}]]*/[]</script>
+		<script type="application/json" id="graphMonthlyExpense"
+			th:inline="javascript">/*[[${monthlyExpense}]]*/[]</script>
+		<script type="application/json" id="graphCumulativeBalance"
+			th:inline="javascript">/*[[${graphData.cumulativeBalance}]]*/[]</script>
+		<script type="application/json" id="graphMonthlyBalance"
+			th:inline="javascript">/*[[${graphData.monthlyBalance}]]*/[]</script>
+		<script type="application/json" id="graphTotalIncome"
+			th:inline="javascript">/*[[${graphData.totalIncome}]]*/0</script>
+		<script type="application/json" id="graphTotalExpense"
+			th:inline="javascript">/*[[${graphData.totalExpense}]]*/0</script>
+	</th:block>
+
+	<!-- Chart.js -->
+	<script th:if="${graphData != null}"
+		src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+	<script th:if="${graphData != null}" th:src="@{/js/child-graph.js}"></script>
+</body>
+
+</html>

@@ -1,0 +1,426 @@
+@charset "UTF-8";
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	background: #fffaf3;
+	color: #7a4b24;
+	font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+}
+
+/* PC（デフォルト）*/
+.child-page {
+	width: 100%;
+	max-width: 960px;
+	margin: 0 auto;
+	min-height: 100vh;
+}
+
+/* =========================
+   ヘッダー
+========================= */
+.child-header {
+	min-height: 132px;
+	background: linear-gradient(135deg, #ff8a2a 0%, #ffc221 100%);
+	color: #fff;
+}
+
+.child-header__inner {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	padding: 22px 28px;
+}
+
+.child-header__greeting {
+	margin: 0 0 10px;
+	font-size: 16px;
+	font-weight: 700;
+}
+
+.child-header__money {
+	margin: 0;
+	font-size: 42px;
+	line-height: 1;
+	font-weight: 900;
+}
+
+.child-header__caption {
+	margin: 10px 0 0;
+	font-size: 13px;
+	font-weight: 700;
+}
+
+.logout-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 96px;
+	height: 34px;
+	padding: 0 18px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.24);
+	color: #fff;
+	font-size: 13px;
+	font-weight: 700;
+	text-decoration: none;
+}
+
+/* =========================
+   タブナビ
+========================= */
+.child-tabs {
+	display: grid;
+	grid-template-columns: repeat(5, 1fr);
+	gap: 8px;
+	margin: 18px 18px 0;
+	padding: 5px;
+	border: 1px solid #ffd9b4;
+	border-radius: 16px;
+	background: #fffdf8;
+	box-shadow: 0 2px 8px rgba(255, 124, 24, 0.12);
+	position: sticky;
+	top: 0;
+	z-index: 50;
+}
+
+.child-tabs::-webkit-scrollbar {
+	display: none;
+}
+
+.child-tabs__item {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 36px;
+	padding: 0 10px;
+	border: none;
+	border-radius: 12px;
+	background: transparent;
+	color: #8a5a34;
+	font-size: 13px;
+	font-weight: 700;
+	font-family: inherit;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.child-tabs__item.is-active,
+.child-tabs__item:hover {
+	background: #ff6b1a;
+	color: #fff;
+}
+
+/* =========================
+   タブコンテンツ共通
+========================= */
+.tab-content {
+	display: none;
+	margin: 18px;
+	margin-bottom: 110px;
+	padding: 20px;
+	border-radius: 18px;
+	background: #fff;
+	box-shadow: 0 3px 10px rgba(255, 124, 24, 0.12);
+}
+
+.tab-content.is-show {
+	display: block;
+}
+
+.tab-content h2 {
+	margin: 0 0 10px;
+	color: #ff6b1a;
+	font-size: 20px;
+}
+
+.child-tab-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 14px;
+}
+
+.child-tab-title {
+	margin: 0;
+	color: #ff6b1a;
+	font-size: 16px;
+	font-weight: 900;
+}
+
+.child-orange-small-btn {
+	min-width: 64px;
+	height: 34px;
+	border: none;
+	border-radius: 12px;
+	background: #ff6b1a;
+	color: #fff;
+	font-size: 13px;
+	font-weight: 900;
+	cursor: pointer;
+}
+
+.child-card-list {
+	display: grid;
+	gap: 10px;
+}
+
+.child-empty {
+	padding: 20px;
+	border-radius: 14px;
+	background: #fff7ef;
+	color: #b07c50;
+	font-size: 13px;
+	font-weight: 700;
+	text-align: center;
+}
+
+.child-empty p {
+	margin: 0;
+}
+
+/* =========================
+   下部バナー（スクロール位置）
+========================= */
+.child-bottom-banner {
+	display: none;
+	align-items: center;
+	gap: 12px;
+	margin: 14px;
+	padding: 12px 18px;
+	border-radius: 999px;
+	background: #fff;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.child-bottom-banner.is-show {
+	display: flex;
+}
+
+.child-bottom-banner__icon {
+	font-size: 22px;
+	flex: 0 0 auto;
+}
+
+.child-bottom-banner__title {
+	margin: 0;
+	color: #8a5a34;
+	font-size: 11px;
+	font-weight: 700;
+}
+
+.child-bottom-banner__text {
+	margin: 0;
+	color: #2f2118;
+	font-size: 13px;
+	font-weight: 900;
+}
+
+.child-bottom-banner__count {
+	color: #ff6b1a;
+	font-size: 16px;
+	font-weight: 900;
+}
+
+/* =========================
+   +ボタン（常時固定・右下）
+========================= */
+.child-fab {
+	position: fixed;
+	bottom: 28px;
+	right: max(28px, calc((100vw - 960px) / 2 + 28px));
+	width: 56px;
+	height: 56px;
+	border: none;
+	border-radius: 50%;
+	background: #ff6b1a;
+	color: #fff;
+	font-size: 30px;
+	font-weight: 900;
+	line-height: 1;
+	box-shadow: 0 6px 18px rgba(255, 107, 26, 0.45);
+	cursor: pointer;
+	z-index: 900;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.child-fab:hover {
+	transform: scale(1.08);
+	box-shadow: 0 8px 24px rgba(255, 107, 26, 0.55);
+}
+
+.child-fab:active {
+	transform: scale(0.96);
+}
+
+/* =========================
+   モーダル共通
+========================= */
+.child-modal-overlay {
+	position: fixed;
+	inset: 0;
+	display: none;
+	align-items: flex-end;
+	justify-content: center;
+	background: rgba(0, 0, 0, 0.48);
+	z-index: 1000;
+}
+
+.child-modal-overlay.is-show {
+	display: flex;
+}
+
+.child-center-overlay {
+	align-items: center;
+}
+
+.child-bottom-modal {
+	width: min(960px, calc(100% - 32px));
+	padding: 18px 22px 24px;
+	border-radius: 28px 28px 0 0;
+	background: #fff;
+}
+
+.child-modal-handle {
+	width: 46px;
+	height: 5px;
+	margin: 0 auto 16px;
+	border-radius: 999px;
+	background: #ffe0c2;
+}
+
+.child-modal-title {
+	margin: 0 0 16px;
+	color: #2f2118;
+	font-size: 20px;
+	font-weight: 900;
+}
+
+.child-modal-label {
+	display: block;
+	margin: 12px 0 6px;
+	color: #8a6847;
+	font-size: 13px;
+	font-weight: 900;
+	text-align: left;
+}
+
+.child-modal-input {
+	width: 100%;
+	height: 48px;
+	padding: 0 16px;
+	border: 1.5px solid #ffd2a8;
+	border-radius: 12px;
+	background: #fff7ef;
+	font-size: 15px;
+	font-weight: 700;
+}
+
+.child-modal-note {
+	display: block;
+	margin: 8px 0 14px;
+	color: #a9784e;
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.child-modal-buttons {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 10px;
+	margin-top: 18px;
+}
+
+.child-cancel-btn,
+.child-modal-main-btn {
+	width: 100%;
+	height: 46px;
+	border: none;
+	border-radius: 14px;
+	font-size: 14px;
+	font-weight: 900;
+	cursor: pointer;
+}
+
+.child-cancel-btn {
+	background: #f1f1f4;
+	color: #5f5f68;
+}
+
+.child-modal-main-btn {
+	width: 100%;
+	height: 54px;
+	border: none;
+	border-radius: 18px;
+	background: #ff6b1a;
+	color: #fff;
+	font-size: 16px;
+	font-weight: 900;
+	cursor: pointer;
+}
+
+/* =========================
+   スマホ（430px以下）
+========================= */
+@media screen and (max-width: 430px) {
+	.child-page {
+		max-width: 100%;
+	}
+
+	.child-header {
+		min-height: 110px;
+	}
+
+	.child-header__inner {
+		padding: 16px 20px;
+	}
+
+	.child-header__greeting {
+		font-size: 14px;
+	}
+
+	.child-header__money {
+		font-size: 36px;
+	}
+
+	.child-header__caption {
+		font-size: 12px;
+	}
+
+	.logout-button {
+		min-width: 84px;
+		height: 30px;
+		padding: 0 12px;
+		font-size: 12px;
+	}
+
+	.child-tabs {
+		display: flex;
+		overflow-x: auto;
+		white-space: nowrap;
+		margin: 14px 14px 0;
+	}
+
+	.child-tabs__item {
+		flex: 0 0 auto;
+		min-width: 60px;
+		font-size: 12px;
+	}
+
+	.tab-content {
+		margin: 14px;
+		margin-bottom: 100px;
+		padding: 16px;
+	}
+
+	.child-bottom-modal {
+		width: 100%;
+	}
+}

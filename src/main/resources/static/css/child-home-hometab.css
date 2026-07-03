@@ -1,0 +1,371 @@
+@charset "UTF-8";
+
+/* =========================
+   ホームタブ：キャラクターカード
+========================= */
+.home-tab {
+	padding: 0;
+}
+
+.character-card {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+
+	padding: 16px;
+	border: 2px solid #f0dfc0;
+	border-radius: 24px;
+	background: #f6f1e5;
+
+	box-shadow: 0 3px 10px rgba(255, 124, 24, 0.12);
+}
+
+/* ヘッダー行：Lvバッジ・名前・XP */
+.character-card__header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	margin-bottom: 10px;
+}
+
+.character-level-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 22px;
+	padding: 0 10px;
+	border-radius: 999px;
+	background: #ff6b1a;
+	color: #fff;
+	font-size: 11px;
+	font-weight: 900;
+	flex: 0 0 auto;
+}
+
+.character-name {
+	flex: 1;
+	color: #2f2118;
+	font-size: 16px;
+	font-weight: 900;
+	text-align: left;
+}
+
+.character-exp-label {
+	color: #a9784e;
+	font-size: 12px;
+	font-weight: 700;
+	flex: 0 0 auto;
+}
+
+/* EXPバー */
+.character-exp-bar {
+	width: 100%;
+	height: 10px;
+
+	border-radius: 999px;
+	background: #e8e8e8;
+	overflow: hidden;
+
+	margin-bottom: 16px;
+}
+
+.character-exp-fill {
+	height: 100%;
+	border-radius: 999px;
+	background: linear-gradient(90deg, #ffd54f, #ffb300);
+	transition: width 0.3s;
+}
+
+/* キャラクター画像 */
+.character-avatar {
+	width: 160px;
+	height: 160px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+	overflow: hidden;
+}
+
+.character-img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	transform: scale(2.0);
+	filter: drop-shadow(0 4px 12px rgba(255, 107, 26, 0.25));
+}
+
+.character-next-level {
+	margin: 12px 0 8px;
+	color: #8a5a34;
+	font-size: 14px;
+	font-weight: 900;
+}
+
+.character-achievement {
+	margin: 0;
+	color: #8a5a34;
+	font-size: 14px;
+	font-weight: 900;
+}
+
+.character-edit-btn {
+	margin-top: 12px;
+	height: 36px;
+	padding: 0 18px;
+
+	border: none;
+	border-radius: 999px;
+
+	background: #fff1e0;
+	color: #ff6b1a;
+
+	font-size: 13px;
+	font-weight: 900;
+	cursor: pointer;
+}
+
+/* =========================
+   今月の使いすぎチェック
+========================= */
+.child-spending-card {
+	margin-top: 16px;
+	padding: 18px;
+	border: 2px solid #ffe0c2;
+	border-radius: 16px;
+	background: #fff;
+}
+
+.child-spending-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 10px;
+}
+
+.child-spending-label {
+	color: #8a5a34;
+	font-size: 13px;
+	font-weight: 900;
+}
+
+.child-spending-status {
+	display: inline-flex;
+	align-items: center;
+	height: 26px;
+	padding: 0 12px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 900;
+	background: #e8f5e9;
+	color: #2e7d32;
+}
+
+.child-spending-status.is-over {
+	background: #fff0f2;
+	color: #e53935;
+}
+
+.child-spending-amount {
+	margin: 0 0 10px;
+}
+
+.child-spending-current {
+	color: #ff6b1a;
+	font-size: 28px;
+	font-weight: 900;
+}
+
+.child-spending-limit {
+	color: #b07c50;
+	font-size: 14px;
+	font-weight: 700;
+}
+
+.child-spending-bar {
+	height: 10px;
+	border-radius: 999px;
+	background: #ffe9d4;
+	overflow: hidden;
+	margin-bottom: 8px;
+}
+
+.child-spending-fill {
+	height: 100%;
+	border-radius: 999px;
+	background: #00c07a;
+	transition: width 0.3s;
+}
+
+.child-spending-fill.is-over {
+	background: #e53935;
+}
+
+.child-spending-remain {
+	margin: 0;
+	color: #8a5a34;
+	font-size: 13px;
+	font-weight: 700;
+	text-align: right;
+}
+
+
+/* =========================
+   きろくタブ：カード
+========================= */
+.record-card {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 14px 16px;
+	border-radius: 16px;
+	background: #fff;
+	box-shadow: 0 2px 8px rgba(255, 124, 24, 0.08);
+	border: 1px solid #ffeedd;
+}
+
+.record-card__icon {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 18px;
+	font-weight: 900;
+	flex: 0 0 auto;
+}
+
+.record-card__icon.income {
+	background: #e8f5e9;
+	color: #2e7d32;
+}
+
+.record-card__icon.expense {
+	background: #fce4ec;
+	color: #c62828;
+}
+
+.record-card__body {
+	flex: 1;
+}
+
+.record-card__category {
+	margin: 0 0 4px;
+	color: #2f2118;
+	font-size: 15px;
+	font-weight: 700;
+}
+
+.record-card__date {
+	margin: 0;
+	color: #a9784e;
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.record-card__amount {
+	font-size: 18px;
+	font-weight: 900;
+	flex: 0 0 auto;
+}
+
+.record-card__amount.income {
+	color: #2e7d32;
+}
+
+.record-card__amount.expense {
+	color: #e53935;
+}
+
+
+.record-card__actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 0 16px 12px;
+	margin-top: -8px;
+}
+
+.record-action-btn {
+	height: 30px;
+	padding: 0 14px;
+	border: none;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 900;
+	cursor: pointer;
+}
+
+.record-action-btn.edit {
+	background: #fff1e0;
+	color: #ff6b1a;
+}
+
+.record-action-btn.delete {
+	background: #fce4ec;
+	color: #c62828;
+}
+
+.record-action-note {
+	color: #a9784e;
+	font-size: 11px;
+	font-weight: 700;
+}
+
+
+
+/* =========================
+   削除確認モーダル
+========================= */
+.child-delete-modal {
+	width: min(320px, calc(100% - 48px));
+	padding: 32px 24px 24px;
+	border-radius: 22px;
+	background: #fff;
+	text-align: center;
+}
+
+.child-delete-modal__icon {
+	font-size: 40px;
+	margin-bottom: 12px;
+}
+
+.child-delete-modal__title {
+	margin: 0 0 12px;
+	color: #2f2118;
+	font-size: 20px;
+	font-weight: 900;
+}
+
+.child-delete-modal__desc {
+	margin: 0 0 24px;
+	color: #8a5a34;
+	font-size: 13px;
+	font-weight: 700;
+	line-height: 1.6;
+}
+
+.child-delete-modal__buttons {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 10px;
+}
+
+.child-delete-modal__buttons form {
+	display: contents;
+}
+
+.child-delete-confirm-btn {
+	width: 100%;
+	height: 46px;
+	border: none;
+	border-radius: 14px;
+	background: #e53935;
+	color: #fff;
+	font-size: 15px;
+	font-weight: 900;
+	cursor: pointer;
+}

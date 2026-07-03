@@ -1,0 +1,811 @@
+@charset "UTF-8";
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	background: #fffaf3;
+	color: #5f432e;
+	font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+}
+
+.parent-page {
+	width: min(960px, calc(100% - 32px));
+	margin: 0 auto;
+}
+
+.parent-header {
+	min-height: 110px;
+	background: linear-gradient(135deg, #6d3ef7 0%, #8c5cff 100%);
+	color: #fff;
+}
+
+.parent-header__inner {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 18px 28px;
+}
+
+.parent-user {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.parent-user__icon {
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.18);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 24px;
+}
+
+.parent-user__role {
+	margin: 0;
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.parent-user__name {
+	margin: 2px 0 0;
+	font-size: 28px;
+	font-weight: 900;
+}
+
+.logout-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 106px;
+	height: 34px;
+	padding: 0 18px;
+	border: none;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.22);
+	color: #fff;
+	font-size: 13px;
+	font-weight: 700;
+	font-family: inherit;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.parent-tabs {
+	display: grid;
+	grid-template-columns: repeat(8, 1fr);
+	gap: 6px;
+	margin: 18px 18px 0;
+	padding: 5px;
+	border-radius: 16px;
+	background: #fff;
+	box-shadow: 0 2px 8px rgba(109, 62, 247, 0.14);
+}
+
+.parent-tabs__item {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 38px;
+	border-radius: 12px;
+	background: transparent;
+	color: #7a5a3d;
+	font-size: 13px;
+	font-weight: 700;
+	text-decoration: none;
+}
+
+.parent-tabs__item.is-active,
+.parent-tabs__item:hover {
+	background: #6d3ef7;
+	color: #fff;
+}
+
+.tab-content {
+	display: none;
+	margin: 18px;
+	padding: 20px;
+	border-radius: 18px;
+	background: #fff;
+	box-shadow: 0 3px 10px rgba(109, 62, 247, 0.12);
+}
+
+.tab-content.is-show {
+	display: block;
+}
+
+.tab-content h2 {
+	margin: 0 0 10px;
+	color: #6d3ef7;
+	font-size: 20px;
+}
+
+
+/* =========================
+   クエストモーダル
+========================= */
+
+.quest-modal-overlay {
+	position: fixed;
+	inset: 0;
+	display: none;
+	align-items: flex-end;
+	justify-content: center;
+	background: rgba(0, 0, 0, 0.48);
+	z-index: 1000;
+}
+
+.quest-modal-overlay.is-show {
+	display: flex;
+}
+
+.quest-center-overlay {
+	align-items: center;
+}
+
+
+/* =========================
+   テンプレのとこ
+========================= */
+.template-tab {
+	padding: 0;
+	background: transparent;
+	box-shadow: none;
+}
+
+.template-tab-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	margin-bottom: 14px;
+}
+
+.template-tab-title {
+	margin: 0 0 16px;
+	color: #2f2118;
+	font-size: 17px;
+	font-weight: 900;
+}
+
+.template-tab-lead {
+	margin: 0;
+	color: #9b7a5d;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.template-purple-small-btn {
+	min-width: 78px;
+	height: 36px;
+	border: none;
+	border-radius: 12px;
+	background: #7b3ff2;
+	color: #fff;
+	font-size: 14px;
+	font-weight: 900;
+	box-shadow: 0 8px 18px rgba(123, 63, 242, 0.32);
+	cursor: pointer;
+}
+
+.template-card-list {
+	display: grid;
+	gap: 16px;
+}
+
+.template-design-card {
+	padding: 16px;
+	border: 2px solid #eadfff;
+	border-radius: 16px;
+	background: #fff;
+	box-shadow: 0 3px 8px rgba(109, 62, 247, 0.10);
+}
+
+.template-card-top-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 12px;
+}
+
+.template-card-left {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.template-card-icon {
+	width: 40px;
+	height: 40px;
+	border-radius: 12px;
+	background: #f3edff;
+	color: #7b3ff2;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 18px;
+	font-weight: 900;
+}
+
+.template-card-title {
+	margin: 0 0 4px;
+	color: #2f2118;
+	font-size: 15px;
+	font-weight: 900;
+}
+
+.template-card-reward {
+	display: flex;
+	gap: 10px;
+	font-size: 12px;
+	font-weight: 900;
+}
+
+.template-exp {
+	color: #ff9900;
+}
+
+.template-money {
+	color: #00a86b;
+}
+
+.template-card-actions {
+	display: flex;
+	gap: 10px;
+}
+
+.template-circle-btn {
+	width: 32px;
+	height: 32px;
+	border: none;
+	border-radius: 50%;
+	background: #f4efff;
+	color: #7b3ff2;
+	font-size: 15px;
+	font-weight: 900;
+	cursor: pointer;
+}
+
+.template-delete-circle {
+	background: #fff0f2;
+	color: #ff7f8d;
+}
+
+.template-add-quest-wide-btn {
+	width: 100%;
+	height: 40px;
+	border: none;
+	border-radius: 11px;
+	background: #7b3ff2;
+	color: #fff;
+	font-size: 14px;
+	font-weight: 900;
+	cursor: pointer;
+}
+
+.template-modal-overlay {
+	position: fixed;
+	inset: 0;
+	display: none;
+	align-items: flex-end;
+	justify-content: center;
+	background: rgba(0, 0, 0, 0.48);
+	z-index: 1000;
+}
+
+.template-modal-overlay.is-show {
+	display: flex;
+}
+
+.template-center-overlay {
+	align-items: center;
+}
+
+.template-bottom-modal {
+	width: min(960px, calc(100% - 32px));
+	padding: 18px 22px 24px;
+	border-radius: 28px 28px 0 0;
+	background: #fff;
+}
+
+.template-modal-handle {
+	width: 46px;
+	height: 5px;
+	margin: 0 auto 16px;
+	border-radius: 999px;
+	background: #e5e0ef;
+}
+
+.template-modal-title {
+	margin: 0 0 18px;
+	color: #7b3ff2;
+	font-size: 22px;
+	font-weight: 900;
+}
+
+.template-modal-label {
+	display: block;
+	margin: 14px 0 7px;
+	color: #8a6847;
+	font-size: 13px;
+	font-weight: 900;
+}
+
+.template-modal-input {
+	width: 100%;
+	height: 48px;
+	padding: 0 16px;
+	border: 1.5px solid #d8c9ff;
+	border-radius: 12px;
+	background: #f7f4ff;
+	font-size: 15px;
+	font-weight: 700;
+}
+
+.template-modal-note {
+	display: inline-block;
+	margin: 12px 0 20px;
+	padding: 5px 12px;
+	border-radius: 999px;
+	background: #fff8dd;
+	color: #ff9900;
+	font-size: 12px;
+	font-weight: 900;
+}
+
+.template-modal-main-btn {
+	width: 100%;
+	height: 58px;
+	border: none;
+	border-radius: 20px;
+	background: #7b3ff2;
+	color: #fff;
+	font-size: 16px;
+	font-weight: 900;
+	cursor: pointer;
+}
+
+.template-delete-modal {
+	width: 320px;
+	padding: 28px 22px 24px;
+	border-radius: 22px;
+	background: #fff;
+	text-align: center;
+}
+
+.template-delete-icon {
+	font-size: 36px;
+	margin-bottom: 12px;
+}
+
+.template-delete-title {
+	margin: 0 0 10px;
+	color: #2f2118;
+	font-size: 18px;
+	font-weight: 900;
+}
+
+.template-delete-text {
+	margin: 0 0 22px;
+	color: #9b7a5d;
+	font-size: 13px;
+	font-weight: 700;
+	line-height: 1.7;
+}
+
+.template-delete-buttons {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 10px;
+}
+
+.template-cancel-btn,
+.template-delete-btn {
+	height: 46px;
+	border: none;
+	border-radius: 14px;
+	font-size: 14px;
+	font-weight: 900;
+	cursor: pointer;
+}
+
+.template-cancel-btn {
+	background: #f1f1f4;
+	color: #5f5f68;
+}
+
+.template-delete-btn {
+	background: #ff4b55;
+	color: #fff;
+}
+
+.template-quest-preview {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 18px;
+	padding: 14px;
+	border-radius: 14px;
+	background: #f5f0ff;
+}
+
+.template-child-chip-list {
+	display: flex;
+	gap: 10px;
+	margin: 10px 0 22px;
+}
+
+.template-child-chip input {
+	display: none;
+}
+
+.template-child-chip span {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 82px;
+	height: 34px;
+	padding: 0 14px;
+	border-radius: 999px;
+	background: #f4efff;
+	color: #7b3ff2;
+	font-size: 13px;
+	font-weight: 900;
+	cursor: pointer;
+}
+
+.template-child-chip input:checked+span {
+	background: #7b3ff2;
+	color: #fff;
+}
+
+/* =========================
+	   収支タブ：子供選択
+	========================= */
+.parent-child-selector {
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
+	margin-bottom: 20px;
+}
+
+.parent-child-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	height: 38px;
+	padding: 0 18px;
+	border: 2px solid #e0d4f0;
+	border-radius: 999px;
+	background: #fff;
+	color: #7c3aed;
+	font-size: 14px;
+	font-weight: 700;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background 0.15s, color 0.15s;
+}
+
+.parent-child-btn.is-active {
+	background: #7c3aed;
+	color: #fff;
+	border-color: #7c3aed;
+}
+
+.parent-child-btn:hover {
+	background: #ede9fe;
+	color: #7c3aed;
+}
+
+/* =========================
+   概要タブ
+========================= */
+.overview-section {
+	margin-bottom: 24px;
+}
+
+.overview-section-title {
+	margin: 0 0 12px;
+	color: #6d3ef7;
+	font-size: 15px;
+	font-weight: 900;
+}
+
+.overview-child-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 12px;
+}
+
+.overview-child-card {
+	padding: 16px;
+	border-radius: 16px;
+	background: #f5f0ff;
+	border: 1px solid #e0d4f0;
+}
+
+.overview-child-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.overview-child-icon {
+	font-size: 18px;
+}
+
+.overview-child-name {
+	color: #5f432e;
+	font-size: 14px;
+	font-weight: 700;
+}
+
+.overview-child-money {
+	margin: 0;
+	color: #6d3ef7;
+	font-size: 22px;
+	font-weight: 900;
+}
+
+.overview-summary-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 12px;
+}
+
+.overview-summary-card {
+	padding: 16px;
+	border-radius: 16px;
+}
+
+.overview-summary-card.income {
+	background: #f0edff;
+	border: 1px solid #d8c9ff;
+}
+
+.overview-summary-card.expense {
+	background: #fff7ef;
+	border: 1px solid #ffe0c2;
+}
+
+.overview-summary-label {
+	margin: 0 0 6px;
+	color: #8a6847;
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.overview-summary-amount {
+	margin: 0;
+	font-size: 22px;
+	font-weight: 900;
+}
+
+.overview-summary-card.income .overview-summary-amount {
+	color: #6d3ef7;
+}
+
+.overview-summary-card.expense .overview-summary-amount {
+	color: #ff6b1a;
+}
+
+.overview-limit-list {
+	display: grid;
+	gap: 12px;
+}
+
+.overview-limit-card {
+	padding: 16px;
+	border-radius: 16px;
+	background: #fff;
+	border: 1px solid #e0d4f0;
+}
+
+.overview-limit-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 10px;
+}
+
+.overview-limit-left {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.overview-limit-status {
+	font-size: 12px;
+	font-weight: 900;
+	padding: 3px 10px;
+	border-radius: 999px;
+}
+
+.overview-limit-status.is-ok {
+	background: #e8f5e9;
+	color: #2e7d32;
+}
+
+.overview-limit-status.is-over {
+	background: #fff0f2;
+	color: #e53935;
+}
+
+.overview-limit-status.is-none {
+	background: #f1f1f4;
+	color: #8a8a8a;
+}
+
+.overview-limit-amount {
+	margin: 0 0 8px;
+}
+
+.overview-limit-current {
+	color: #6d3ef7;
+	font-size: 20px;
+	font-weight: 900;
+}
+
+.overview-limit-max {
+	color: #8a6847;
+	font-size: 13px;
+	font-weight: 700;
+}
+
+.overview-limit-bar {
+	height: 10px;
+	border-radius: 999px;
+	background: #ede9fe;
+	overflow: hidden;
+	margin-bottom: 6px;
+}
+
+.overview-limit-fill {
+	height: 100%;
+	border-radius: 999px;
+	background: #6d3ef7;
+	transition: width 0.3s;
+}
+
+.overview-limit-fill.is-over {
+	background: #e53935;
+}
+
+.overview-limit-remain {
+	margin: 0;
+	color: #6d3ef7;
+	font-size: 12px;
+	font-weight: 700;
+	text-align: right;
+}
+
+
+
+
+/* =========================
+   テンプレ(レスポンシブ)
+========================= */
+@media screen and (max-width: 600px) {
+	body {
+		background: #eef4fb;
+	}
+
+	.parent-page {
+		width: 100%;
+		max-width: 430px;
+		min-height: 100vh;
+		margin: 0 auto;
+		background: #fffaf3;
+	}
+
+	.parent-header {
+		min-height: 68px;
+	}
+
+	.parent-header__inner {
+		padding: 12px 20px;
+	}
+
+	.parent-user__icon {
+		width: 38px;
+		height: 38px;
+		font-size: 20px;
+	}
+
+	.parent-user__name {
+		font-size: 18px;
+	}
+
+	.logout-button {
+		min-width: 84px;
+		height: 30px;
+		padding: 0 12px;
+		font-size: 11px;
+	}
+
+	.parent-tabs {
+		display: flex;
+		gap: 6px;
+		overflow-x: auto;
+		white-space: nowrap;
+		margin: 14px 14px 0;
+		padding: 5px;
+	}
+
+	.parent-tabs::-webkit-scrollbar {
+		display: none;
+	}
+
+	.parent-tabs__item {
+		flex: 0 0 auto;
+		min-width: 64px;
+		height: 34px;
+		padding: 0 12px;
+		font-size: 12px;
+	}
+
+	.template-tab {
+		margin: 18px 14px 28px;
+		padding: 0;
+	}
+
+	.template-tab-title {
+		font-size: 15px;
+	}
+
+	.template-tab-lead {
+		font-size: 12px;
+		line-height: 1.7;
+	}
+
+	.template-purple-small-btn {
+		min-width: 68px;
+		height: 34px;
+		font-size: 13px;
+	}
+
+	.template-card-list {
+		gap: 14px;
+	}
+
+	.template-design-card {
+		padding: 14px;
+		border-radius: 16px;
+	}
+
+	.template-card-left {
+		gap: 12px;
+	}
+
+	.template-card-icon {
+		width: 38px;
+		height: 38px;
+		font-size: 16px;
+	}
+
+	.template-card-title {
+		font-size: 14px;
+	}
+
+	.template-circle-btn {
+		width: 30px;
+		height: 30px;
+		font-size: 13px;
+	}
+
+	.template-add-quest-wide-btn {
+		height: 38px;
+		font-size: 13px;
+	}
+
+
+
+
+
+}

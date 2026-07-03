@@ -1,0 +1,231 @@
+@charset "UTF-8";
+
+/* =========================
+   上限タブ
+========================= */
+
+#limit {
+    padding: 16px 20px;
+}
+
+#limit h2 {
+    margin: 0 0 14px;
+    color: #ff6b1a;
+    font-size: 20px;
+    font-weight: 900;
+}
+
+/* ホームの使いすぎチェックを上限タブでも使う */
+#limit .child-spending-card {
+    margin-bottom: 18px;
+}
+
+#limit .child-spending-remain {
+    margin-bottom: 8px;
+}
+
+/* 上限をかえるボタン */
+.child-limit-change-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 116px;
+    height: 34px;
+    margin-top: 8px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 999px;
+    background: #fff3e8;
+    color: #ff6b1a;
+    font-size: 13px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+/* =========================
+   上限履歴
+========================= */
+.child-limit-section-title {
+    margin: 22px 0 12px;
+    color: #2f2118;
+    font-size: 16px;
+    font-weight: 900;
+}
+
+.child-limit-history-list {
+    display: grid;
+    gap: 10px;
+}
+
+.child-limit-history-card {
+    display: grid;
+    grid-template-columns: 42px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    min-height: 58px;
+    padding: 10px 14px;
+    border: 1.5px solid #ffe1bf;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 2px 7px rgba(255, 124, 24, 0.08);
+}
+
+.child-limit-history-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #fff1bf;
+    color: #ff9900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 900;
+}
+
+.child-limit-history-body {
+    min-width: 0;
+}
+
+.child-limit-history-title {
+    margin: 0 0 3px;
+    color: #2f2118;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.child-limit-history-text {
+    margin: 0;
+    color: #9b7a5d;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.child-limit-history-status {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.history-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 78px;
+    height: 26px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.history-badge--requesting {
+    background: #fff7df;
+    color: #ff9900;
+}
+
+.history-badge--achieved {
+    background: #dfffee;
+    color: #00a86b;
+}
+
+.history-badge--failed {
+    background: #fff0f2;
+    color: #ff4b55;
+}
+
+.history-badge--rejected {
+    background: #f1f1f4;
+    color: #777;
+}
+
+/* 空表示 */
+.empty-box {
+    padding: 18px;
+    border-radius: 14px;
+    background: #fffdf8;
+    border: 2px dashed #ffd9b4;
+    color: #8a5a34;
+    font-weight: 800;
+}
+
+/* =========================
+   上限変更モーダル
+========================= */
+
+.limit-modal-overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1000;
+}
+
+.limit-modal-overlay.is-show {
+    display: flex;
+}
+
+.limit-bottom-modal {
+    width: min(960px, 100%);
+    padding: 18px 24px 28px;
+    border-radius: 28px 28px 0 0;
+    background: #fff;
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.16);
+}
+
+.limit-modal-handle {
+    width: 48px;
+    height: 5px;
+    margin: 0 auto 18px;
+    border-radius: 999px;
+    background: #dddde5;
+}
+
+.limit-modal-title {
+    margin: 0 0 18px;
+    color: #2f2118;
+    font-size: 24px;
+    font-weight: 900;
+}
+
+.limit-modal-lead {
+    margin: 0 0 18px;
+    color: #9b7a5d;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.7;
+}
+
+.limit-modal-label {
+    display: block;
+    margin: 0 0 8px;
+    color: #8a5a34;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.limit-modal-input {
+    width: 100%;
+    height: 58px;
+    padding: 0 16px;
+    border: 1.8px solid #ff8a2a;
+    border-radius: 14px;
+    background: #fffaf3;
+    color: #5f3a20;
+    font-size: 22px;
+    font-weight: 900;
+}
+
+.limit-modal-submit-btn {
+    width: 100%;
+    height: 60px;
+    margin-top: 16px;
+    border: none;
+    border-radius: 22px;
+    background: #ffb37d;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 900;
+    cursor: pointer;
+}

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>管理者エラー画面</title>
+<link rel="stylesheet" th:href="@{/css/admin-session-error.css}">
+</head>
+<body>
+  <main class="admin-error-page">
+    <section class="admin-error-card">
+
+      <div class="error-icon">♙</div>
+
+      <div class="error-code">404</div>
+
+      <h1 class="error-title">ページが見つかりません</h1>
+
+      <p class="error-message">
+        お探しのページは見つかりませんでした。URLが<br>
+        変更されたか、削除された可能性があります。
+      </p>
+
+      <div class="system-label">管理者システム</div>
+
+      <a class="back-button" th:href="@{/admin/login}">
+        ♙ 管理者ログインへもどる
+      </a>
+
+      <p class="help-text">
+        問題が続く場合は、システム担当者にご連絡ください。
+      </p>
+
+    </section>
+  </main>
+</body>
+</html>

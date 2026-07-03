@@ -1,0 +1,113 @@
+@charset "UTF-8";
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  background: #fffaf3;
+  color: #7a6048;
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  width: min(100%, 920px);
+  min-height: 100vh;
+  padding: 25vh 26px 24px;
+  background: linear-gradient(180deg, #fff5e5 0%, #fff8ee 45%, #f8e8ff 100%);
+}
+
+.logo-box {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.app-logo {
+    display: block;
+    width: 180px;
+    height: auto;
+    margin: 0 auto 16px;
+    object-fit: contain;
+}
+
+.logo-text {
+  line-height: 0.9;
+  font-weight: 900;
+  font-size: 30px;
+  color: #1f9ed1;
+  text-shadow: 2px 2px 0 #ffffff, 4px 4px 0 #f59b2d;
+}
+
+.logo-text span {
+  display: block;
+}
+
+.app-logo small {
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #b87928;
+}
+
+.logo-box p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #9d866c;
+}
+
+.role-card {
+  width: min(100%, 860px);
+  min-height: 92px;
+  margin: 0 auto 14px;
+  padding: 22px 28px;
+  border-radius: 18px;
+  text-decoration: none;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+.role-card.child {
+  background: linear-gradient(90deg, #ff741c 0%, #ff8c32 100%);
+}
+
+.role-card.parent {
+  background: linear-gradient(90deg, #7d35e8 0%, #8754f5 100%);
+}
+
+.icon {
+  width: 54px;
+  font-size: 34px;
+  margin-right: 24px;
+}
+
+.text {
+  flex: 1;
+}
+
+.text strong {
+  display: block;
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.text small {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.arrow {
+  font-size: 36px;
+}

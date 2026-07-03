@@ -1,0 +1,285 @@
+/* ============================================================
+   マネークエスト — admin-home.css
+   管理者ホーム画面（SCR-08-1 / SCR-08-2）
+   カラー: slate 系（管理者テーマ）
+   ============================================================ */
+
+:root {
+  --font-display: 'Baloo 2', 'Zen Maru Gothic', 'Nunito', system-ui, sans-serif;
+  --font-ui: 'Nunito', 'Zen Maru Gothic', system-ui, -apple-system, sans-serif;
+  --grad-admin: linear-gradient(135deg, #4b5563, #374151);
+  --slate-50: #f9fafb;
+  --slate-100: #f3f4f6;
+  --slate-200: #e5e7eb;
+  --slate-300: #d1d5db;
+  --slate-400: #9ca3af;
+  --slate-500: #6b7280;
+  --slate-600: #4b5563;
+  --slate-700: #374151;
+  --red-400: #f87171;
+  --red-500: #ef4444;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 9999px;
+  --shadow-sm: 0 1px 3px rgba(45,36,22,.06), 0 1px 2px rgba(45,36,22,.04);
+  --shadow-md: 0 4px 12px rgba(45,36,22,.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-ui);
+  background: var(--slate-50);
+  color: var(--slate-700);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== ヘッダー ===== */
+.admin-header {
+  background: var(--grad-admin);
+  padding: 0 0 54px;
+  position: relative;
+  overflow: hidden;
+}
+.header-bg-circle {
+  position: absolute;
+  right: -30px; top: -30px;
+  width: 150px; height: 150px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.08);
+  pointer-events: none;
+}
+.header-inner { padding: 16px 22px 0; position: relative; }
+.header-top { display: flex; align-items: center; gap: 12px; }
+.header-icon {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(255,255,255,.2);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 20px;
+}
+.header-title { flex: 1; }
+.header-role { color: #d1d5db; font-size: 13px; }
+.header-name {
+  font-family: var(--font-display);
+  font-size: 20px; font-weight: 800; color: #fff;
+}
+.header-stats { display: flex; gap: 28px; margin-top: 14px; }
+.stat-item {}
+.stat-label { color: #d1d5db; font-size: 12px; }
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 26px; font-weight: 800; color: #fff;
+}
+
+/* ===== ログアウト ===== */
+.logout-form { position: relative; z-index: 2; }
+.btn-logout {
+  background: rgba(255,255,255,.18);
+  border: none; border-radius: var(--radius-pill);
+  color: #fff; font-size: 11px; font-weight: 800;
+  padding: 5px 11px;
+  display: inline-flex; gap: 4px; align-items: center;
+  cursor: pointer;
+  transition: transform .15s cubic-bezier(.34,1.56,.64,1);
+}
+.btn-logout:active { transform: scale(.96); }
+
+/* ===== タブ ===== */
+.tab-wrapper { padding: 0 16px; margin-top: -28px; position: relative; z-index: 5; }
+.tab-bar {
+  display: flex; gap: 6px; padding: 5px;
+  background: #fff; border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--slate-200);
+}
+.tab-btn {
+  flex: 1; padding: 11px 0; border: none;
+  border-radius: var(--radius-md);
+  font-weight: 800; font-size: 14px;
+  font-family: var(--font-ui);
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  cursor: pointer;
+  background: var(--slate-50); color: var(--slate-500);
+  transition: background .2s, color .2s;
+}
+.tab-btn.active {
+  background: var(--grad-admin); color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+.tab-count {
+  min-width: 20px; height: 20px; padding: 0 5px;
+  border-radius: var(--radius-pill);
+  font-size: 11px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--slate-200); color: var(--slate-600);
+}
+.tab-btn.active .tab-count {
+  background: rgba(255,255,255,.25); color: #fff;
+}
+
+/* ===== コンテンツ ===== */
+.tab-content { padding: 16px 16px 40px; }
+.card-list { display: flex; flex-direction: column; gap: 12px; }
+
+/* ===== 検索バー ===== */
+.search-bar {
+  display: flex; align-items: center; gap: 10px;
+  background: #fff; border: 1px solid var(--slate-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 10px 14px; margin-bottom: 12px;
+}
+.search-icon { flex-shrink: 0; }
+.search-bar input {
+  flex: 1; border: none; outline: none;
+  background: transparent;
+  font-family: var(--font-ui); font-size: 14px;
+}
+
+/* ===== ユーザーカード ===== */
+.user-card {
+  background: #fff; border: 1px solid var(--slate-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 14px; display: flex; align-items: center; gap: 12px;
+}
+.user-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+  }
+  .parent-avatar { background: #ede9fe; }
+  .admin-avatar { background: var(--slate-100); }
+  .user-info { flex: 1; min-width: 0; }
+  .user-name { font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+  .user-email {
+    font-size: 12px; color: var(--slate-400);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+
+  /* ===== バッジ ===== */
+  .badge {
+    display: inline-block; margin-top: 4px;
+    padding: 2px 8px; border-radius: var(--radius-pill);
+    font-size: 11px; font-weight: 800;
+  }
+  .badge-parent { background: #ede9fe; color: #7c3aed; }
+  .badge-admin { background: var(--slate-100); color: var(--slate-600); }
+  .badge-self {
+    background: var(--slate-600); color: #fff;
+    padding: 1px 6px; border-radius: var(--radius-pill);
+    font-size: 10px; font-weight: 800;
+    margin: 0;
+  }
+
+  /* ===== アクションボタン ===== */
+  .action-buttons { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+  .btn-icon {
+    width: 36px; height: 36px; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: var(--radius-pill); border: none; cursor: pointer;
+    transition: transform .15s cubic-bezier(.34,1.56,.64,1);
+  }
+  .btn-icon:active { transform: scale(.92); }
+  .btn-danger { background: #fef2f2; }
+  .btn-danger:hover { background: #fee2e2; }
+  .btn-neutral { background: var(--slate-100); }
+  .btn-neutral:hover { background: var(--slate-200); }
+  .btn-locked {
+    background: var(--slate-100); cursor: default;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px; border-radius: var(--radius-pill);
+    border: none;
+  }
+
+  /* ===== タブヘッダー行 ===== */
+  .tab-header-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+  }
+  .tab-subtitle { font-size: 13px; color: var(--slate-400); }
+  .btn-primary-admin {
+    background: var(--grad-admin); color: #fff;
+    border: none; border-radius: var(--radius-md);
+    padding: 8px 14px; font-size: 13px; font-weight: 800;
+    font-family: var(--font-ui); cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: transform .15s cubic-bezier(.34,1.56,.64,1), filter .15s;
+  }
+  .btn-primary-admin:active { transform: scale(.96); }
+  .btn-primary-admin:hover { filter: brightness(1.06); }
+
+  /* ===== 空状態 ===== */
+  .empty-state {
+    text-align: center; padding: 40px 0; color: var(--slate-400);
+    font-size: 14px;
+  }
+  /* ===== モーダル ===== */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.4);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100; padding: 20px;
+  }
+  .modal-card {
+    background: #fff; border-radius: var(--radius-xl);
+    padding: 24px; width: 100%; max-width: 400px;
+    box-shadow: 0 20px 40px rgba(0,0,0,.15);
+    animation: modalPop .25s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes modalPop {
+    from { transform: scale(.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .modal-title {
+    font-family: var(--font-display); font-size: 18px;
+    font-weight: 800; margin-bottom: 8px;
+  }
+  .modal-message {
+    font-size: 14px; color: var(--slate-500);
+    line-height: 1.7; white-space: pre-line; margin-bottom: 20px;
+  }
+  .modal-actions { display: flex; gap: 10px; }
+  .modal-actions form { flex: 1; }
+  .btn-cancel {
+    flex: 1; padding: 14px; border: 1px solid var(--slate-200);
+    border-radius: var(--radius-lg); background: #fff;
+    font-weight: 800; font-size: 15px; cursor: pointer;
+    font-family: var(--font-ui); color: var(--slate-500);
+  }
+  .btn-delete {
+    width: 100%; padding: 14px; border: none;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff; font-weight: 800; font-size: 15px; cursor: pointer;
+    font-family: var(--font-ui);
+  }
+  .btn-delete:hover { filter: brightness(1.05); }
+  /* ===== フォーム ===== */
+  .field { margin-bottom: 14px; }
+  .field-label {
+    display: block; font-size: 13px; font-weight: 800;
+    color: var(--slate-600); margin-bottom: 6px;
+  }
+  .field-input {
+    width: 100%; padding: 12px 14px;
+    border: 1px solid var(--slate-200); border-radius: var(--radius-md);
+    font-size: 14px; font-family: var(--font-ui);
+    outline: none; transition: border-color .2s;
+  }
+  .field-input:focus { border-color: var(--slate-400); }
+  .pw-error {
+    font-size: 12px; color: var(--red-500);
+    font-weight: 700; margin: -6px 0 12px;
+  }
+  .btn-submit-admin {
+    width: 100%; padding: 15px;
+    border-radius: var(--radius-xl); border: none;
+    background: var(--grad-admin); color: #fff;
+    font-weight: 800; font-size: 16px; cursor: pointer;
+    font-family: var(--font-ui); margin-top: 6px;
+    transition: transform .15s cubic-bezier(.34,1.56,.64,1), filter .15s;
+  }
+  .btn-submit-admin:active { transform: scale(.97); }
+  .btn-submit-admin:hover { filter: brightness(1.06); } 

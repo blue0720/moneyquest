@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MONEY QUEST</title>
+<link rel="stylesheet" th:href="@{/css/title.css}">
+</head>
+<body>
+<main class="page">
+  <section class="container">
+
+	<div class="logo-box">
+	    <img th:src="@{/images/logo.png}"
+	         src="/images/logo.png"
+	         alt="MONEY QUEST"
+	         class="app-logo">
+
+	    <p>だれとしてログインする？</p>
+	</div>
+
+    <a class="role-card child" th:href="@{/child/login}">
+      <span class="icon">🌸</span>
+      <span class="text">
+        <strong>こども</strong>
+        <small>クエストでキャラを育てよう</small>
+      </span>
+      <span class="arrow">›</span>
+    </a>
+
+    <a class="role-card parent" th:href="@{/parent/login}">
+      <span class="icon">👨‍👩‍👧</span>
+      <span class="text">
+        <strong>保護者</strong>
+        <small>管理・承認・おこづかいわたし</small>
+      </span>
+      <span class="arrow">›</span>
+    </a>
+
+  </section>
+</main>
+</body>
+</html>

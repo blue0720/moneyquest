@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>エラー画面</title>
+<link rel="stylesheet" th:href="@{/css/user-session-error.css}">
+</head>
+<body>
+  <main class="error-page">
+    <section class="error-card">
+      <div class="coin-wrap">
+        <div class="coin-face">
+          <span class="coin-bandage">✖</span>
+          <span class="coin-brow coin-brow-left"></span>
+          <span class="coin-brow coin-brow-right"></span>
+          <span class="coin-eye coin-eye-left"></span>
+          <span class="coin-eye coin-eye-right"></span>
+          <span class="coin-cheek coin-cheek-left"></span>
+          <span class="coin-cheek coin-cheek-right"></span>
+          <span class="coin-mouth"></span>
+        </div>
+        <span class="coin-shadow"></span>
+      </div>
+
+      <h1 class="error-title">おっと…おさがしのページは見つかりませんでした。</h1>
+      <p class="error-message">URLが変わったか、削除されたのかもしれません。</p>
+
+      <a class="back-button" th:href="@{/}">🏠 タイトルにもどる</a>
+
+      <p class="help-text">こまったときは、おうちの人にそうだんしてね 🙏</p>
+    </section>
+  </main>
+</body>
+</html>

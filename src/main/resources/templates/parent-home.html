@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>保護者ホーム</title>
+	<link rel="stylesheet" th:href="@{/css/parent-home.css}">
+	<link rel="stylesheet" th:href="@{/css/parent-approvals.css}">
+	<link rel="stylesheet" th:href="@{/css/parent-income.css}">
+	<link rel="stylesheet" th:href="@{/css/child-graph.css}">
+	<link rel="stylesheet" th:href="@{/css/child-home-hometab.css}">
+	<link rel="stylesheet" th:href="@{/css/parent-quest.css}">
+	<link rel="stylesheet" th:href="@{/css/parent-spending.css}">
+	<link rel="stylesheet" th:href="@{/css/parent-family.css}">
+</head>
+
+<body>
+
+	<main class="parent-page">
+
+		<header class="parent-header">
+			<div class="parent-header__inner">
+				<div class="parent-user">
+					<div class="parent-user__icon">👩</div>
+					<div>
+						<p class="parent-user__role">保護者</p>
+						<p class="parent-user__name" th:text="${userName}">おかあさん</p>
+					</div>
+				</div>
+				<button type="button" class="logout-button" onclick="openParentLogoutModal()">↪ ログアウト</button>
+			</div>
+		</header>
+
+		<nav class="parent-tabs">
+			<a class="parent-tabs__item" th:classappend="${activeTab == 'overview'} ? ' is-active'"
+				th:href="@{/parent/home}">概要</a>
+			<a class="parent-tabs__item" th:classappend="${activeTab == 'balance'} ? ' is-active'"
+				th:href="@{/parent/balance}">収支</a>
+			<a class="parent-tabs__item" th:classappend="${activeTab == 'approvals'} ? ' is-active'"
+				th:href="@{/parent/approvals}">クエスト承認(<span th:text="${questApprovalCount}">0</span>)</a>
+			<a class="parent-tabs__item" th:classappend="${activeTab == 'limit'} ? ' is-active'"
+				th:href="@{/parent/limit}">上限承認(<span th:text="${limitApprovalCount}">0</span>)</a>
+			<a class="parent-tabs__item" th:classappend="${activeTab == 'record'} ? ' is-active'"
+				th:href="@{/parent/income}">収入</a>
+			<a class="parent-tabs__item" th:classappend="${activeTab == 'quest'} ? ' is-active'"
+				th:href="@{/parent/quest}">クエスト</a>
+			<a class="parent-tabs__item" th:classappend="${activeTab == 'template'} ? ' is-active'"
+				th:href="@{/parent/templates}">テンプレ(<span th:text="${templateCount}">5</span>)</a>
+			<a class="parent-tabs__item" th:classappend="${activeTab == 'family'} ? ' is-active'"
+				th:href="@{/parent/family}">家族</a>
+		</nav>
+
+		<!---- 概要タブ ---->
+		<section class="tab-content" th:classappend="${activeTab == 'overview'} ? ' is-show'" id="overview">
+
+			<div class="overview-section">
+				<h3 class="overview-section-title">🍎 子供たちの貯金額</h3>
+				<div class="overview-child-grid">
+					<div class="overview-child-card" th:each="child : ${childList}">
+						<div class="overview-child-header">
+							<span class="overview-child-icon">🌸</span>
+							<span class="overview-child-name" th:text="${child.userName}">はなちゃん</span>
+						</div>
+						<p class="overview-child-money"
+							th:text="|¥${#numbers.formatInteger(currentMoneyMap[child.userId], 1, 'COMMA')}|">¥2,378</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="overview-section">
+				<h3 class="overview-section-title">📈 今月のサマリー</h3>
+				<div class="overview-summary-grid">
+					<div class="overview-summary-card income">
+						<p class="overview-summary-label">支給した合計</p>
+						<p class="overview-summary-amount"
+							th:text="|¥${#numbers.formatInteger(totalGiven, 1, 'COMMA')}|">¥3,500</p>
+					</div>
+					<div class="overview-summary-card expense">
+						<p class="overview-summary-label">使った合計</p>
+						<p class="overview-summary-amount"
+							th:text="|¥${#numbers.formatInteger(totalSpent, 1, 'COMMA')}|">¥1,122</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="overview-section">
+				<h3 class="overview-section-title">🎯 支出上限の達成状況</h3>
+				<div class="overview-limit-list">
+					<div class="overview-limit-card" th:each="child : ${childList}">
+						<div class="overview-limit-header">
+							<div class="overview-limit-left">
+								<span class="overview-child-icon">🌸</span>
+								<span class="overview-child-name" th:text="${child.userName}">はなちゃん</span>
+							</div>
+							<span class="overview-limit-status" th:if="${limitMap[child.userId] != null}"
+								th:classappend="${limitMap[child.userId].achieved} ? ' is-ok' : ' is-over'"
+								th:text="${limitMap[child.userId].achieved} ? '達成中' : '超過！'">達成中</span>
+							<span class="overview-limit-status is-none" th:if="${limitMap[child.userId] == null}">
+								上限未設定
+							</span>
+						</div>
+						<div th:if="${limitMap[child.userId] != null}">
+							<p class="overview-limit-amount">
+								<span class="overview-limit-current"
+									th:text="|¥${#numbers.formatInteger(limitMap[child.userId].currentExpenseAmount, 1, 'COMMA')}|">¥1,122</span>
+								<span class="overview-limit-max"
+									th:text="|／¥${#numbers.formatInteger(limitMap[child.userId].limitAmount, 1, 'COMMA')}|">／¥5,000</span>
+							</p>
+							<div class="overview-limit-bar">
+								<div class="overview-limit-fill"
+									th:classappend="${!limitMap[child.userId].achieved} ? ' is-over'"
+									th:style="${limitMap[child.userId].limitAmount == 0} ? 'width:0%'
+                                 : (${limitMap[child.userId].currentExpenseAmount >= limitMap[child.userId].limitAmount}
+                                    ? 'width:100%'
+                                    : |width:${limitMap[child.userId].currentExpenseAmount * 100 / limitMap[child.userId].limitAmount}%|)">
+								</div>
+							</div>
+							<p class="overview-limit-remain"
+								th:text="|のこり ¥${#numbers.formatInteger(limitMap[child.userId].limitAmount - limitMap[child.userId].currentExpenseAmount, 1, 'COMMA')}|">
+								のこり ¥3,878
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</section>
+
+		<!-----  収支タブ ----->
+		<section class="tab-content" id="balance" th:classappend="${activeTab == 'balance'} ? ' is-show'">
+
+			<p class="parent-tab-lead">子供を選んで収支状況を確認できます。</p>
+
+			<div class="parent-child-selector">
+				<a class="parent-child-btn" th:each="child : ${childList}"
+					th:classappend="${child.userId == selectedChildId} ? ' is-active'"
+					th:href="@{/parent/balance(childUserId=${child.userId})}">
+					🌸 <span th:text="${child.userName}">はなちゃん</span>
+				</a>
+			</div>
+
+			<div id="parentGraphArea" th:if="${selectedChildId != null}">
+
+				<div class="graph-card">
+					<h3 class="graph-card__title">📈 貯金額の推移</h3>
+					<canvas id="parentSavingsChart"></canvas>
+				</div>
+
+				<div class="graph-card">
+					<h3 class="graph-card__title">📊 月次収支</h3>
+					<canvas id="parentMonthlyChart"></canvas>
+				</div>
+
+				<div class="graph-card">
+					<h3 class="graph-card__title">📋 累計収支</h3>
+					<div class="cumulative-layout">
+						<div class="cumulative-chart-wrap">
+							<canvas id="parentCumulativeChart"></canvas>
+						</div>
+						<div class="cumulative-detail">
+							<div class="cumulative-row">
+								<span class="cumulative-dot income"></span>
+								<span class="cumulative-label">収入</span>
+								<span class="cumulative-value income" id="parentTotalIncome"></span>
+							</div>
+							<div class="cumulative-row">
+								<span class="cumulative-dot expense"></span>
+								<span class="cumulative-label">支出</span>
+								<span class="cumulative-value expense" id="parentTotalExpense"></span>
+							</div>
+							<div class="cumulative-row total">
+								<span class="cumulative-label">さしひき（貯金）</span>
+								<span class="cumulative-value" id="parentSaving"></span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="graph-card" th:if="${incomeRecords != null}">
+					<h3 class="graph-card__title">＋ 収入記録</h3>
+					<div class="child-card-list">
+						<div th:each="rec : ${incomeRecords}">
+							<div class="record-card">
+								<div class="record-card__icon income"><span>✓</span></div>
+								<div class="record-card__body">
+									<p class="record-card__category" th:text="${rec.category}">おこづかい</p>
+									<p class="record-card__date"
+										th:text="${#temporals.format(rec.registeredDate, 'yyyy/MM/dd')}">2024/06/01</p>
+								</div>
+								<span class="record-card__amount income"
+									th:text="|+¥${#numbers.formatInteger(rec.amount, 1, 'COMMA')}|">+¥3,000</span>
+							</div>
+						</div>
+						<div th:if="${incomeRecords == null or #lists.isEmpty(incomeRecords)}" class="child-empty">
+							<p>記録がありません</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="graph-card" th:if="${expenseRecords != null}">
+					<h3 class="graph-card__title">🛍️ 支出記録</h3>
+					<div class="child-card-list">
+						<div th:each="rec : ${expenseRecords}">
+							<div class="record-card">
+								<div class="record-card__icon expense"><span>✗</span></div>
+								<div class="record-card__body">
+									<p class="record-card__category" th:text="${rec.category}">おかし</p>
+									<p class="record-card__date"
+										th:text="${#temporals.format(rec.registeredDate, 'yyyy/MM/dd')}">2024/06/05</p>
+								</div>
+								<span class="record-card__amount expense"
+									th:text="|-¥${#numbers.formatInteger(rec.amount, 1, 'COMMA')}|">-¥300</span>
+							</div>
+						</div>
+						<div th:if="${expenseRecords == null or #lists.isEmpty(expenseRecords)}" class="child-empty">
+							<p>記録がありません</p>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+		</section>
+
+		<section class="tab-content" th:classappend="${activeTab == 'approvals'} ? ' is-show'" id="quest-approval">
+
+			<p class="approvals-tab-lead">子供から届いたクエスト完了の承認申請を確認してください。承認するとEXPとお小遣いが付与されます。</p>
+
+			<div class="approvals-card-list">
+
+				<p th:if="${#lists.isEmpty(approvalList)}" class="approvals-empty">
+					クエスト承認申請がありません。
+				</p>
+
+				<div class="approvals-design-card" th:each="quest : ${approvalList}">
+					<div class="approvals-card-top-row">
+						<div class="approvals-card-left">
+							<div class="approvals-card-icon">📋</div>
+							<div>
+								<div class="approvals-card-title" th:text="${quest.title}">かたづけ</div>
+								<div class="approvals-card-meta">
+									<span th:text="${quest.childUser.userName}">はなちゃん</span>
+									・
+									<span
+										th:text="${#temporals.format(quest.updatedDate, 'yyyy/MM/dd')}">2026/06/24</span>
+								</div>
+							</div>
+						</div>
+						<div class="approvals-card-reward">
+							<span class="approvals-exp">★ +<span th:text="${quest.exp}"></span> XP</span>
+							<span class="approvals-money">+¥<span th:text="${quest.rewardAmount}"></span></span>
+						</div>
+					</div>
+					<div class="approvals-card-actions">
+						<form th:action="@{'/parent/approvals/' + ${quest.questId} + '/approve'}" method="post">
+							<input type="hidden" name="rewardAmount" th:value="${quest.rewardAmount}">
+							<input type="hidden" name="title" th:value="${quest.title}">
+							<input type="hidden" name="exp" th:value="${quest.exp}">
+							<input type="hidden" name="childUserId" th:value="${quest.childUser.userId}">
+							<button type="submit" class="approvals-approve-btn">✓ 承認する</button>
+						</form>
+						<form th:action="@{/parent/approvals/{id}/reject(id=${quest.questId})}" method="post">
+							<button type="submit" class="approvals-reject-btn">× 却下</button>
+						</form>
+					</div>
+				</div>
+			</div>
+
+		</section>
+
+		<section class="tab-content" th:classappend="${activeTab == 'limit'} ? ' is-show'" id="limit-approval">
+
+			<div class="template-tab-header">
+				<div>
+					<h2 class="template-tab-title">支出上限承認</h2>
+					<p class="template-tab-lead">子供から届いた支出上限申請を承認・却下できます</p>
+				</div>
+			</div>
+
+			<h3 class="template-tab-title">承認待ち</h3>
+
+			<div class="empty-box" th:if="${#lists.isEmpty(pendingList)}">
+				📭 承認待ちの申請はありません
+			</div>
+
+			<div class="template-card-list" th:if="${!#lists.isEmpty(pendingList)}">
+				<div class="template-design-card" th:each="limit : ${pendingList}">
+					<div class="template-card-top-row">
+						<div class="template-card-left">
+							<div class="template-card-icon">￥</div>
+							<div>
+								<div class="template-card-title">支出上限申請</div>
+								<span class="child-chip" th:text="${limit.childUserName}">子供名</span>
+							</div>
+						</div>
+					</div>
+					<div class="template-card-reward">
+						<span class="template-money">上限：￥<span th:text="${limit.limitAmount}"></span></span>
+					</div>
+					<div class="template-card-actions">
+						<form th:action="@{/parent/limit/{id}/approve(id=${limit.spendingLimitId})}" method="post">
+							<button type="submit" class="template-purple-small-btn">承認</button>
+						</form>
+						<form th:action="@{/parent/limit/{id}/reject(id=${limit.spendingLimitId})}" method="post">
+							<button type="submit" class="template-circle-btn template-delete-circle">×</button>
+						</form>
+					</div>
+				</div>
+			</div>
+
+			<h3 class="template-tab-title" style="margin-top:32px;">過去の達成状況</h3>
+
+			<div class="empty-box" th:if="${#lists.isEmpty(historyList)}">📭 履歴はありません</div>
+
+			<div class="template-card-list" th:if="${!#lists.isEmpty(historyList)}">
+				<div class="template-design-card parent-limit-history-card" th:each="history : ${historyList}">
+					<div class="template-card-top-row">
+						<div class="template-card-left">
+							<div class="template-card-icon">📅</div>
+							<div>
+								<div class="template-card-title">
+									<span th:text="${history.targetMonth}">2026-06</span>の上限
+								</div>
+								<span class="child-chip" th:text="${history.childUserName}">子供名</span>
+							</div>
+						</div>
+					</div>
+					<div class="template-card-reward">
+						<span class="template-money">上限：￥<span th:text="${history.limitAmount}"></span></span>
+						<span class="template-exp">支出：￥<span th:text="${history.monthlyExpenseAmount}"></span></span>
+					</div>
+					<div class="parent-limit-status-row">
+						<span th:if="${history.requestStatus == 1
+						              && history.targetMonth == #temporals.format(#temporals.createNow(),'yyyy-MM')}"
+							class="status-requesting">チャレンジ中</span>
+						<th:block th:if="${history.requestStatus == 1
+						                  && history.targetMonth != #temporals.format(#temporals.createNow(),'yyyy-MM')}">
+							<span class="status-approved">承認済み</span>
+							<span th:if="${history.achieved}" class="status-achieved">達成</span>
+							<span th:if="${!history.achieved}" class="status-failed">未達成</span>
+						</th:block>
+						<span th:if="${history.requestStatus == 2}" class="status-rejected">却下済み</span>
+					</div>
+				</div>
+			</div>
+
+		</section>
+
+		<section class="tab-content" th:classappend="${activeTab == 'record'} ? ' is-show'" id="income">
+
+			<p class="income-tab-lead">子供を選んでお小遣いを渡しましょう。</p>
+
+			<div class="income-card-list">
+				<div class="income-design-card" th:each="child : ${childList}">
+					<div class="income-card-top-row">
+						<div class="income-card-left">
+							<div class="income-card-icon">🧒</div>
+							<div>
+								<div class="income-card-title" th:text="${child.userName}">はなちゃん</div>
+								<div class="income-card-balance">
+									残高 ¥<span th:text="${currentMoneyMap[child.userId]}">0</span>
+								</div>
+							</div>
+						</div>
+						<button type="button" class="income-give-btn" th:data-id="${child.userId}"
+							th:data-name="${child.userName}" th:data-money="${currentMoneyMap[child.userId]}"
+							onclick="openIncomeAddModal(this)">＋ わたす</button>
+					</div>
+				</div>
+			</div>
+
+			<h2 class="income-history-title">💰 これまでの支給記録</h2>
+
+			<div class="income-card-list">
+				<div class="income-design-card" th:each="income : ${incomeExpenseList}">
+					<div class="income-card-top-row">
+						<div class="income-card-left">
+							<div class="income-card-icon">🎁</div>
+							<div>
+								<div class="income-card-title" th:text="${income.memo}">6月のおこづかい</div>
+								<div class="income-card-meta">
+									<span th:text="${income.childUserName}">はなちゃん</span>
+									・
+									<span
+										th:text="${#temporals.format(income.registeredDate, 'yyyy/MM/dd')}">2024/06/01</span>
+								</div>
+							</div>
+						</div>
+						<span class="income-amount">＋¥<span th:text="${income.amount}">3000</span></span>
+					</div>
+					<div class="income-card-buttons">
+						<button type="button" class="income-edit-btn" th:data-id="${income.incomeExpenseId}"
+							th:data-memo="${income.memo}" th:data-amount="${income.amount}"
+							th:data-child-id="${income.childUserId}" onclick="openIncomeEditModal(this)">✎ 編集</button>
+						<button type="button" class="income-delete-btn" th:data-id="${income.incomeExpenseId}"
+							th:data-memo="${income.memo}" onclick="openIncomeDeleteModal(this)">🗑 削除</button>
+					</div>
+				</div>
+			</div>
+
+
+			<div th:if="${incomeExpenseList == null or #lists.isEmpty(incomeExpenseList)}" class="child-empty">
+				<p>支給記録がありません</p>
+			</div>
+
+		</section>
+
+		<!-- 収入登録モーダル -->
+		<div class="income-modal-overlay" id="incomeAddModal" th:classappend="${showIncomeAddModal} ? ' is-show'">
+			<div class="income-bottom-modal">
+				<div class="income-modal-handle"></div>
+				<h2 class="income-modal-title">💰 おこづかいをわたす</h2>
+				<div class="income-modal-child-row">
+					<div class="income-card-icon">🌸</div>
+					<div><span id="incomeTargetName"></span></div>
+					<span class="income-modal-balance">残高 ¥<span id="incomeTargetMoney"></span></span>
+				</div>
+				<form id="incomeAddForm" th:action="@{/parent/income}" th:object="${incomeExpenseForm}" method="post">
+					<input type="hidden" id="incomeChildUserId" name="childUserId">
+					<input type="hidden" name="recordType" value="0">
+					<label class="income-modal-label">理由・メモ</label>
+					<input class="income-modal-input" type="text" name="memo" placeholder="今月のおこづかい..." maxlength="50"
+						autocomplete="off">
+					<label class="income-modal-label">金額（円）</label>
+					<input class="income-modal-input" type="text" inputmode="numeric" name="amount" placeholder="3000"
+						maxlength="6" required>
+					<p class="income-error-msg"
+						th:if="${#fields.hasErrors('amount') and incomeExpenseForm.amount == null}">
+						金額を入力してください
+					</p>
+					<p class="income-error-msg"
+						th:if="${#fields.hasErrors('amount') and incomeExpenseForm.amount != null and incomeExpenseForm.amount lt 1}">
+						金額は¥1以上の整数で入力してください
+					</p>
+					<p class="income-error-msg"
+						th:if="${#fields.hasErrors('amount') and incomeExpenseForm.amount != null and incomeExpenseForm.amount gt 100000}">
+						金額は¥100,000以下の整数で入力してください
+					</p>
+					<button type="submit" class="income-modal-main-btn">わたす 🎁</button>
+				</form>
+			</div>
+		</div>
+
+		<!-- 収入編集モーダル -->
+		<div class="income-modal-overlay" id="incomeEditModal" th:classappend="${showIncomeEditModal} ? ' is-show'">
+			<div class="income-bottom-modal">
+				<div class="income-modal-handle"></div>
+				<h2 class="income-modal-title">✏️ 支給記録を編集</h2>
+				<p class="income-modal-note">金額を変えると、子供の残高も自動で調整されます。</p>
+				<form id="incomeEditForm" th:action="@{/parent/income/0/edit}" th:object="${incomeExpenseForm}" method="post">
+					<input type="hidden" id="editIncomeId" name="incomeExpenseId">
+					<input type="hidden" id="editIncomeChildUserId" name="childUserId">
+					<input type="hidden" name="recordType" value="0">
+					<label class="income-modal-label">理由・メモ</label>
+					<input class="income-modal-input" type="text" id="editIncomeMemo" name="memo"
+						placeholder="今月のおこづかい..." maxlength="50">
+					<label class="income-modal-label">金額（円）</label>
+					<input class="income-modal-input" type="text" inputmode="numeric" id="editIncomeAmount"
+						name="amount" placeholder="3000" maxlength="6" required>
+					<p class="income-error-msg"
+						th:if="${#fields.hasErrors('amount') and incomeExpenseForm.amount == null}">
+						金額を入力してください
+					</p>
+					<p class="income-error-msg"
+						th:if="${#fields.hasErrors('amount') and incomeExpenseForm.amount != null and incomeExpenseForm.amount lt 1}">
+						金額は¥1以上の整数で入力してください
+					</p>
+					<p class="income-error-msg"
+						th:if="${#fields.hasErrors('amount') and incomeExpenseForm.amount != null and incomeExpenseForm.amount gt 100000}">
+						金額は¥100,000以下の整数で入力してください
+					</p>
+					<button type="submit" class="income-modal-main-btn">保存する</button>
+				</form>
+			</div>
+		</div>
+
+		<!-- 収入削除モーダル -->
+		<div class="income-modal-overlay income-center-overlay" id="incomeDeleteModal">
+			<div class="income-delete-modal">
+				<div class="income-delete-icon">🗑</div>
+				<h2 class="income-delete-title">支給記録を削除しますか？</h2>
+				<p class="income-delete-text">
+					「<span id="deleteIncomeMemo"></span>」（¥<span id="deleteIncomeAmount"></span>）を削除します。<br>
+					子供の残高から差し引かれます。<br>
+					この操作は元に戻せません。
+				</p>
+				<form id="incomeDeleteForm" th:action="@{/parent/income/0/delete}"  method="post">
+					<input type="hidden" id="deleteIncomeId" name="incomeExpenseId">
+					<div class="template-delete-buttons">
+						<button type="button" class="template-cancel-btn"
+							onclick="closeIncomeModal('incomeDeleteModal')">キャンセル</button>
+						<button type="submit" class="template-delete-btn">削除する</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- クエストタブ -->
+		<section class="tab-content quest-tab" th:classappend="${activeTab == 'quest'} ? ' is-show'" id="quest">
+
+			<div class="quest-tab-header">
+				<h2 class="quest-tab-title">
+					クエスト一覧（<span th:text="${questList != null ? #lists.size(questList) : 0}">0</span>件）
+				</h2>
+				<button type="button" class="quest-purple-small-btn" onclick="openQuestAddModal()">＋ 追加</button>
+			</div>
+
+			<div class="quest-card-list" th:if="${questList != null and !#lists.isEmpty(questList)}">
+				<div class="quest-design-card" th:each="quest : ${questList}">
+					<div class="quest-card-top-row">
+						<div class="quest-card-left">
+							<div class="quest-card-icon" th:text="${quest.limitAmount != null} ? '🎯' : '🧾'">🧾</div>
+							<div>
+								<div class="quest-card-title" th:text="${quest.title}">食器をかたづける</div>
+								<div class="quest-card-reward">
+									<span class="quest-exp">★ <span
+											th:text="${quest.exp != null ? quest.exp : 5}">5</span> XP</span>
+									<span class="quest-money">ほうび ¥<span
+											th:text="${quest.rewardAmount}">50</span></span>
+								</div>
+							</div>
+						</div>
+						<div class="quest-card-actions">
+							<span class="quest-user-name"
+								th:text="${quest.childUser != null ? quest.childUser.userName : '対象なし'}">はなちゃん</span>
+
+							<!-- 上限承認クエストは編集・削除ボタンを非表示 -->
+							<th:block th:if="${quest.limitAmount == null}">
+								<button type="button" class="quest-circle-btn" th:data-id="${quest.questId}"
+									th:data-title="${quest.title}" th:data-reward="${quest.rewardAmount}"
+									th:data-exp="${quest.exp != null ? quest.exp : 5}"
+									th:data-description="${quest.description}"
+									th:data-child-id="${quest.childUser != null ? quest.childUser.userId : ''}"
+									onclick="openQuestEditModal(this)">✎</button>
+								<button type="button" class="quest-circle-btn quest-delete-circle"
+									th:data-id="${quest.questId}" th:data-title="${quest.title}"
+									onclick="openQuestDeleteModal(this)">🗑</button>
+							</th:block>
+						</div>
+					</div>
+					<p class="quest-card-description"
+						th:if="${quest.description != null and !#strings.isEmpty(quest.description)}">
+						📝 <span th:text="${quest.description}">机の上もきれいにしてね</span>
+					</p>
+				</div>
+			</div>
+		</section>
+
+		<!-- クエスト作成モーダル -->
+		<div class="quest-modal-overlay" id="questAddModal">
+			<div class="quest-bottom-modal">
+				<div class="quest-modal-handle"></div>
+				<h2 class="quest-modal-title">📋 クエストを追加</h2>
+				<form th:action="@{/parent/quest}" method="post">
+					<label class="quest-modal-label">お手伝いの内容</label>
+					<input class="quest-modal-input" type="text" name="title" placeholder="例：食器を片付ける" maxlength="30"
+						required>
+					<label class="quest-modal-label">だれに？</label>
+					<div class="quest-child-chip-list">
+						<label class="template-child-chip">
+							<input type="radio" name="childUserId" value="0" checked>
+							<span>👨‍👩‍👧 全員</span>
+						</label>
+						<label class="quest-child-chip" th:each="child : ${childList}">
+							<input type="radio" name="childUserId" th:value="${child.userId}">
+							<span th:text="${child.userName}"></span>
+						</label>
+					</div>
+					<label class="quest-modal-label">ほうび・お小遣い（円）</label>
+					<input class="quest-modal-input" type="text" inputmode="numeric" name="rewardAmount" value="50"
+						maxlength="6" required>
+					<p class="quest-modal-note">
+						★ クリアで 5 EXP（一律）クリアして承認されると、この金額が子供の残高に追加されます。
+					</p>
+					<label class="quest-modal-label">備考・メモ（任意）</label>
+					<input class="quest-modal-input" type="text" name="description" placeholder="例：机の上もきれいにしてね"
+						maxlength="50">
+					<label class="quest-save-template-box">
+						<input type="checkbox" name="saveAsTemplate" value="true">
+						<span class="quest-save-template-check"></span>
+						<span>
+							<strong>テンプレートにも保存する</strong>
+							<small>チェックすると、この内容をテンプレートとして保存し、次回からすばやく追加できます</small>
+						</span>
+					</label>
+					<input type="hidden" name="exp" value="5">
+					<button type="submit" class="quest-modal-main-btn">クエストを追加する✨</button>
+				</form>
+			</div>
+		</div>
+
+		<!-- クエスト編集モーダル -->
+		<div class="quest-modal-overlay" id="questEditModal">
+			<div class="template-bottom-modal">
+				<div class="quest-modal-handle"></div>
+				<h2 class="quest-modal-title">✏️ クエストを編集</h2>
+				<p class="quest-modal-note">⚠️ 編集すると子供側に「！」マークが表示されます</p>
+				<form id="editQuestForm" th:action="@{/parent/quest/0/edit}" method="post">
+					<input type="hidden" id="editQuestId" name="questId">
+					<label class="quest-modal-label">お手伝いの内容</label>
+					<input class="quest-modal-input" type="text" id="editQuestTitle" name="title" maxlength="30"
+						required>
+					<label class="quest-modal-label">だれに？</label>
+					<!--ここ分かりません泣-->
+					<label class="quest-modal-label">ほうび・お小遣い（円）</label>
+					<input class="quest-modal-input" type="text" inputmode="numeric" id="editQuestReward"
+						name="rewardAmount" maxlength="6" required>
+					<p class="quest-modal-note">
+						★ クリアで 5 EXP（一律）クリアして承認されると、この金額が子供の残高に追加されます。
+					</p>
+					<label class="quest-modal-label">備考・メモ（任意）</label>
+					<input class="quest-modal-input" type="text" id="editQuestDescription" name="description"
+						placeholder="例：机の上もきれいにしてね" maxlength="50">
+					<input type="hidden" id="editQuestChildUserId" name="childUserId">
+					<input type="hidden" id="editQuestExp" name="exp" value="5">
+					<button type="submit" class="quest-modal-main-btn">保存する</button>
+				</form>
+			</div>
+		</div>
+
+		<!-- クエスト削除モーダル -->
+		<div class="quest-modal-overlay quest-center-overlay" id="questDeleteModal">
+			<div class="quest-delete-modal">
+				<div class="quest-delete-icon">🗑</div>
+				<h2 class="quest-delete-title">クエストを削除しますか？</h2>
+				<p class="quest-delete-text">
+					<span id="deleteQuestTitle"></span>を削除します。<br>
+					子供に削除のお知らせが届きます。<br>
+					この操作は元に戻せません。
+				</p>
+				<form id="deleteQuestForm" th:action="@{/parent/quest/0/delete}" method="post">
+					<input type="hidden" id="deleteQuestId" name="questId">
+					<div class="quest-delete-buttons">
+						<button type="button" class="quest-cancel-btn" onclick="closeQuestModal('questDeleteModal')">
+							キャンセル
+						</button>
+						<button type="submit" class="quest-delete-btn">削除する</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<section class="tab-content template-tab" th:classappend="${activeTab == 'template'} ? ' is-show'"
+			id="template">
+
+			<div class="template-tab-header">
+				<div>
+					<h2 class="template-tab-title">
+						📋 テンプレート（<span th:text="${templateCount}">0</span>件）
+					</h2>
+					<p class="template-tab-lead">
+						よく使うお手伝いをテンプレートにしておくと、クエストをすばやく作成できます。
+					</p>
+				</div>
+				<button type="button" class="template-purple-small-btn" onclick="openTemplateAddModal()">＋ 追加</button>
+			</div>
+
+			<div class="template-card-list">
+				<div class="template-design-card" th:each="template : ${templateList}">
+					<div class="template-card-top-row">
+						<div class="template-card-left">
+							<div class="template-card-icon">📝</div>
+							<div>
+								<div class="template-card-title" th:text="${template.title}"></div>
+								<div class="template-card-reward">
+									<span class="template-exp">★ <span th:text="${template.exp}"></span> EXP</span>
+									<span class="template-money">＋¥<span
+											th:text="${template.rewardAmount}"></span></span>
+								</div>
+							</div>
+						</div>
+						<div class="template-card-actions">
+							<button type="button" class="template-circle-btn" th:data-id="${template.questTemplateId}"
+								th:data-title="${template.title}" th:data-reward="${template.rewardAmount}"
+								th:data-description="${template.description}"
+								onclick="openTemplateEditModal(this)">✎</button>
+							<button type="button" class="template-circle-btn template-delete-circle"
+								th:data-id="${template.questTemplateId}" th:data-title="${template.title}"
+								onclick="openTemplateDeleteModal(this)">🗑</button>
+						</div>
+					</div>
+					<button type="button" class="template-add-quest-wide-btn" th:data-id="${template.questTemplateId}"
+						th:data-title="${template.title}" th:data-reward="${template.rewardAmount}"
+						th:data-exp="${template.exp}" th:data-description="${template.description}"
+						onclick="openTemplateQuestModal(this)">
+						＋ クエスト一覧に追加
+					</button>
+				</div>
+			</div>
+
+		</section>
+
+		<!-- テンプレ作成モーダル -->
+		<div class="template-modal-overlay" id="templateAddModal">
+			<div class="template-bottom-modal">
+				<div class="template-modal-handle"></div>
+				<h2 class="template-modal-title">📋 テンプレートを追加</h2>
+				<form th:action="@{/parent/templates}" method="post">
+					<label class="template-modal-label">お手伝いの内容</label>
+					<input class="template-modal-input" type="text" name="title" placeholder="例：食器をかたづける" maxlength="30"
+						required>
+					<label class="template-modal-label">ほうび・お小遣い（円）</label>
+					<input class="template-modal-input" type="text" inputmode="numeric" name="rewardAmount" value="50"
+						maxlength="6" required>
+					<label class="template-modal-label">備考・メモ（任意）</label>
+					<input class="template-modal-input" type="text" name="description" placeholder="例：机の上もきれいにしてね"
+						maxlength="50">
+					<input type="hidden" name="exp" value="3">
+					<p class="template-modal-note">★ 3 EXP（一律）　テンプレートは毎日のお手伝いとして使えます。</p>
+					<button type="submit" class="template-modal-main-btn">テンプレートを追加</button>
+				</form>
+			</div>
+		</div>
+
+		<!-- テンプレ編集モーダル -->
+		<div class="template-modal-overlay" id="templateEditModal">
+			<div class="template-bottom-modal">
+				<div class="template-modal-handle"></div>
+				<h2 class="template-modal-title">📝 テンプレートを編集</h2>
+				<form id="editTemplateForm"  th:action="@{/parent/templates/0/edit}" method="post">
+					<input type="hidden" id="editTemplateId" name="questTemplateId">
+					<label class="template-modal-label">お手伝いの内容</label>
+					<input class="template-modal-input" type="text" id="editTemplateTitle" name="title" maxlength="30"
+						required>
+					<label class="template-modal-label">ほうび・お小遣い（円）</label>
+					<input class="template-modal-input" type="text" inputmode="numeric" id="editTemplateReward"
+						name="rewardAmount" maxlength="6" required>
+					<label class="template-modal-label">備考・メモ（任意）</label>
+					<input class="template-modal-input" type="text" id="editTemplateDescription" name="description"
+						placeholder="例：机の上もきれいにしてね" maxlength="50">
+					<input type="hidden" name="exp" value="5">
+					<p class="template-modal-note">★ 5 EXP（一律）　テンプレートは毎日のお手伝いとして使えます。</p>
+					<button type="submit" class="template-modal-main-btn">保存する</button>
+				</form>
+			</div>
+		</div>
+
+		<!-- テンプレ削除モーダル -->
+		<div class="template-modal-overlay template-center-overlay" id="templateDeleteModal">
+			<div class="template-delete-modal">
+				<div class="template-delete-icon">🗑</div>
+				<h2 class="template-delete-title">テンプレートを削除しますか？</h2>
+				<p class="template-delete-text">
+					「<span id="deleteTemplateTitle">食器をかたづける</span>」をテンプレートから削除します。<br>
+					作成済みのクエストはそのままです。
+				</p>
+				<form id="deleteTemplateForm" th:action="@{/parent/templates/0/delete}" method="post">
+					<input type="hidden" id="deleteTemplateId" name="questTemplateId">
+					<div class="template-delete-buttons">
+						<button type="button" class="template-cancel-btn"
+							onclick="closeTemplateModal('templateDeleteModal')">キャンセル</button>
+						<button type="submit" class="template-delete-btn">削除する</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- テンプレからクエスト追加モーダル -->
+		<div class="template-modal-overlay" id="templateQuestModal">
+			<div class="template-bottom-modal">
+				<div class="template-modal-handle"></div>
+				<h2 class="template-modal-title">＋ クエスト一覧に追加</h2>
+				<div class="template-quest-preview">
+					<div class="template-card-icon">📝</div>
+					<div>
+						<div class="template-card-title" id="questTemplateTitle">食器をかたづける</div>
+						<div class="template-card-reward">
+							<span class="template-xp">★ <span id="questTemplateExp">5</span> EXP</span>
+							<span class="template-money">＋¥<span id="questTemplateReward">50</span></span>
+						</div>
+					</div>
+				</div>
+				<form th:action="@{/parent/templates/add-quest}" method="post">
+					<input type="hidden" id="questTemplateId" name="questTemplateId">
+					<input type="hidden" id="questTemplateTitleInput" name="title">
+					<input type="hidden" id="questTemplateRewardInput" name="rewardAmount">
+					<input type="hidden" id="questTemplateExpInput" name="exp">
+					<input type="hidden" id="questTemplateDescriptionInput" name="description">
+					<label class="template-modal-label">だれに？</label>
+					<div class="template-child-chip-list">
+						<label class="template-child-chip">
+							<input type="radio" name="childUserId" value="0" checked>
+							<span>👨‍👩‍👧 全員</span>
+						</label>
+						<label class="template-child-chip" th:each="child : ${childList}">
+							<input type="radio" name="childUserId" th:value="${child.userId}">
+							<span th:text="${child.userName}">はなちゃん</span>
+						</label>
+					</div>
+					<button type="submit" class="template-modal-main-btn">クエストを追加する ✨</button>
+				</form>
+			</div>
+		</div>
+
+		<section class="tab-content family-tab" id="family" th:classappend="${activeTab == 'family'} ? ' is-show'">
+
+			<div class="family-tab-header">
+				<p class="family-tab-lead">家族グループのメンバー</p>
+				<button type="button" class="family-add-child-btn" onclick="openFamilyAddChildModal()">＋ 子供を追加</button>
+			</div>
+
+			<div class="family-card-list">
+				<div class="family-member-card" th:each="member : ${familyList}">
+					<div class="family-card-main">
+						<div class="family-avatar" th:text="${member.authority == 1} ? '👩' : '🌸'">👩</div>
+						<div class="family-card-info">
+							<div class="family-name-row">
+								<span class="family-member-name" th:text="${member.userName}">おかあさん</span>
+								<span class="family-self-badge" th:if="${member.userId == loginUserId}">あなた</span>
+							</div>
+							<p class="family-member-mail" th:text="${member.mailAddress}">parent@example.com</p>
+							<span class="family-role-badge"
+								th:classappend="${member.authority == 1} ? ' is-parent-role' : ' is-child-role'"
+								th:text="${member.authority == 1} ? '保護者' : '子供'">保護者</span>
+						</div>
+					</div>
+					<div class="family-card-actions">
+						<button type="button" class="family-circle-btn family-edit-btn" th:data-id="${member.userId}"
+							th:data-name="${member.userName}" th:data-mail="${member.mailAddress}"
+							th:data-authority="${member.authority}" onclick="openFamilyEditModal(this)">✎</button>
+						<button type="button" class="family-circle-btn family-delete-btn" th:data-id="${member.userId}"
+							th:data-name="${member.userName}" th:data-authority="${member.authority}"
+							onclick="openFamilyDeleteModal(this)">🗑</button>
+					</div>
+					<p class="family-self-delete-note" th:if="${member.userId == loginUserId}">
+						⚠ 自分のアカウントを削除すると、紐づく子供もすべて削除されます。
+					</p>
+				</div>
+			</div>
+		</section>
+
+		<!-- 子供追加モーダル -->
+		<div class="family-modal-overlay" id="familyAddChildModal">
+			<div class="family-sheet-modal">
+				<div class="family-sheet-bar"></div>
+				<h2 class="family-modal-title">👶 子供アカウントを追加</h2>
+				<form th:action="@{/parent/family/child}" method="post">
+					<label class="family-modal-label">お名前</label>
+					<input class="family-modal-input" type="text" name="userName" placeholder="はなちゃん" maxlength="20"
+						required>
+					<label class="family-modal-label">メールアドレス</label>
+					<input class="family-modal-input" type="email" name="mailAddress" placeholder="hana@example.com"
+						maxlength="100" required>
+
+					<!-- メールアドレス重複などのエラーメッセージ -->
+					<p th:if="${errorMessage}" th:text="${errorMessage}"
+						style="color:#e53935;font-size:12px;margin:4px 0 0;"></p>
+
+					<label class="family-modal-label">パスワード</label>
+					<input class="family-modal-input" type="password" name="password" placeholder="パスワード" minlength="4"
+						maxlength="20" required>
+					<label class="family-modal-label">パスワード（確認）</label>
+					<input class="family-modal-input" type="password" name="passwordConfirm" placeholder="もう一度入力"
+						minlength="4" maxlength="20" required>
+					<p class="family-modal-note">
+						📝 今月の支出上限は、子供が初回ログイン時に自分で設定し、あなたに承認申請が届きます。
+					</p>
+					<button type="submit" class="family-modal-main-btn">アカウントを作成する 🎉</button>
+				</form>
+			</div>
+		</div>
+
+		<!-- 編集モーダル -->
+		<div class="family-modal-overlay" id="familyEditModal">
+			<div class="family-sheet-modal">
+				<div class="family-sheet-bar"></div>
+				<h2 class="family-modal-title" id="familyEditTitle">✏️ アカウントを編集</h2>
+				<form id="familyEditForm" th:action="@{/parent/family/0/delete}" method="post">
+					<label class="family-modal-label">ユーザー名</label>
+					<input class="family-modal-input" type="text" id="familyEditName" name="userName" maxlength="20"
+						required>
+					<label class="family-modal-label">メールアドレス</label>
+					<input class="family-modal-input" type="email" id="familyEditMail" name="mailAddress"
+						maxlength="100" required>
+					<p id="familyEditErrorMsg" th:if="${editErrorChildId}" th:text="${errorMessage}"
+						style="color:#e53935;font-size:12px;margin:4px 0 0;"></p>
+					<label class="family-modal-label">パスワード</label>
+					<input class="family-modal-input" type="password" id="familyEditPassword" name="password"
+						placeholder="変更する場合のみ入力" minlength="4" maxlength="20">
+					<label class="family-modal-label">パスワード（確認）</label>
+					<input class="family-modal-input" type="password" id="familyEditPasswordConfirm"
+						name="passwordConfirm" placeholder="変更する場合のみ入力" minlength="4" maxlength="20">
+					<button type="submit" class="family-modal-main-btn">保存する</button>
+				</form>
+			</div>
+		</div>
+
+		<!-- 削除モーダル -->
+		<div class="family-modal-overlay" id="familyDeleteModal">
+			<div class="family-delete-modal">
+				<div class="family-delete-icon">🗑</div>
+				<h2 id="familyDeleteTitle">アカウントを削除しますか？</h2>
+				<p id="familyDeleteMessage">この操作は元に戻せません。</p>
+				<div class="family-delete-actions">
+					<button type="button" class="family-cancel-btn" onclick="closeFamilyModal('familyDeleteModal')">
+						キャンセル
+					</button>
+					<form id="familyDeleteForm" th:action="@{/parent/family/edit}" method="post">
+						<button type="submit" class="family-danger-btn">削除する</button>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<!-- ログアウト確認モーダル -->
+		<div class="template-modal-overlay template-center-overlay" id="parentLogoutModal">
+			<div class="template-delete-modal">
+				<div class="template-delete-icon">👋</div>
+				<h2 class="template-delete-title">ログアウトしますか？</h2>
+				<p class="template-delete-text">再びログインするにはメールアドレスとパスワードが必要です。</p>
+				<div class="template-delete-buttons">
+					<button type="button" class="template-cancel-btn"
+						onclick="closeTemplateModal('parentLogoutModal')">もどる</button>
+					<form th:action="@{/logout}" method="post" style="display:contents;">
+						<button type="submit" class="template-delete-btn" style="background:#ff6b1a;">
+							ログアウト
+						</button>
+					</form>
+				</div>
+			</div>
+		</div>
+
+	</main>
+
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+	<th:block th:if="${selectedChildId != null}">
+		<script th:inline="javascript">
+			/*<![CDATA[*/
+			window.parentGraphChildId = /*[[${selectedChildId}]]*/ null;
+			/*]]>*/
+		</script>
+	</th:block>
+
+	<script th:src="@{/js/parent-home.js}"></script>
+
+	<!-- エラー時にモーダルを自動で再表示（子供編集エラーは編集モーダル、それ以外は追加モーダル） -->
+	<th:block th:if="${errorMessage}">
+		<script th:inline="javascript">
+			(function () {
+				const editChildId = /*[[${editErrorChildId}]]*/ null;
+				if (editChildId != null) {
+					const btn = document.querySelector('.family-edit-btn[data-id="' + editChildId + '"]');
+					if (btn) {
+						openFamilyEditModal(btn);
+						document.getElementById('familyEditName').value = /*[[${userForm?.userName}]]*/ '';
+						document.getElementById('familyEditMail').value = /*[[${userForm?.mailAddress}]]*/ '';
+					}
+				} else {
+					openFamilyAddChildModal();
+				}
+			})();
+		</script>
+	</th:block>
+</body>
+
+</html>

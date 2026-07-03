@@ -1,0 +1,198 @@
+@charset "UTF-8";
+
+/* 上限承認タブ */
+.child-chip {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #f4efff;
+    color: #7b3ff2;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.empty-box {
+    padding: 18px;
+    border-radius: 14px;
+    background: #ffffff;
+    border: 2px dashed #e2d4ff;
+    color: #8a6847;
+    font-weight: 700;
+}
+
+/* =========================
+   上限履歴カード専用
+========================= */
+
+.parent-limit-history-card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    column-gap: 16px;
+
+    padding: 16px 18px;
+    min-height: 74px;
+    border-radius: 18px;
+}
+
+.parent-limit-history-card .template-card-top-row {
+    margin-bottom: 4px;
+}
+
+.parent-limit-history-card .template-card-left {
+    gap: 14px;
+}
+
+.parent-limit-history-card .template-card-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #f3edff;
+    color: #7b3ff2;
+    font-size: 18px;
+}
+
+.parent-limit-history-card .template-card-title {
+    margin-bottom: 4px;
+    color: #2f2118;
+    font-size: 16px;
+    font-weight: 900;
+}
+
+.parent-limit-history-card .child-chip {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #f4efff;
+    color: #7b3ff2;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.parent-limit-history-card .template-card-reward {
+    display: flex;
+    gap: 8px;
+    margin-left: 58px;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.parent-limit-history-card .template-money {
+    color: #00a86b;
+}
+
+.parent-limit-history-card .template-exp {
+    color: #ff9900;
+}
+
+.parent-limit-status-row {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    margin-top: 0;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+/* 通常の文字ステータス */
+.status-requesting {
+    color: #ff9900;
+    font-weight: 900;
+}
+
+.status-approved {
+    display: none;
+}
+
+/* 達成バッジ */
+.status-achieved {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 58px;
+    height: 28px;
+    padding: 0 14px;
+    border-radius: 999px;
+
+    background: #12c76a;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+/* 達成の左に丸チェック */
+.status-achieved::before {
+    content: "✓";
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 34px;
+    height: 34px;
+    margin-right: 10px;
+    border-radius: 50%;
+
+    background: #d9fbe7;
+    color: #12c76a;
+    font-size: 20px;
+    font-weight: 900;
+}
+
+/* 未達成バッジ */
+.status-failed {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 70px;
+    height: 28px;
+    padding: 0 14px;
+    border-radius: 999px;
+
+    background: #ff4b55;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+/* 未達成の左に丸バツ */
+.status-failed::before {
+    content: "×";
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 34px;
+    height: 34px;
+    margin-right: 10px;
+    border-radius: 50%;
+
+    background: #ffe0e0;
+    color: #ff4b55;
+    font-size: 22px;
+    font-weight: 900;
+}
+
+/* 却下済み */
+.status-rejected {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 70px;
+    height: 28px;
+    padding: 0 14px;
+    border-radius: 999px;
+
+    background: #ff4b55;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 900;
+}
