@@ -91,8 +91,18 @@
 			<button class="btn-primary-admin" onclick="openAddAdminModal()">＋ 新規登録</button>
 		</div>
 
-		<div class="card-list">
-			<div class="user-card" th:each="admin : ${adminList}">
+		<div class="search-bar">
+			<svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af"
+				stroke-width="2">
+				<circle cx="11" cy="11" r="8" />
+				<path d="m21 21-4.3-4.3" />
+			</svg>
+			<input type="text" id="adminSearchInput" placeholder="ユーザー名・メールアドレスで検索" oninput="filterAdmins()" />
+		</div>
+
+		<div class="card-list" id="adminCardList">
+			<div class="user-card" th:each="admin : ${adminList}" th:data-name="${admin.userName}"
+				th:data-email="${admin.mailAddress}">
 				<div class="user-avatar admin-avatar">&#x1F6E1;</div>
 				<div class="user-info">
 					<p class="user-name">
@@ -125,6 +135,9 @@
 						</svg>
 					</span>
 				</div>
+			</div>
+			<div class="empty-state" id="adminEmpty" style="display:none;">
+				<p>該当するユーザーが見つかりません</p>
 			</div>
 		</div>
 	</main>
@@ -223,6 +236,20 @@
 
 
 	<script>
+		function filterAdmins() {
+			var q = document.getElementById('adminSearchInput').value.toLowerCase();
+			var cards = document.querySelectorAll('#adminCardList .user-card');
+			var visible = 0;
+			cards.forEach(function (card) {
+				var name = (card.dataset.name || '').toLowerCase();
+				var email = (card.dataset.email || '').toLowerCase();
+				var show = name.includes(q) || email.includes(q);
+				card.style.display = show ? 'flex' : 'none';
+				if (show) visible++;
+			});
+			document.getElementById('adminEmpty').style.display = visible === 0 ? 'block' : 'none';
+		}
+
 		function filterParents() {
 			var q = document.getElementById('searchInput').value.toLowerCase();
 			var cards = document.querySelectorAll('#parentCardList .user-card');

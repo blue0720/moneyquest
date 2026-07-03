@@ -1,0 +1,18 @@
+{
+  "name": "moneyquest-mcp-server",
+  "version": "0.1.0",
+  "description": "MoneyQuest(mqdb)のデータをClaudeから参照・作成・更新するためのMCPサーバー",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.4.2",
+    "mysql2": "^3.22.5",
+    "zod": "^4.4.3"
+  }
+}
