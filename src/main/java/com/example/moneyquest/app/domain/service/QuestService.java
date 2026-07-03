@@ -152,30 +152,31 @@ public class QuestService {
 	 */
 
 	public void approveQuest(QuestSendForm form, Integer questId, UserEntity parentUser) {
-		questRepository.findById(questId).ifPresent(questEntity -> {
-			if (questEntity.getChildUser() == null
-					|| !parentUser.getUserId().equals(questEntity.getChildUser().getParentUserId())) {
-				throw new IllegalArgumentException("この操作を行う権限がありません。");
-			}
+		QuestEntity questEntity = questRepository.findById(questId)
+				.orElseThrow(() -> new IllegalArgumentException("対象のクエストが見つかりません。"));
 
-			questEntity.setStatus(2);
-			questEntity.setUpdatedDate(LocalDateTime.now());
-			questRepository.save(questEntity);
+		if (questEntity.getChildUser() == null
+				|| !parentUser.getUserId().equals(questEntity.getChildUser().getParentUserId())) {
+			throw new IllegalArgumentException("この操作を行う権限がありません。");
+		}
 
-			// 収入情報追加
+		questEntity.setStatus(2);
+		questEntity.setUpdatedDate(LocalDateTime.now());
+		questRepository.save(questEntity);
 
-			IncomeExpenseForm incomeForm = new IncomeExpenseForm();
+		// 収入情報追加
 
-			incomeForm.setAmount(questEntity.getRewardAmount());
-			incomeForm.setCategory("クエスト達成：" + questEntity.getTitle());
-			incomeForm.setMemo(questEntity.getDescription());
+		IncomeExpenseForm incomeForm = new IncomeExpenseForm();
 
-			incomeExpenseService.createRecord(incomeForm, parentUser, questEntity.getChildUser().getUserId());
+		incomeForm.setAmount(questEntity.getRewardAmount());
+		incomeForm.setCategory("クエスト達成：" + questEntity.getTitle());
+		incomeForm.setMemo(questEntity.getDescription());
 
-			Integer exp = questEntity.getExp() == null ? 5 : questEntity.getExp();
-			characterService.addExp(questEntity.getChildUser().getUserId(), exp);
-			characterService.incrementAchievement(questEntity.getChildUser().getUserId());
-		});
+		incomeExpenseService.createRecord(incomeForm, parentUser, questEntity.getChildUser().getUserId());
+
+		Integer exp = questEntity.getExp() == null ? 5 : questEntity.getExp();
+		characterService.addExp(questEntity.getChildUser().getUserId(), exp);
+		characterService.incrementAchievement(questEntity.getChildUser().getUserId());
 	}
 
 	/**
@@ -183,16 +184,17 @@ public class QuestService {
 	 */
 
 	public void rejectQuest(Integer questId, Integer parentUserId) {
-		questRepository.findById(questId).ifPresent(quest -> {
-			if (quest.getChildUser() == null
-					|| !parentUserId.equals(quest.getChildUser().getParentUserId())) {
-				throw new IllegalArgumentException("この操作を行う権限がありません。");
-			}
+		QuestEntity quest = questRepository.findById(questId)
+				.orElseThrow(() -> new IllegalArgumentException("対象のクエストが見つかりません。"));
 
-			quest.setStatus(3);
-			quest.setUpdatedDate(LocalDateTime.now());
-			questRepository.save(quest);
-		});
+		if (quest.getChildUser() == null
+				|| !parentUserId.equals(quest.getChildUser().getParentUserId())) {
+			throw new IllegalArgumentException("この操作を行う権限がありません。");
+		}
+
+		quest.setStatus(3);
+		quest.setUpdatedDate(LocalDateTime.now());
+		questRepository.save(quest);
 	}
 
 	/**
