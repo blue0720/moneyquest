@@ -86,6 +86,11 @@ public class IncomeExpenseService {
 			recordType = 0; // 保護者なら収入
 			childUser = userRepository.findById(targetChildUserId)
 					.orElseThrow(() -> new SecurityException("対象の子供が存在しません"));
+
+			// 所有権チェック：自分の家族の子供以外には登録できない
+			if (!loginUser.getUserId().equals(childUser.getParentUserId())) {
+				throw new SecurityException("権限がありません");
+			}
 		}
 
 		// 支出記録かつカテゴリが空欄だった場合エラーメッセージを表示

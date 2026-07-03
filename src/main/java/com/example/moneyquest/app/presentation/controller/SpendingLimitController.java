@@ -121,7 +121,11 @@ public class SpendingLimitController {
 	public String approveLimit(
 			@PathVariable("id") Integer id, @AuthenticationPrincipal CustomUserDetails loginUser) {
 
-		spendingService.approveLimit(id, loginUser.getUser().getUserId());
+		try {
+			spendingService.approveLimit(id, loginUser.getUser().getUserId());
+		} catch (SecurityException e) {
+			return "redirect:" + ERROR;
+		}
 
 		return "redirect:" + PARENT_LIMIT;
 	}
@@ -131,9 +135,14 @@ public class SpendingLimitController {
 	 */
 	@PostMapping(PARENT_LIMIT_REJECT)
 	public String rejectLimit(
-			@PathVariable("id") Integer id) {
+			@PathVariable("id") Integer id,
+			@AuthenticationPrincipal CustomUserDetails loginUser) {
 
-		spendingService.rejectLimit(id);
+		try {
+			spendingService.rejectLimit(id, loginUser.getUser().getUserId());
+		} catch (SecurityException e) {
+			return "redirect:" + ERROR;
+		}
 
 		return "redirect:" + PARENT_LIMIT;
 	}

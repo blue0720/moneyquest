@@ -303,6 +303,11 @@ public class SpendingService {
                 spendingLimitRepository.findById(spendingLimitId)
                         .orElseThrow();
 
+        if (entity.getChildUser() == null
+                || !parentUserId.equals(entity.getChildUser().getParentUserId())) {
+            throw new SecurityException("この操作を行う権限がありません。");
+        }
+
         entity.setRequestStatus(APPROVED);
         entity.setUpdatedDate(LocalDateTime.now());
 
@@ -332,11 +337,17 @@ public class SpendingService {
      * 保護者：却下
      */
     public void rejectLimit(
-            Integer spendingLimitId) {
+            Integer spendingLimitId,
+            Integer parentUserId) {
 
         SpendingLimitEntity entity =
                 spendingLimitRepository.findById(spendingLimitId)
                         .orElseThrow();
+
+        if (entity.getChildUser() == null
+                || !parentUserId.equals(entity.getChildUser().getParentUserId())) {
+            throw new SecurityException("この操作を行う権限がありません。");
+        }
 
         entity.setRequestStatus(REJECTED);
         entity.setUpdatedDate(LocalDateTime.now());

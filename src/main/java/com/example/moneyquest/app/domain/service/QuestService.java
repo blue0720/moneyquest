@@ -83,10 +83,15 @@ public class QuestService {
 	 * 2. updateQuest: 更新 (Formの値で既存データを上書き、状態は「5:更新」)
 	 */
 
-	public QuestEntity updateQuest(QuestSendForm form) {
+	public QuestEntity updateQuest(QuestSendForm form, Integer parentUserId) {
 		Integer questId = form.getQuestId();
 		QuestEntity questEntity = questRepository.findById(questId)
 				.orElseThrow(() -> new IllegalArgumentException("対象のクエストが見つかりません。"));
+
+		if (questEntity.getChildUser() == null
+				|| !parentUserId.equals(questEntity.getChildUser().getParentUserId())) {
+			throw new IllegalArgumentException("この操作を行う権限がありません。");
+		}
 
 		questEntity.setRewardAmount(form.getRewardAmount());
 		questEntity.setExp(form.getExp() == null ? questEntity.getExp() : form.getExp());
@@ -103,20 +108,34 @@ public class QuestService {
 	 * 3.deleteQuest: 削除
 	 */
 
-	public void deleteQuest(Integer questId) {
-		questRepository.deleteById(questId);
+	public void deleteQuest(Integer questId, Integer parentUserId) {
+		QuestEntity questEntity = questRepository.findById(questId)
+				.orElseThrow(() -> new IllegalArgumentException("対象のクエストが見つかりません。"));
+
+		if (questEntity.getChildUser() == null
+				|| !parentUserId.equals(questEntity.getChildUser().getParentUserId())) {
+			throw new IllegalArgumentException("この操作を行う権限がありません。");
+		}
+
+		questRepository.delete(questEntity);
 	}
 
 	/**
 	 * 4. requestComplete: 完了申請 (状態を「1:申請中」に更新)
 	 */
 
-	public void requestComplete(Integer questId) {
-		questRepository.findById(questId).ifPresent(questEntity -> {
-			questEntity.setStatus(1);
-			questEntity.setUpdatedDate(LocalDateTime.now());
-			questRepository.save(questEntity);
-		});
+	public void requestComplete(Integer questId, Integer childUserId) {
+		QuestEntity questEntity = questRepository.findById(questId)
+				.orElseThrow(() -> new IllegalArgumentException("対象のクエストが見つかりません。"));
+
+		if (questEntity.getChildUser() == null
+				|| !childUserId.equals(questEntity.getChildUser().getUserId())) {
+			throw new IllegalArgumentException("この操作を行う権限がありません。");
+		}
+
+		questEntity.setStatus(1);
+		questEntity.setUpdatedDate(LocalDateTime.now());
+		questRepository.save(questEntity);
 	}
 
 	/**
@@ -134,6 +153,11 @@ public class QuestService {
 
 	public void approveQuest(QuestSendForm form, Integer questId, UserEntity parentUser) {
 		questRepository.findById(questId).ifPresent(questEntity -> {
+			if (questEntity.getChildUser() == null
+					|| !parentUser.getUserId().equals(questEntity.getChildUser().getParentUserId())) {
+				throw new IllegalArgumentException("この操作を行う権限がありません。");
+			}
+
 			questEntity.setStatus(2);
 			questEntity.setUpdatedDate(LocalDateTime.now());
 			questRepository.save(questEntity);
@@ -158,8 +182,13 @@ public class QuestService {
 	 * 7. rejectQuest: 却下 (状態を「3:却下」に更新)
 	 */
 
-	public void rejectQuest(Integer questId) {
+	public void rejectQuest(Integer questId, Integer parentUserId) {
 		questRepository.findById(questId).ifPresent(quest -> {
+			if (quest.getChildUser() == null
+					|| !parentUserId.equals(quest.getChildUser().getParentUserId())) {
+				throw new IllegalArgumentException("この操作を行う権限がありません。");
+			}
+
 			quest.setStatus(3);
 			quest.setUpdatedDate(LocalDateTime.now());
 			questRepository.save(quest);

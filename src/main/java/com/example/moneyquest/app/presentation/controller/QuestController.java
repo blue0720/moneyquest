@@ -193,7 +193,7 @@ public class QuestController {
 			return "redirect:"+TransitionTargetPageNameKeyword.PARENT_QUESTS;
 		}
 
-		questService.updateQuest(questSendForm);
+		questService.updateQuest(questSendForm, loginUser.getUserId());
 		return "redirect:" + TransitionTargetPageNameKeyword.PARENT_QUESTS;
 	}
 
@@ -202,8 +202,10 @@ public class QuestController {
 	 */
 
 	@PostMapping(TransitionTargetPageNameKeyword.PARENT_QUESTS_DELETE)
-	public String deleteQuest(@PathVariable("id") Integer questId) {
-		questService.deleteQuest(questId);
+	public String deleteQuest(
+			@PathVariable("id") Integer questId,
+			@AuthenticationPrincipal CustomUserDetails loginUser) {
+		questService.deleteQuest(questId, loginUser.getUserId());
 		return "redirect:" + TransitionTargetPageNameKeyword.PARENT_QUESTS;
 
 	}
@@ -260,10 +262,12 @@ public class QuestController {
 	 * 7. クエスト 却下 (POST /parent/quest-approvals/{id}/reject)
 	 */
 	@PostMapping(TransitionTargetPageNameKeyword.PARENT_APPROVALS_REJECT)
-	public String rejectQuest(@PathVariable("id") Integer questId) {
+	public String rejectQuest(
+			@PathVariable("id") Integer questId,
+			@AuthenticationPrincipal CustomUserDetails loginUser) {
 
 		// サービス側の「7. rejectQuest」を呼び出して却下（ステータス3化）を実行
-		questService.rejectQuest(questId);
+		questService.rejectQuest(questId, loginUser.getUserId());
 
 		// 🔄 却下完了後は、承認待ち「一覧画面」にリダイレクトして戻る
 		return "redirect:" + TransitionTargetPageNameKeyword.PARENT_APPROVALS;
@@ -329,8 +333,10 @@ public class QuestController {
 	 * 9. クエスト完了申請 (POST /child/quests/{id}/complete)
 	 */
 	@PostMapping(TransitionTargetPageNameKeyword.CHILD_QUESTS_COMPLETE)
-	public String requestComplete(@PathVariable("id") Integer questId) {
-		questService.requestComplete(questId);
+	public String requestComplete(
+			@PathVariable("id") Integer questId,
+			@AuthenticationPrincipal CustomUserDetails loginUser) {
+		questService.requestComplete(questId, loginUser.getUserId());
 		// 🔄 処理完了後は子供一覧にリダイレクト
 		return "redirect:" + TransitionTargetPageNameKeyword.CHILD_QUESTS;
 	}

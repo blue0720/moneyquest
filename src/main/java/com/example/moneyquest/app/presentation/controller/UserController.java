@@ -264,6 +264,11 @@ public class UserController {
 			BindingResult bindingResult,
 			Model model) {
 
+		// 管理者は自分自身のアカウントのみ編集可能（他の管理者アカウントの乗っ取り防止）
+		if (!id.equals(loginUser.getUserId())) {
+			return "redirect:" + TransitionTargetPageNameKeyword.ERROR_ADMIN;
+		}
+
 		validateAdminEdit(userForm, bindingResult);
 
 		if (bindingResult.hasErrors()) {
@@ -288,7 +293,15 @@ public class UserController {
 
 	/** 管理者アカウント削除 */
 	@PostMapping(TransitionTargetPageNameKeyword.ADMIN_ACCOUNTS_DELETE)
-	public String deleteAdmin(@PathVariable Integer id) {
+	public String deleteAdmin(
+			@PathVariable Integer id,
+			@AuthenticationPrincipal CustomUserDetails loginUser) {
+
+		// 管理者は自分自身のアカウントを削除できない
+		if (id.equals(loginUser.getUserId())) {
+			return "redirect:" + TransitionTargetPageNameKeyword.ERROR_ADMIN;
+		}
+
 		userService.deleteUser(id);
 		return "redirect:" + TransitionTargetPageNameKeyword.ADMIN_ACCOUNTS;
 	}

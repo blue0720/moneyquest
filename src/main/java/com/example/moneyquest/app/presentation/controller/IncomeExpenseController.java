@@ -123,7 +123,11 @@ public class IncomeExpenseController {
 			targetChildUserId = form.getChildUserId();
 		}
 
-		incomeExpenseService.createRecord(form, user, targetChildUserId);
+		try {
+			incomeExpenseService.createRecord(form, user, targetChildUserId);
+		} catch (SecurityException e) {
+			return "redirect:" + TransitionTargetPageNameKeyword.ERROR;
+		}
 
 		if (user.getAuthority() == CustomUserDetails.AUTHORITY_CHILD) {
 			return "redirect:" + TransitionTargetPageNameKeyword.CHILD_RECORDS;
