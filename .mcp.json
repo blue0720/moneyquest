@@ -3,6 +3,15 @@
     "moneyquest-db": {
       "command": "node",
       "args": ["mcp-server/src/index.js"]
+    },
+    "git": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@anthropic-ai/mcp-server-git",
+        "--repository",
+        "."
+      ]
     }
   }
 }

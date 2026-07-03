@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.example.moneyquest.app.domain.model.UserDto;
+import com.example.moneyquest.app.domain.service.BadgeService;
 import com.example.moneyquest.app.domain.service.CharacterService;
 import com.example.moneyquest.app.domain.service.CustomUserDetails;
 import com.example.moneyquest.app.domain.service.IncomeExpenseService;
@@ -41,6 +42,7 @@ public class QuestController {
 	private final CharacterService characterService;
 	private final IncomeExpenseService incomeExpenseService;
 	private final QuestTemplateService questTemplateService;
+	private final BadgeService badgeService;
 
 	public QuestController(
 			QuestService questService,
@@ -48,7 +50,8 @@ public class QuestController {
 			SpendingService spendingService,
 			CharacterService characterService,
 			IncomeExpenseService incomeExpenseService,
-			QuestTemplateService questTemplateService) {
+			QuestTemplateService questTemplateService,
+			BadgeService badgeService) {
 
 		this.questService = questService;
 		this.userService = userService;
@@ -56,6 +59,7 @@ public class QuestController {
 		this.characterService = characterService;
 		this.incomeExpenseService = incomeExpenseService;
 		this.questTemplateService = questTemplateService;
+		this.badgeService = badgeService;
 	}
 
 	@ModelAttribute
@@ -315,6 +319,7 @@ public class QuestController {
 
 		model.addAttribute("character", characterService.getCharacter(childUserId));
 		model.addAttribute("characterForm", new CharacterForm());
+		model.addAttribute("badgeList", badgeService.getBadges(childUserId));
 
 		model.addAttribute("currentLimit", spendingService.getCurrentLimit(childUserId));
 		model.addAttribute("limitHistory", spendingService.getChildLimitHistory(childUserId));

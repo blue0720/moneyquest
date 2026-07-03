@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import com.example.moneyquest.app.domain.service.BadgeService;
 import com.example.moneyquest.app.domain.service.CharacterService;
 import com.example.moneyquest.app.domain.service.CustomUserDetails;
 import com.example.moneyquest.app.domain.service.IncomeExpenseService;
@@ -33,17 +34,20 @@ public class SpendingLimitController {
 	private final UserService userService;
 	private final QuestService questService;
 	private final QuestTemplateService questTemplateService;
+	private final BadgeService badgeService;
 
 	public SpendingLimitController(SpendingService spendingService, CharacterService characterService,
 			IncomeExpenseService incomeExpenseService, UserService userService,
 			QuestService questService,
-			QuestTemplateService questTemplateService) {
+			QuestTemplateService questTemplateService,
+			BadgeService badgeService) {
 		this.spendingService = spendingService;
 		this.characterService = characterService;
 		this.incomeExpenseService = incomeExpenseService;
 		this.userService = userService;
 		this.questService = questService;
 		this.questTemplateService = questTemplateService;
+		this.badgeService = badgeService;
 	}
 
 	/** 子供：上限申請タブ */
@@ -56,6 +60,7 @@ public class SpendingLimitController {
 		model.addAttribute("userName", loginUser.getUser().getUserName());
 		model.addAttribute("activeTab", "limit");
 		model.addAttribute("character", characterService.getCharacter(childUserId));
+		model.addAttribute("badgeList", badgeService.getBadges(childUserId));
 		model.addAttribute("currentLimit", spendingService.getCurrentLimit(childUserId));
 		model.addAttribute("historyList", spendingService.getChildLimitHistory(childUserId));
 		model.addAttribute("spendingLimitForm", new SpendingLimitForm());

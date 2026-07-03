@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.moneyquest.app.domain.service.BadgeService;
 import com.example.moneyquest.app.domain.service.CharacterService;
 import com.example.moneyquest.app.domain.service.CustomUserDetails;
 import com.example.moneyquest.app.domain.service.GraphService;
@@ -43,6 +44,7 @@ public class IncomeExpenseController {
 	private final QuestService questService;
 	private final QuestTemplateService questTemplateService;
 	private final UserRepository userRepository;
+	private final BadgeService badgeService;
 
 	public IncomeExpenseController(
 			IncomeExpenseService incomeExpenseService,
@@ -52,7 +54,8 @@ public class IncomeExpenseController {
 			UserService userService,
 			QuestService questService,
 			QuestTemplateService questTemplateService,
-			UserRepository userRepository) {
+			UserRepository userRepository,
+			BadgeService badgeService) {
 		this.incomeExpenseService = incomeExpenseService;
 		this.graphService = graphService;
 		this.characterService = characterService;
@@ -61,6 +64,7 @@ public class IncomeExpenseController {
 		this.questService = questService;
 		this.questTemplateService = questTemplateService;
 		this.userRepository = userRepository;
+		this.badgeService = badgeService;
 	}
 
 	// 一覧 権限で判別
@@ -228,6 +232,7 @@ public class IncomeExpenseController {
 		incomeExpenseForm.setRecordType(1);
 		incomeExpenseForm.setChildUserId(childUserId);
 		model.addAttribute("incomeExpenseForm", incomeExpenseForm);
+		model.addAttribute("badgeList", badgeService.getBadges(childUserId));
 	}
 
 	private void setParentHomeData(

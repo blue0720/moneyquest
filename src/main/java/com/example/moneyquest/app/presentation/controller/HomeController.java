@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.moneyquest.app.domain.model.IncomeExpenseDto;
+import com.example.moneyquest.app.domain.service.BadgeService;
 import com.example.moneyquest.app.domain.service.CharacterService;
 import com.example.moneyquest.app.domain.service.CustomUserDetails;
 import com.example.moneyquest.app.domain.service.IncomeExpenseService;
@@ -34,6 +35,7 @@ public class HomeController {
 	private final SpendingService spendingService;
 	private final QuestTemplateService questTemplateService;
 	private final UserService userService;
+	private final BadgeService badgeService;
 
 	public HomeController(
 			CharacterService characterService,
@@ -41,13 +43,15 @@ public class HomeController {
 			QuestService questService,
 			SpendingService spendingService,
 			QuestTemplateService questTemplateService,
-			UserService userService) {
+			UserService userService,
+			BadgeService badgeService) {
 		this.characterService = characterService;
 		this.incomeExpenseService = incomeExpenseService;
 		this.questService = questService;
 		this.spendingService = spendingService;
 		this.questTemplateService = questTemplateService;
 		this.userService = userService;
+		this.badgeService = badgeService;
 	}
 
 	@GetMapping(TransitionTargetPageNameKeyword.CHILD_HOME)
@@ -66,6 +70,7 @@ public class HomeController {
 		model.addAttribute("currentMoney", currentMoney);
 		model.addAttribute("character", character);
 		model.addAttribute("characterForm", new CharacterForm());
+		model.addAttribute("badgeList", badgeService.getBadges(childUserId));
 		model.addAttribute("activeTab", "home");
 
 		model.addAttribute("currentLimit", spendingService.getCurrentLimit(childUserId));

@@ -7,4 +7,4 @@
 | 001 | [001_admin-account-search.md](./001_admin-account-search.md) | 管理者アカウント一覧に検索機能が実装されていない疑い | 中 | 完了 |
 | 002 | [002_authorization-security-review.md](./002_authorization-security-review.md) | 権限制御(IDOR)に関する横断的セキュリティレビュー | 高 | 完了 |
 | 003 | [003_test-bug-traceability.md](./003_test-bug-traceability.md) | バグ管理番号が未記載のテスト不具合(7件)の紐付け確認 | 低 | 完了 |
-| 004 | [004_future-features.md](./004_future-features.md) | 追加機能(将来構想・拡張機能) | 低 | 未着手 |
+| 004 | [004_future-features.md](./004_future-features.md) | 追加機能(将来構想・拡張機能) | 低 | 対応中(1/5完了) |

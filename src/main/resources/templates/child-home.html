@@ -99,6 +99,20 @@
 
 			</div>
 
+			<!-- バッジ・称号 -->
+			<div class="badge-card" th:if="${badgeList != null}">
+				<p class="badge-card__title">🎖️ しょうごう・バッジ</p>
+				<div class="badge-list">
+					<div class="badge-item" th:each="badge : ${badgeList}"
+						th:classappend="${badge.earned} ? ' is-earned' : ' is-locked'">
+						<span class="badge-icon" th:text="${badge.icon}">🌱</span>
+						<span class="badge-name" th:text="${badge.name}">はじめの一歩</span>
+						<span class="badge-req"
+							th:text="${badge.earned} ? 'かくとく！' : (${badge.requiredCount} + 'かいで かくとく')">かくとく！</span>
+					</div>
+				</div>
+			</div>
+
 
 			<!-- 今月の使いすぎチェック -->
 			<div class="child-spending-card" th:if="${currentLimit != null}">
