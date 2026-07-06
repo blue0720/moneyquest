@@ -170,7 +170,11 @@ public class UserController {
 
 		boolean isSelf = id.equals(loginUser.getUserId());
 
-		userService.deleteFamilyUser(loginUser.getUserId(), id);
+		try {
+			userService.deleteFamilyUser(loginUser.getUserId(), id);
+		} catch (IllegalArgumentException | IllegalStateException e) {
+			return "redirect:" + TransitionTargetPageNameKeyword.ERROR;
+		}
 
 		if (isSelf) {
 			// 自分を削除した場合はセッションを無効化してタイトルへ

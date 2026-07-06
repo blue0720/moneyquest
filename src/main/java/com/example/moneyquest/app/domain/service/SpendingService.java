@@ -54,7 +54,7 @@ public class SpendingService {
 
         UserEntity childUser =
                 userRepository.findById(childUserId)
-                        .orElseThrow();
+                        .orElseThrow(() -> new IllegalArgumentException("対象のユーザーが見つかりません。"));
 
         SpendingLimitEntity entity =
                 new SpendingLimitEntity();
@@ -301,7 +301,7 @@ public class SpendingService {
 
         SpendingLimitEntity entity =
                 spendingLimitRepository.findById(spendingLimitId)
-                        .orElseThrow();
+                        .orElseThrow(() -> new IllegalArgumentException("対象の支出上限申請が見つかりません。"));
 
         if (entity.getChildUser() == null
                 || !parentUserId.equals(entity.getChildUser().getParentUserId())) {
@@ -342,7 +342,7 @@ public class SpendingService {
 
         SpendingLimitEntity entity =
                 spendingLimitRepository.findById(spendingLimitId)
-                        .orElseThrow();
+                        .orElseThrow(() -> new IllegalArgumentException("対象の支出上限申請が見つかりません。"));
 
         if (entity.getChildUser() == null
                 || !parentUserId.equals(entity.getChildUser().getParentUserId())) {

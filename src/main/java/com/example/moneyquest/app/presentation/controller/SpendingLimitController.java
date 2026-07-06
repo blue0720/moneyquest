@@ -128,7 +128,7 @@ public class SpendingLimitController {
 
 		try {
 			spendingService.approveLimit(id, loginUser.getUser().getUserId());
-		} catch (SecurityException e) {
+		} catch (SecurityException | IllegalArgumentException e) {
 			return "redirect:" + ERROR;
 		}
 
@@ -145,7 +145,7 @@ public class SpendingLimitController {
 
 		try {
 			spendingService.rejectLimit(id, loginUser.getUser().getUserId());
-		} catch (SecurityException e) {
+		} catch (SecurityException | IllegalArgumentException e) {
 			return "redirect:" + ERROR;
 		}
 
