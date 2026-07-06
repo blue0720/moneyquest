@@ -43,7 +43,7 @@ Maven Wrapper(`mvnw` / `mvnw.cmd`)を使用する。システムに Maven がイ
 
 ### 静的アセット
 
-CSS/JS/画像は `src/main/resources/static/{css,js,images}` 配下に画面(タブ)単位で分かれて置かれている(例: `child-quest.css`, `parent-family.css`)。グローバル1枚のスタイルシートではない。`static/` の外にも `src/main/resources/css/*.css` が存在し、一部ファイル名が重複しているため、編集前にどちらのファイルが実際にテンプレートから参照されているか確認すること。
+CSS/JS/画像は `src/main/resources/static/{css,js,images}` 配下に画面(タブ)単位で分かれて置かれている(例: `child-quest.css`, `parent-family.css`)。グローバル1枚のスタイルシートではない。
 
 ## mcp-server(MCPサーバー)
 
