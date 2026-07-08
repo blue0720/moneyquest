@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.example.moneyquest.app.domain.model.CharacterDto;
+import com.example.moneyquest.app.domain.model.CharacterType;
 import com.example.moneyquest.app.infra.entity.CharacterEntity;
 import com.example.moneyquest.app.infra.repository.CharacterRepository;
 
@@ -58,14 +59,24 @@ class CharacterServiceTest {
 		@Test
 		@DisplayName("初期値(レベル0・経験値0・達成数0・名前タネ)でキャラクターが作成される")
 		void createCharacter_success() {
-			characterService.createCharacter(CHILD_USER_ID);
+			characterService.createCharacter(CHILD_USER_ID, CharacterType.FLAME);
 
 			verify(characterRepository).save(org.mockito.ArgumentMatchers.argThat(entity ->
 					entity.getCharacterName().equals("タネ")
 							&& entity.getLevel() == 0
 							&& entity.getCurrentExp() == 0
 							&& entity.getTotalAchievementCount() == 0
+							&& entity.getCharacterType() == CharacterType.FLAME
 							&& entity.getChildUser().getUserId().equals(CHILD_USER_ID)));
+		}
+
+		@Test
+		@DisplayName("種類が未指定(null)の場合はGRASSになる")
+		void createCharacter_nullType_defaultsToGrass() {
+			characterService.createCharacter(CHILD_USER_ID, null);
+
+			verify(characterRepository).save(org.mockito.ArgumentMatchers.argThat(entity ->
+					entity.getCharacterType() == CharacterType.GRASS));
 		}
 	}
 
@@ -117,6 +128,34 @@ class CharacterServiceTest {
 			characterService.updateCharacterName(CHILD_USER_ID, "新しい名前");
 
 			assertThat(character.getCharacterName()).isEqualTo("新しい名前");
+			verify(characterRepository, times(1)).save(character);
+		}
+	}
+
+	@Nested
+	@DisplayName("updateCharacterType")
+	class UpdateCharacterType {
+
+		@Test
+		@DisplayName("キャラクターが存在しない場合はNoSuchElementExceptionを投げる")
+		void updateCharacterType_notFound_throws() {
+			when(characterRepository.findByChildUserId(CHILD_USER_ID)).thenReturn(List.of());
+
+			assertThatThrownBy(() -> characterService.updateCharacterType(CHILD_USER_ID, CharacterType.AQUA))
+					.isInstanceOf(NoSuchElementException.class);
+
+			verify(characterRepository, never()).save(any());
+		}
+
+		@Test
+		@DisplayName("キャラクターが存在する場合は種類が更新される")
+		void updateCharacterType_success() {
+			character.setCharacterType(CharacterType.GRASS);
+			when(characterRepository.findByChildUserId(CHILD_USER_ID)).thenReturn(List.of(character));
+
+			characterService.updateCharacterType(CHILD_USER_ID, CharacterType.THUNDER);
+
+			assertThat(character.getCharacterType()).isEqualTo(CharacterType.THUNDER);
 			verify(characterRepository, times(1)).save(character);
 		}
 	}

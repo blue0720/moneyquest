@@ -10,6 +10,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +24,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.example.moneyquest.app.domain.model.QuestDay;
 import com.example.moneyquest.app.infra.entity.QuestEntity;
 import com.example.moneyquest.app.infra.entity.UserEntity;
 import com.example.moneyquest.app.infra.repository.QuestRepository;
@@ -104,6 +107,41 @@ class QuestServiceTest {
 			QuestEntity result = questService.createQuest(form, PARENT_USER_ID);
 
 			assertThat(result.getExp()).isEqualTo(5);
+		}
+
+		@Test
+		@DisplayName("availableDaysが未指定の場合は全曜日(127)で作成される")
+		void createQuest_defaultAvailableDays() {
+			QuestSendForm form = new QuestSendForm();
+			form.setChildUserId(CHILD_USER_ID);
+			form.setTitle("お手伝い");
+			form.setRewardAmount(100);
+
+			when(userRepository.findByParentUserId(PARENT_USER_ID)).thenReturn(List.of(childUser));
+			when(questRepository.save(any(QuestEntity.class)))
+					.thenAnswer(invocation -> invocation.getArgument(0));
+
+			QuestEntity result = questService.createQuest(form, PARENT_USER_ID);
+
+			assertThat(result.getAvailableDays()).isEqualTo(QuestDay.ALL_DAYS_MASK);
+		}
+
+		@Test
+		@DisplayName("availableDaysが指定された場合は該当曜日のビットマスクで作成される")
+		void createQuest_specificAvailableDays() {
+			QuestSendForm form = new QuestSendForm();
+			form.setChildUserId(CHILD_USER_ID);
+			form.setTitle("お手伝い");
+			form.setRewardAmount(100);
+			form.setAvailableDays(List.of(QuestDay.MON, QuestDay.WED));
+
+			when(userRepository.findByParentUserId(PARENT_USER_ID)).thenReturn(List.of(childUser));
+			when(questRepository.save(any(QuestEntity.class)))
+					.thenAnswer(invocation -> invocation.getArgument(0));
+
+			QuestEntity result = questService.createQuest(form, PARENT_USER_ID);
+
+			assertThat(result.getAvailableDays()).isEqualTo(QuestDay.MON.getBit() | QuestDay.WED.getBit());
 		}
 
 		@Test
@@ -209,6 +247,49 @@ class QuestServiceTest {
 			assertThat(result.getStatus()).isEqualTo(5);
 			assertThat(result.getExp()).isEqualTo(10); // 既存値維持
 		}
+
+		@Test
+		@DisplayName("availableDays未指定の場合は既存値が維持される")
+		void updateQuest_availableDaysNotSpecified_keepsExisting() {
+			QuestEntity quest = new QuestEntity();
+			quest.setQuestId(123);
+			quest.setChildUser(childUser);
+			quest.setAvailableDays(QuestDay.MON.getBit());
+
+			QuestSendForm form = new QuestSendForm();
+			form.setQuestId(123);
+			form.setTitle("更新後タイトル");
+			form.setRewardAmount(200);
+
+			when(questRepository.findById(123)).thenReturn(Optional.of(quest));
+			when(questRepository.save(any(QuestEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+			QuestEntity result = questService.updateQuest(form, PARENT_USER_ID);
+
+			assertThat(result.getAvailableDays()).isEqualTo(QuestDay.MON.getBit());
+		}
+
+		@Test
+		@DisplayName("availableDaysが指定された場合は新しいビットマスクで上書きされる")
+		void updateQuest_availableDaysSpecified_overwrites() {
+			QuestEntity quest = new QuestEntity();
+			quest.setQuestId(123);
+			quest.setChildUser(childUser);
+			quest.setAvailableDays(QuestDay.MON.getBit());
+
+			QuestSendForm form = new QuestSendForm();
+			form.setQuestId(123);
+			form.setTitle("更新後タイトル");
+			form.setRewardAmount(200);
+			form.setAvailableDays(List.of(QuestDay.SAT, QuestDay.SUN));
+
+			when(questRepository.findById(123)).thenReturn(Optional.of(quest));
+			when(questRepository.save(any(QuestEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+			QuestEntity result = questService.updateQuest(form, PARENT_USER_ID);
+
+			assertThat(result.getAvailableDays()).isEqualTo(QuestDay.SAT.getBit() | QuestDay.SUN.getBit());
+		}
 	}
 
 	@Nested
@@ -297,6 +378,42 @@ class QuestServiceTest {
 			questService.requestComplete(123, CHILD_USER_ID);
 
 			assertThat(quest.getStatus()).isEqualTo(1);
+		}
+
+		@Test
+		@DisplayName("今日が実施可能曜日に含まれる場合は完了申請できる")
+		void requestComplete_availableToday_success() {
+			QuestEntity quest = new QuestEntity();
+			quest.setQuestId(123);
+			quest.setChildUser(childUser);
+			DayOfWeek today = LocalDate.now().getDayOfWeek();
+			quest.setAvailableDays(QuestDay.fromDayOfWeek(today).getBit());
+
+			when(questRepository.findById(123)).thenReturn(Optional.of(quest));
+			when(questRepository.save(any(QuestEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+			questService.requestComplete(123, CHILD_USER_ID);
+
+			assertThat(quest.getStatus()).isEqualTo(1);
+		}
+
+		@Test
+		@DisplayName("今日が実施可能曜日に含まれない場合はIllegalArgumentExceptionを投げる")
+		void requestComplete_unavailableToday_throws() {
+			QuestEntity quest = new QuestEntity();
+			quest.setQuestId(123);
+			quest.setChildUser(childUser);
+			DayOfWeek today = LocalDate.now().getDayOfWeek();
+			int maskWithoutToday = QuestDay.ALL_DAYS_MASK & ~QuestDay.fromDayOfWeek(today).getBit();
+			quest.setAvailableDays(maskWithoutToday);
+
+			when(questRepository.findById(123)).thenReturn(Optional.of(quest));
+
+			assertThatThrownBy(() -> questService.requestComplete(123, CHILD_USER_ID))
+					.isInstanceOf(IllegalArgumentException.class)
+					.hasMessageContaining("実施できません");
+
+			verify(questRepository, never()).save(any());
 		}
 	}
 
@@ -420,6 +537,37 @@ class QuestServiceTest {
 			questService.rejectQuest(123, PARENT_USER_ID);
 
 			assertThat(quest.getStatus()).isEqualTo(3);
+		}
+	}
+
+	@Nested
+	@DisplayName("曜日ヘルパー")
+	class DayHelpers {
+
+		@Test
+		@DisplayName("availableDaysがnullの場合は全曜日として扱われる")
+		void isAvailableToday_nullTreatedAsAllDays() {
+			assertThat(questService.isAvailableToday(null)).isTrue();
+		}
+
+		@Test
+		@DisplayName("formatAvailableDaysは全曜日の場合「毎日」を返す")
+		void formatAvailableDays_allDays() {
+			assertThat(questService.formatAvailableDays(QuestDay.ALL_DAYS_MASK)).isEqualTo("毎日");
+		}
+
+		@Test
+		@DisplayName("formatAvailableDaysは一部曜日の場合は「・」区切りで返す")
+		void formatAvailableDays_partialDays() {
+			int mask = QuestDay.MON.getBit() | QuestDay.WED.getBit();
+			assertThat(questService.formatAvailableDays(mask)).isEqualTo("月・水");
+		}
+
+		@Test
+		@DisplayName("getAvailableDayCodesは選択曜日をCSV形式のenum名で返す")
+		void getAvailableDayCodes_returnsCsv() {
+			int mask = QuestDay.MON.getBit() | QuestDay.FRI.getBit();
+			assertThat(questService.getAvailableDayCodes(mask)).isEqualTo("MON,FRI");
 		}
 	}
 

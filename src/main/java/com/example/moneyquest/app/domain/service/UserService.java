@@ -58,7 +58,7 @@ public class UserService {
 		userRepository.save(user);
 
 		if (authority != null && authority == CustomUserDetails.AUTHORITY_CHILD) {
-			characterService.createCharacter(user.getUserId());
+			characterService.createCharacter(user.getUserId(), form.getCharacterType());
 		}
 	}
 
@@ -199,7 +199,7 @@ public class UserService {
 
 		userRepository.save(user);
 
-		characterService.createCharacter(user.getUserId());
+		characterService.createCharacter(user.getUserId(), form.getCharacterType());
 	}
 
 	/**

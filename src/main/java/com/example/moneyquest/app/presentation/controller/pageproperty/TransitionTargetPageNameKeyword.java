@@ -59,6 +59,7 @@ public class TransitionTargetPageNameKeyword {
 	/** ホームタブ */
 	public static final String CHILD_HOME = "/child/home";
 	public static final String CHILD_CHARACTER_NAME = "/child/character/name";
+	public static final String CHILD_CHARACTER_TYPE = "/child/character/type";
 
 	/** クエストタブ */
 	public static final String CHILD_QUESTS = "/child/quest";

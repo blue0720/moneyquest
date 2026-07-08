@@ -115,6 +115,12 @@ function openQuestEditModal(button) {
 	document.getElementById('editQuestReward').value = button.dataset.reward || 0;
 	document.getElementById('editQuestExp').value = button.dataset.exp || 5;
 	document.getElementById('editQuestDescription').value = button.dataset.description || '';
+
+	const selectedDays = (button.dataset.availableDays || '').split(',').filter(Boolean);
+	document.querySelectorAll('#editQuestDayList input[name="availableDays"]').forEach(checkbox => {
+		checkbox.checked = selectedDays.includes(checkbox.dataset.day);
+	});
+
 	document.getElementById('editQuestForm').action = '/parent/quest/' + id + '/edit';
 	document.getElementById('questEditModal').classList.add('is-show');
 }

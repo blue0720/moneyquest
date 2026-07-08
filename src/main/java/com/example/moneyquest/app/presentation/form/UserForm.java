@@ -4,12 +4,18 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import com.example.moneyquest.app.domain.model.CharacterType;
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 public class UserForm {
+
+	/** 子供アカウント作成時のみ使用するキャラクター種類（保護者・管理者登録では未使用） */
+	private CharacterType characterType;
+
 	@NotBlank(message = "ユーザー名を入力してください")
 	@Size(max = 20, message = "ユーザー名は20文字以内で入力してください")
 	private String userName;

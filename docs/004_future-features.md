@@ -2,7 +2,7 @@
 
 - 種別: 追加機能
 - 優先度: 低(将来対応)
-- ステータス: 対応中(1/5 完了)
+- ステータス: 対応中(3/5 完了)
 
 ## 背景・現状
 
@@ -12,10 +12,12 @@
 
 - [〇] 1. バッジ/称号機能の追加(クエスト達成数や継続日数などに応じてバッジ・称号を付与する仕組み)
       → クエスト達成数(`character_t.total_achievement_count`)に応じた6段階のバッジを実装済み。詳細は「実施内容」参照。
-- [ ] 2. キャラクターの種類追加(現在1種類のキャラクターに加えて、選択可能な複数キャラクターを用意する)
+- [〇] 2. キャラクターの種類追加(現在1種類のキャラクターに加えて、選択可能な複数キャラクターを用意する)
+      → 4種類(くさ/ほのお/みず/かみなり)を実装済み。詳細は「実施内容」参照。
 - [ ] 3. NPCとの対戦機能(育成したキャラクターでNPCと対戦できる要素の追加)
 - [ ] 4. コインショップ機能(貯めたお金やコインでアイテム・キャラクター装飾等と交換できる仕組み)
-- [ ] 5. 曜日指定クエスト機能(特定の曜日のみ実施可能なクエストを設定できる仕組み)
+- [〇] 5. 曜日指定クエスト機能(特定の曜日のみ実施可能なクエストを設定できる仕組み)
+      → クエスト(quest_t)単位で実施可能曜日をビットマスクで持たせる方式を実装済み。詳細は「実施内容」参照。
 
 ## 実施内容(1. バッジ/称号機能)
 
@@ -31,12 +33,58 @@
 
 アプリを起動し、達成数が異なる複数の子供アカウント(41回・0回)でログインして`/child/home`を確認。41回のアカウントは1〜30回のバッジ4個が獲得済み表示・50/100回の2個が未獲得(グレーアウト)表示になること、0回のアカウントは6個すべて未獲得表示になることを確認。また`/child/quest`, `/child/records`, `/child/graph`, `/child/limit`の他タブが引き続き200 OKで表示され、`badgeList`を配線していない`GraphController`経由でも崩れないことを確認した。
 
+## 実施内容(2. キャラクターの種類追加)
+
+`character_t`に列追加(`ALTER TABLE character_t ADD COLUMN character_type VARCHAR(20) NOT NULL DEFAULT 'GRASS'`)。新規テーブルは追加していない。画像素材が用意されていないため、既存のレベル帯画像(`Lv_0.png`〜`Lv_50.png`)をCSSの`hue-rotate`フィルタで色違い表示するダミー対応とし、DB・選択UI・切替ロジックの実装を優先した。
+
+- `domain/model/CharacterType.java`(新規): `GRASS`(くさ)/`FLAME`(ほのお)/`AQUA`(みず)/`THUNDER`(かみなり)の4種類、日本語表示名を保持
+- `infra/entity/CharacterEntity.java` / `domain/model/CharacterDto.java`: `characterType`列を追加
+- `domain/service/CharacterService.java`: `createCharacter(childUserId, characterType)`に変更(nullなら`GRASS`)、`updateCharacterType(childUserId, characterType)`を新規追加
+- `presentation/form/UserForm.java`に`characterType`追加(子供作成時のみ使用)、`presentation/form/CharacterTypeForm.java`(新規)
+- `presentation/controller/HomeController.java`に`POST /child/character/type`を追加
+- `templates/parent-home.html`: 子供追加モーダルに4択のラジオチップを追加(デフォルト`GRASS`)
+- `templates/child-home.html`: キャラクター名の隣に種類バッジを表示、画像に`character-type-{grass|flame|aqua|thunder}`クラスを付与、「しゅるいをかえる」ボタン・モーダルを追加
+- `static/css/child-home-hometab.css` / `static/css/parent-family.css`: 色違い表現用の`hue-rotate`フィルタとチップUIのスタイルを追加
+- `mcp-server/src/tools/characters.js`: `create_character`/`update_character`に`characterType`パラメータを追加
+
+`CharacterDto`は既に5コントローラ(`HomeController`/`QuestController`/`IncomeExpenseController`/`SpendingLimitController`/`GraphController`)から配線済みのため、表示側の追加配線は不要だった。
+
+### 検証方法
+
+`./mvnw test`で`CharacterServiceTest`・`UserServiceTest`を含む全テストが通ることを確認(19+13件、失敗0件)。アプリを起動し、保護者で子供アカウントを新規作成する際に4種類から選べること、`/child/home`でその種類の色が反映されること、「しゅるいをかえる」から種類変更ができ画面に反映されることを確認。
+
+## 実施内容(5. 曜日指定クエスト機能)
+
+単発クエスト(`quest_t`)にのみ対象曜日を持たせ、テンプレート(`quest_template_t`)には持たせない方針とした。`quest_t`に列追加(`ALTER TABLE quest_t ADD COLUMN available_days INT NOT NULL DEFAULT 127`)。ビットマスク(月=1,火=2,水=4,木=8,金=16,土=32,日=64、127=毎日)で表現し、既存クエストは全て127(毎日実施可能)になるため後方互換。
+
+- `domain/model/QuestDay.java`(新規): 曜日enum(ビット値・日本語ラベル・`DayOfWeek`からの変換ヘルパー)
+- `infra/entity/QuestEntity.java`: `availableDays`列を追加(QuestEntityはテンプレートで直接使われているためDTO層の変更は不要)
+- `presentation/form/QuestSendForm.java`: `availableDays`(チェックボックスからバインド)を追加
+- `domain/model/QuestDay.java`: ビットマスク⇔曜日変換・表示整形のstaticユーティリティ(`isAvailableToday`/`format`/`toCsv`/`fromDayOfWeek`)を集約
+- `infra/entity/QuestEntity.java`: テンプレート表示用に`isAvailableToday()`/`getAvailableDaysDisplay()`/`getAvailableDayCodes()`のインスタンスメソッドを公開(`QuestDay`のstaticに委譲)
+- `domain/service/QuestService.java`: `createQuest`で未指定なら全曜日マスク、`updateQuest`で未指定なら既存値維持、`requestComplete`で今日が対象曜日でなければ`IllegalArgumentException`。表示用の`isAvailableToday`/`formatAvailableDays`/`getAvailableDayCodes`も`QuestDay`に委譲(サービス経由のAPIとして維持)
+- `templates/parent-home.html`: クエスト追加/編集モーダルに曜日チェックボックス(月〜日)を追加、編集ボタンに`th:data-available-days="${quest.availableDayCodes}"`を付与し`static/js/parent-home.js`の`openQuestEditModal`で選択状態を復元
+- `templates/child-home.html`: 完了ボタンの表示条件に`quest.isAvailableToday()`を追加し、対象外の日は「🗓 きょうは実施できません」を表示、実施可能曜日(`quest.availableDaysDisplay`。「毎日」または「月・水・金」等)を常時表示
+  - ※ Thymeleafは`th:each`ループ内でのBean参照(`@questService.xxx(...)`)を「Instantiation of new objects and access to static classes or parameters is forbidden」で解析エラーにするため、表示用ロジックはService(Bean)ではなく`QuestEntity`のインスタンスメソッド経由で呼び出す構成にしている
+- `static/css/parent-quest.css` / `static/css/child-quest.css`: 曜日チップ・非活性表示のスタイルを追加
+- `mcp-server/src/tools/quests.js`: `create_quest`/`update_quest`/`list_quests`に`availableDays`ビットマスクの意味を明記し、パラメータを追加
+
+### 検証方法
+
+`./mvnw test`で`QuestServiceTest`(33件、失敗0件)を含む全テストが通ることを確認。特に「曜日未指定なら全曜日マスクで作成」「今日が対象曜日に含まれない場合は完了申請でIllegalArgumentException」の2点をユニットテストで検証。アプリを起動し、保護者がクエスト作成時に曜日を限定して送信し、対象外の曜日にログインした子供アカウントでは完了ボタンが出ず「実施できません」表示になること、対象の曜日ではボタンが表示され完了申請が通ることを確認。
+
 ## 対象箇所
 
 - 001_要件定義/最終要件定義書_Group1.docx(拡張性 節)
 - `src/main/java/com/example/moneyquest/app/domain/model/BadgeDto.java`(新規)
 - `src/main/java/com/example/moneyquest/app/domain/service/BadgeService.java`(新規)
+- `src/main/java/com/example/moneyquest/app/domain/model/{CharacterType,QuestDay}.java`(新規)
+- `src/main/java/com/example/moneyquest/app/presentation/form/CharacterTypeForm.java`(新規)
 - `src/main/java/com/example/moneyquest/app/presentation/controller/{HomeController,QuestController,IncomeExpenseController,SpendingLimitController}.java`(変更)
-- `src/main/resources/templates/child-home.html`(変更)
-- `src/main/resources/static/css/child-home-hometab.css`(変更)
-- 2〜5(キャラクター種類追加・NPC対戦・コインショップ・曜日指定クエスト)は実装時に `domain/model`, `domain/service`, `infra/entity`, `presentation/controller` の各層への機能追加が必要になる見込み(詳細設計は着手前に別途検討)
+- `src/main/java/com/example/moneyquest/app/domain/service/{CharacterService,UserService,QuestService}.java`(変更)
+- `src/main/java/com/example/moneyquest/app/infra/entity/{CharacterEntity,QuestEntity}.java`(変更)
+- `src/main/resources/templates/{parent-home,child-home}.html`(変更)
+- `src/main/resources/static/css/{child-home-hometab,parent-family,parent-quest,child-quest}.css`(変更)
+- `src/main/resources/static/js/{child-home,parent-home}.js`(変更)
+- `mcp-server/src/tools/{characters,quests}.js`(変更)
+- 3〜4(NPC対戦・コインショップ)は実装時に `domain/model`, `domain/service`, `infra/entity`, `presentation/controller` の各層への機能追加が必要になる見込み(詳細設計は着手前に別途検討)

@@ -532,6 +532,7 @@
 									th:data-exp="${quest.exp != null ? quest.exp : 5}"
 									th:data-description="${quest.description}"
 									th:data-child-id="${quest.childUser != null ? quest.childUser.userId : ''}"
+									th:data-available-days="${quest.availableDayCodes}"
 									onclick="openQuestEditModal(this)">✎</button>
 								<button type="button" class="quest-circle-btn quest-delete-circle"
 									th:data-id="${quest.questId}" th:data-title="${quest.title}"
@@ -567,6 +568,16 @@
 							<span th:text="${child.userName}"></span>
 						</label>
 					</div>
+					<label class="quest-modal-label">じっしできる曜日</label>
+					<div class="quest-day-chip-list">
+						<label class="quest-day-chip" th:each="day : ${T(com.example.moneyquest.app.domain.model.QuestDay).values()}">
+							<input type="checkbox" name="availableDays" th:value="${day}" checked>
+							<span th:text="${day.label}">月</span>
+						</label>
+					</div>
+					<p class="quest-modal-note">
+						🗓 すべてチェックすると毎日実施できます。特定の曜日だけにしたい場合は、その曜日だけ残してチェックを外してください。
+					</p>
 					<label class="quest-modal-label">ほうび・お小遣い（円）</label>
 					<input class="quest-modal-input" type="text" inputmode="numeric" name="rewardAmount" value="50"
 						maxlength="6" required>
@@ -603,6 +614,13 @@
 						required>
 					<label class="quest-modal-label">だれに？</label>
 					<!--ここ分かりません泣-->
+					<label class="quest-modal-label">じっしできる曜日</label>
+					<div class="quest-day-chip-list" id="editQuestDayList">
+						<label class="quest-day-chip" th:each="day : ${T(com.example.moneyquest.app.domain.model.QuestDay).values()}">
+							<input type="checkbox" name="availableDays" th:value="${day}" th:data-day="${day}">
+							<span th:text="${day.label}">月</span>
+						</label>
+					</div>
 					<label class="quest-modal-label">ほうび・お小遣い（円）</label>
 					<input class="quest-modal-input" type="text" inputmode="numeric" id="editQuestReward"
 						name="rewardAmount" maxlength="6" required>
@@ -853,6 +871,14 @@
 					<label class="family-modal-label">パスワード（確認）</label>
 					<input class="family-modal-input" type="password" name="passwordConfirm" placeholder="もう一度入力"
 						minlength="4" maxlength="20" required>
+					<label class="family-modal-label">キャラクターのしゅるい</label>
+					<div class="family-character-type-chip-list">
+						<label class="family-character-type-chip"
+							th:each="type, typeStat : ${T(com.example.moneyquest.app.domain.model.CharacterType).values()}">
+							<input type="radio" name="characterType" th:value="${type}" th:checked="${typeStat.first}">
+							<span th:text="${type.displayName}">くさタイプ</span>
+						</label>
+					</div>
 					<p class="family-modal-note">
 						📝 今月の支出上限は、子供が初回ログイン時に自分で設定し、あなたに承認申請が届きます。
 					</p>

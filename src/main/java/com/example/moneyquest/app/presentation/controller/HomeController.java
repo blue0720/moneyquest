@@ -23,6 +23,7 @@ import com.example.moneyquest.app.domain.service.UserService;
 import com.example.moneyquest.app.presentation.common.ParentModelHelper;
 import com.example.moneyquest.app.presentation.controller.pageproperty.TransitionTargetPageNameKeyword;
 import com.example.moneyquest.app.presentation.form.CharacterForm;
+import com.example.moneyquest.app.presentation.form.CharacterTypeForm;
 import com.example.moneyquest.app.presentation.form.IncomeExpenseForm;
 import com.example.moneyquest.app.presentation.form.SpendingLimitForm;
 
@@ -95,6 +96,20 @@ public class HomeController {
 		characterService.updateCharacterName(
 				childUserId,
 				form.getCharacterName());
+
+		return "redirect:" + TransitionTargetPageNameKeyword.CHILD_HOME;
+	}
+
+	@PostMapping(TransitionTargetPageNameKeyword.CHILD_CHARACTER_TYPE)
+	public String updateCharacterType(
+			@AuthenticationPrincipal CustomUserDetails loginUser,
+			CharacterTypeForm form) {
+
+		Integer childUserId = loginUser.getUserId();
+
+		characterService.updateCharacterType(
+				childUserId,
+				form.getCharacterType());
 
 		return "redirect:" + TransitionTargetPageNameKeyword.CHILD_HOME;
 	}

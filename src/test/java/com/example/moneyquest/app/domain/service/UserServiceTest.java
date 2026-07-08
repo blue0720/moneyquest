@@ -100,7 +100,7 @@ class UserServiceTest {
 			userService.createUser(CustomUserDetails.AUTHORITY_PARENT, form);
 
 			verify(userRepository, times(1)).save(any(UserEntity.class));
-			verify(characterService, never()).createCharacter(any());
+			verify(characterService, never()).createCharacter(any(), any());
 		}
 
 		@Test
@@ -129,7 +129,7 @@ class UserServiceTest {
 
 			userService.createUser(CustomUserDetails.AUTHORITY_CHILD, form);
 
-			verify(characterService, times(1)).createCharacter(any());
+			verify(characterService, times(1)).createCharacter(any(), any());
 		}
 	}
 

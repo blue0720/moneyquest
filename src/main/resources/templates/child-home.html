@@ -56,6 +56,8 @@
 						Lv.<span th:text="${character.level}">1</span>
 					</span>
 					<span class="character-name" th:text="${character.characterName}">ぴよすけ</span>
+					<span class="character-type-badge" th:if="${character.characterType != null}"
+						th:text="${character.characterType.displayName}">くさタイプ</span>
 					<span class="character-exp-label">
 						<span th:text="${character.currentExp}">10</span>
 						/
@@ -77,7 +79,9 @@
 			            : (${character.level < 30} ? '/images/Lv_20~30.png'
 			            : (${character.level < 40} ? '/images/Lv_30~40.png'
 			            : (${character.level < 50} ? '/images/Lv_40~50.png'
-			            : '/images/Lv_50.png')))))" th:alt="${character.characterName}" class="character-img">
+			            : '/images/Lv_50.png')))))" th:alt="${character.characterName}"
+						th:classappend="${character.characterType != null} ? ('character-type-' + ${character.characterType.name().toLowerCase()})"
+						class="character-img">
 				</div>
 
 				<p class="character-next-level"
@@ -95,6 +99,9 @@
 
 				<button type="button" class="character-edit-btn" onclick="openCharacterNameModal()">
 					✎ なまえをかえる
+				</button>
+				<button type="button" class="character-edit-btn" onclick="openCharacterTypeModal()">
+					🎨 しゅるいをかえる
 				</button>
 
 			</div>
@@ -193,10 +200,15 @@
 							</p>
 						</div>
 
-						<form th:if="${quest.status == 0 or quest.status == 4 or quest.status == 5}"
+						<form th:if="${(quest.status == 0 or quest.status == 4 or quest.status == 5) and quest.isAvailableToday()}"
 							th:action="@{/child/quest/{id}/complete(id=${quest.questId})}" method="post">
 							<button type="submit" class="child-quest-complete-btn">○</button>
 						</form>
+
+						<span th:if="${(quest.status == 0 or quest.status == 4 or quest.status == 5) and !quest.isAvailableToday()}"
+							class="child-quest-unavailable">
+							🗓 きょうは実施できません
+						</span>
 
 						<span th:if="${quest.status == 1}" class="child-quest-pending">
 							⏱ 申請中
@@ -211,6 +223,10 @@
 							<span class="child-quest-exp">
 								★ <span th:text="${quest.exp != null ? quest.exp : 5}">5</span> EXP
 							</span>
+						</p>
+
+						<p class="child-quest-days">
+							🗓 じっしできる曜日: <span th:text="${quest.availableDaysDisplay}">毎日</span>
 						</p>
 
 						<p th:if="${quest.status == 4}" class="child-quest-new">
@@ -561,6 +577,29 @@
 					<label class="child-modal-label">あたらしいなまえ</label>
 					<input class="child-modal-input" type="text" name="characterName"
 						th:value="${character != null ? character.characterName : ''}" maxlength="15" required>
+
+					<button type="submit" class="child-modal-main-btn">
+						けってい ✨
+					</button>
+				</form>
+			</div>
+		</div>
+
+		<!-- ========== しゅるい変更モーダル ========== -->
+		<div class="child-modal-overlay" id="characterTypeModal">
+			<div class="child-bottom-modal">
+				<div class="child-modal-handle"></div>
+
+				<h2 class="child-modal-title">🎨 キャラクターのしゅるい</h2>
+
+				<form th:action="@{/child/character/type}" method="post">
+					<div class="character-type-chip-list">
+						<label class="character-type-chip" th:each="type : ${T(com.example.moneyquest.app.domain.model.CharacterType).values()}">
+							<input type="radio" name="characterType" th:value="${type}"
+								th:checked="${character != null and character.characterType == type}">
+							<span th:text="${type.displayName}">くさタイプ</span>
+						</label>
+					</div>
 
 					<button type="submit" class="child-modal-main-btn">
 						けってい ✨

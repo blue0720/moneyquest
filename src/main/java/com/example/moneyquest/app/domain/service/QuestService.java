@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.moneyquest.app.domain.model.QuestDay;
 import com.example.moneyquest.app.infra.entity.QuestEntity;
 import com.example.moneyquest.app.infra.entity.UserEntity;
 import com.example.moneyquest.app.infra.repository.QuestRepository;
@@ -71,6 +72,7 @@ public class QuestService {
 		questEntity.setLimitAmount(form.getLimitAmount());
 		questEntity.setDescription(form.getDescription());
 		questEntity.setTitle(form.getTitle());
+		questEntity.setAvailableDays(toBitmask(form.getAvailableDays()));
 		questEntity.setStatus(4);
 		questEntity.setRegisteredDate(LocalDateTime.now());
 		questEntity.setUpdatedDate(LocalDateTime.now());
@@ -97,6 +99,9 @@ public class QuestService {
 		questEntity.setExp(form.getExp() == null ? questEntity.getExp() : form.getExp());
 		questEntity.setDescription(form.getDescription());
 		questEntity.setTitle(form.getTitle());
+		if (form.getAvailableDays() != null && !form.getAvailableDays().isEmpty()) {
+			questEntity.setAvailableDays(toBitmask(form.getAvailableDays()));
+		}
 		questEntity.setStatus(5);
 		questEntity.setUpdatedDate(LocalDateTime.now());
 
@@ -131,6 +136,10 @@ public class QuestService {
 		if (questEntity.getChildUser() == null
 				|| !childUserId.equals(questEntity.getChildUser().getUserId())) {
 			throw new IllegalArgumentException("この操作を行う権限がありません。");
+		}
+
+		if (!isAvailableToday(questEntity.getAvailableDays())) {
+			throw new IllegalArgumentException("今日はこのクエストを実施できません。");
 		}
 
 		questEntity.setStatus(1);
@@ -219,6 +228,48 @@ public class QuestService {
 		if (isUpdated) {
 			questRepository.saveAll(quests);
 		}
+	}
+
+	/**
+	 * 実施可能曜日のリストをビットマスクに変換する。未指定(null/空)の場合は全曜日(毎日実施可能)。
+	 */
+	private Integer toBitmask(List<QuestDay> days) {
+		if (days == null || days.isEmpty()) {
+			return QuestDay.ALL_DAYS_MASK;
+		}
+		int mask = 0;
+		for (QuestDay day : days) {
+			mask |= day.getBit();
+		}
+		return mask;
+	}
+
+	/**
+	 * 9. isAvailableToday: 今日がこのクエストの実施可能曜日か判定する。
+	 * available_days が未設定(null)の場合は毎日実施可能として扱う（既存データとの後方互換）。
+	 * ※ テンプレートからは呼び出さないこと。Thymeleafはth:eachのループ内でのBean参照(@bean)を解析エラーにするため、
+	 *   表示用にはQuestEntity#isAvailableToday()等のインスタンスメソッド経由で参照する。
+	 */
+	@Transactional(readOnly = true)
+	public boolean isAvailableToday(Integer availableDays) {
+		return QuestDay.isAvailableToday(availableDays);
+	}
+
+	/**
+	 * 10. formatAvailableDays: 実施可能曜日を表示用文字列に整形する（全曜日なら「毎日」）。
+	 */
+	@Transactional(readOnly = true)
+	public String formatAvailableDays(Integer availableDays) {
+		return QuestDay.format(availableDays);
+	}
+
+	/**
+	 * 11. getAvailableDayCodes: 実施可能曜日をCSV形式のenum名(例: "MON,WED,FRI")で返す。
+	 * 保護者画面の編集モーダルへ現在値を引き渡す(JS側でのチェックボックス復元)用途。
+	 */
+	@Transactional(readOnly = true)
+	public String getAvailableDayCodes(Integer availableDays) {
+		return QuestDay.toCsv(availableDays);
 	}
 
 }

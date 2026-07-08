@@ -186,6 +186,40 @@
     color: #fff;
 }
 
+.quest-day-chip-list {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 8px 0 6px;
+}
+
+.quest-day-chip {
+    display: inline-flex;
+    align-items: center;
+}
+
+.quest-day-chip input {
+    display: none;
+}
+
+.quest-day-chip span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    background: #f4efff;
+    color: #9b7cf6;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 13px;
+}
+
+.quest-day-chip input:checked + span {
+    background: #7c3aed;
+    color: #fff;
+}
+
 .quest-modal-note {
     color: #9a7b63;
     font-size: 12px;

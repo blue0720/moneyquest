@@ -127,6 +127,75 @@
 	cursor: pointer;
 }
 
+/* キャラクターしゅるいバッジ（名前の横） */
+.character-type-badge {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	height: 20px;
+	padding: 0 8px;
+	border-radius: 999px;
+	background: #ffe4c4;
+	color: #a9540f;
+	font-size: 10px;
+	font-weight: 900;
+}
+
+/* しゅるい違いの色替え（画像素材が無いため hue-rotate で仮対応） */
+.character-type-grass {
+	filter: drop-shadow(0 4px 12px rgba(255, 107, 26, 0.25));
+}
+
+.character-type-flame {
+	filter: hue-rotate(140deg) saturate(1.3) drop-shadow(0 4px 12px rgba(255, 107, 26, 0.25));
+}
+
+.character-type-aqua {
+	filter: hue-rotate(220deg) saturate(1.2) drop-shadow(0 4px 12px rgba(255, 107, 26, 0.25));
+}
+
+.character-type-thunder {
+	filter: hue-rotate(60deg) saturate(1.4) brightness(1.05) drop-shadow(0 4px 12px rgba(255, 107, 26, 0.25));
+}
+
+/* しゅるい変更モーダルのチップ選択 */
+.character-type-chip-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 8px 0 16px;
+}
+
+.character-type-chip {
+	display: inline-flex;
+	align-items: center;
+}
+
+.character-type-chip input {
+	display: none;
+}
+
+.character-type-chip span {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 36px;
+	padding: 0 16px;
+	border-radius: 999px;
+	border: 2px solid #f0dfc0;
+	background: #fff;
+	color: #8a5a34;
+	font-size: 13px;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.character-type-chip input:checked + span {
+	border-color: #ff6b1a;
+	background: #fff1e0;
+	color: #ff6b1a;
+}
+
 /* =========================
    ホームタブ：バッジ・称号カード
 ========================= */

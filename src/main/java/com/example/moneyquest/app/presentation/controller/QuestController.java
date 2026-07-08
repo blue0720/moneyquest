@@ -143,6 +143,7 @@ public class QuestController {
 				form.setExp(questSendForm.getExp());
 				form.setDescription(questSendForm.getDescription());
 				form.setLimitAmount(questSendForm.getLimitAmount());
+				form.setAvailableDays(questSendForm.getAvailableDays());
 
 				questService.createQuest(form,loginUser.getUser().getUserId());
 			}

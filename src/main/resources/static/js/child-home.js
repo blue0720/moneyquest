@@ -2,6 +2,10 @@ function openCharacterNameModal() {
 	document.getElementById('characterNameModal').classList.add('is-show');
 }
 
+function openCharacterTypeModal() {
+	document.getElementById('characterTypeModal').classList.add('is-show');
+}
+
 function openRecordAddModal() {
 	document.getElementById('recordAddModal').classList.add('is-show');
 }

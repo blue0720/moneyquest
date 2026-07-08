@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.moneyquest.app.domain.model.CharacterDto;
+import com.example.moneyquest.app.domain.model.CharacterType;
 import com.example.moneyquest.app.infra.entity.CharacterEntity;
 import com.example.moneyquest.app.infra.entity.UserEntity;
 import com.example.moneyquest.app.infra.repository.CharacterRepository;
@@ -40,13 +41,14 @@ public class CharacterService {
 	/**
 	 * キャラ生成。子供アカウント作成時に UserService から呼ばれ、その子のキャラを1体作る。
 	 */
-	public void createCharacter(Integer childUserId) {
+	public void createCharacter(Integer childUserId, CharacterType characterType) {
 		// FK（child_user_id）を張るために、id だけ設定した UserEntity 参照を使う。
 		UserEntity child = new UserEntity();
 		child.setUserId(childUserId);
 
 		CharacterEntity character = new CharacterEntity();
 		character.setChildUser(child);
+		character.setCharacterType(characterType == null ? CharacterType.GRASS : characterType);
 		character.setCharacterName(DEFAULT_NAME);
 		character.setLevel(INITIAL_LEVEL);
 		character.setCurrentExp(0);
@@ -63,6 +65,7 @@ public class CharacterService {
 		CharacterEntity character = getEntity(childUserId);
 
 		CharacterDto dto = new CharacterDto();
+		dto.setCharacterType(character.getCharacterType());
 		dto.setCharacterName(character.getCharacterName());
 		dto.setLevel(character.getLevel());
 		dto.setCurrentExp(character.getCurrentExp());
@@ -77,6 +80,15 @@ public class CharacterService {
 	public void updateCharacterName(Integer childUserId, String characterName) {
 		CharacterEntity character = getEntity(childUserId);
 		character.setCharacterName(characterName);
+		characterRepository.save(character);
+	}
+
+	/**
+	 * 種類変更。子供ホームのモーダルから呼ばれる。
+	 */
+	public void updateCharacterType(Integer childUserId, CharacterType characterType) {
+		CharacterEntity character = getEntity(childUserId);
+		character.setCharacterType(characterType);
 		characterRepository.save(character);
 	}
 

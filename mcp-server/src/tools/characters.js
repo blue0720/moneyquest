@@ -22,18 +22,23 @@ export function registerCharacterTools(server) {
     })
   );
 
+  const CHARACTER_TYPES = ["GRASS", "FLAME", "AQUA", "THUNDER"];
+  const CHARACTER_TYPE_DESC =
+    "characterType: GRASS(くさタイプ)/FLAME(ほのおタイプ)/AQUA(みずタイプ)/THUNDER(かみなりタイプ)の4種類。子供アカウント作成時に選択し、子供ホームの「しゅるいをかえる」からいつでも変更可能。";
+
   server.registerTool(
     "create_character",
     {
       title: "キャラクター新規作成",
       description:
-        "子供アカウント登録時にキャラクターが未作成の場合に新規作成する(1子供につき1体、既に存在する場合はエラー)。",
+        `子供アカウント登録時にキャラクターが未作成の場合に新規作成する(1子供につき1体、既に存在する場合はエラー)。${CHARACTER_TYPE_DESC}`,
       inputSchema: {
         childUserId: z.number().int(),
         characterName: z.string().min(1).max(50),
+        characterType: z.enum(CHARACTER_TYPES).default("GRASS"),
       },
     },
-    withErrorHandling(async ({ childUserId, characterName }) => {
+    withErrorHandling(async ({ childUserId, characterName, characterType }) => {
       const existing = await query(
         "SELECT character_id FROM character_t WHERE child_user_id = ?",
         [childUserId]
@@ -42,9 +47,9 @@ export function registerCharacterTools(server) {
         return textResult({ error: `child_user_id=${childUserId} には既にキャラクターが存在します。` });
       }
       const result = await execute(
-        `INSERT INTO character_t (child_user_id, character_name, level, total_achievement_count, current_exp)
-         VALUES (?, ?, 0, 0, 0)`,
-        [childUserId, characterName.trim()]
+        `INSERT INTO character_t (child_user_id, character_type, character_name, level, total_achievement_count, current_exp)
+         VALUES (?, ?, ?, 0, 0, 0)`,
+        [childUserId, characterType ?? "GRASS", characterName.trim()]
       );
       return textResult({ characterId: result.insertId, message: "作成しました。" });
     })
@@ -55,17 +60,18 @@ export function registerCharacterTools(server) {
     {
       title: "キャラクター更新",
       description:
-        "キャラクター名・レベル・経験値・累計達成数を更新する(削除は不可)。クエスト承認時のexp加算・達成数加算はアプリ側のロジック(CharacterService)に準ずるため、通常はこのToolで直接レベルやexpを操作するのではなく、確認・手動補正用途で使う。",
+        `キャラクター名・種類・レベル・経験値・累計達成数を更新する(削除は不可)。クエスト承認時のexp加算・達成数加算はアプリ側のロジック(CharacterService)に準ずるため、通常はこのToolで直接レベルやexpを操作するのではなく、確認・手動補正用途で使う。${CHARACTER_TYPE_DESC}`,
       inputSchema: {
         childUserId: z.number().int(),
         characterName: z.string().min(1).max(50).optional(),
+        characterType: z.enum(CHARACTER_TYPES).optional(),
         level: z.number().int().min(0).optional(),
         currentExp: z.number().int().min(0).optional(),
         totalAchievementCount: z.number().int().min(0).optional(),
       },
     },
     withErrorHandling(
-      async ({ childUserId, characterName, level, currentExp, totalAchievementCount }) => {
+      async ({ childUserId, characterName, characterType, level, currentExp, totalAchievementCount }) => {
         const sets = [];
         const params = [];
         if (characterName !== undefined) {
@@ -74,6 +80,10 @@ export function registerCharacterTools(server) {
           }
           sets.push("character_name = ?");
           params.push(characterName.trim());
+        }
+        if (characterType !== undefined) {
+          sets.push("character_type = ?");
+          params.push(characterType);
         }
         if (level !== undefined) {
           sets.push("level = ?");
