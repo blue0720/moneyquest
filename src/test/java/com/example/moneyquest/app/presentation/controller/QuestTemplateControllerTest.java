@@ -69,7 +69,7 @@ class QuestTemplateControllerTest {
 
 	private void stubShowTemplatesDependencies() {
 		when(questTemplateService.findByParentUserId(PARENT_USER_ID)).thenReturn(List.of());
-		when(userService.getFamilyByParentId(PARENT_USER_ID)).thenReturn(List.of());
+		when(userService.getChildrenByParentId(PARENT_USER_ID)).thenReturn(List.of());
 		when(questService.getApprovalList()).thenReturn(List.of());
 		when(spendingService.getPendingLimits(PARENT_USER_ID)).thenReturn(List.of());
 	}
@@ -178,7 +178,7 @@ class QuestTemplateControllerTest {
 			form.setChildUserId(0);
 			BindingResult bindingResult = new BeanPropertyBindingResult(form, "questSendForm");
 
-			when(userService.getFamilyByParentId(PARENT_USER_ID)).thenReturn(List.of(child1, child2));
+			when(userService.getChildrenByParentId(PARENT_USER_ID)).thenReturn(List.of(child1, child2));
 
 			String view = controller.addQuestFromTemplate(parentLogin, form, bindingResult, model);
 

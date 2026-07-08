@@ -119,6 +119,16 @@ public class UserService {
 	}
 
 	/**
+	 * 子供一覧（家族一覧から子供アカウントのみに絞り込む）
+	 */
+	@Transactional
+	public List<UserDto> getChildrenByParentId(Integer parentUserId) {
+		return getFamilyByParentId(parentUserId).stream()
+				.filter(user -> CustomUserDetails.AUTHORITY_CHILD == user.getAuthority())
+				.toList();
+	}
+
+	/**
 	 * 保護者アカウント一覧
 	 */
 	@Transactional

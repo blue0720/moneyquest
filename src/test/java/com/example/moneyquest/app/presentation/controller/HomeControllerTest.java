@@ -151,7 +151,7 @@ class HomeControllerTest {
 		@DisplayName("子供がいない場合でも例外を投げずに空の集計を返す")
 		void showParentHome_noChildren() {
 			when(questTemplateService.findByParentUserId(PARENT_USER_ID)).thenReturn(List.of());
-			when(userService.getFamilyByParentId(PARENT_USER_ID)).thenReturn(List.of());
+			when(userService.getChildrenByParentId(PARENT_USER_ID)).thenReturn(List.of());
 			when(questService.getApprovalList()).thenReturn(List.of());
 			when(spendingService.getPendingLimits(PARENT_USER_ID)).thenReturn(List.of());
 
@@ -185,7 +185,7 @@ class HomeControllerTest {
 			strangerQuest.setChildUser(strangerChildEntity);
 
 			when(questTemplateService.findByParentUserId(PARENT_USER_ID)).thenReturn(List.of());
-			when(userService.getFamilyByParentId(PARENT_USER_ID)).thenReturn(List.of(ownChild));
+			when(userService.getChildrenByParentId(PARENT_USER_ID)).thenReturn(List.of(ownChild));
 			when(questService.getApprovalList()).thenReturn(List.of(ownQuest, strangerQuest));
 			when(spendingService.getPendingLimits(PARENT_USER_ID)).thenReturn(List.of());
 			when(incomeExpenseService.getIncomeRecords(CHILD_USER_ID)).thenReturn(List.of());
@@ -210,7 +210,7 @@ class HomeControllerTest {
 			ownChild.setAuthority(CustomUserDetails.AUTHORITY_CHILD);
 
 			when(questTemplateService.findByParentUserId(PARENT_USER_ID)).thenReturn(List.of());
-			when(userService.getFamilyByParentId(PARENT_USER_ID)).thenReturn(List.of(ownChild));
+			when(userService.getChildrenByParentId(PARENT_USER_ID)).thenReturn(List.of(ownChild));
 			when(questService.getApprovalList()).thenReturn(List.of());
 			when(spendingService.getPendingLimits(PARENT_USER_ID)).thenReturn(List.of());
 			when(incomeExpenseService.getIncomeRecords(CHILD_USER_ID)).thenReturn(List.of());
@@ -226,7 +226,7 @@ class HomeControllerTest {
 		@DisplayName("子供が1人もいない場合はselectedChildIdがnullになり収支レコードは取得しない")
 		void showParentBalance_noChildren_selectedChildIdNull() {
 			when(questTemplateService.findByParentUserId(PARENT_USER_ID)).thenReturn(List.of());
-			when(userService.getFamilyByParentId(PARENT_USER_ID)).thenReturn(List.of());
+			when(userService.getChildrenByParentId(PARENT_USER_ID)).thenReturn(List.of());
 			when(questService.getApprovalList()).thenReturn(List.of());
 			when(spendingService.getPendingLimits(PARENT_USER_ID)).thenReturn(List.of());
 

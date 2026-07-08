@@ -229,6 +229,10 @@
 							🗓 じっしできる曜日: <span th:text="${quest.availableDaysDisplay}">毎日</span>
 						</p>
 
+						<p class="child-quest-days" th:if="${quest.specificDate != null}">
+							📅 じっしび: <span th:text="${#temporals.format(quest.specificDate, 'yyyy/MM/dd')}">2026/08/15</span>のみ
+						</p>
+
 						<p th:if="${quest.status == 4}" class="child-quest-new">
 							🆕 あたらしいクエスト！
 						</p>

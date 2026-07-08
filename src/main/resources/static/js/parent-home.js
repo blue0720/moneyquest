@@ -121,6 +121,8 @@ function openQuestEditModal(button) {
 		checkbox.checked = selectedDays.includes(checkbox.dataset.day);
 	});
 
+	document.getElementById('editQuestSpecificDate').value = button.dataset.specificDate || '';
+
 	document.getElementById('editQuestForm').action = '/parent/quest/' + id + '/edit';
 	document.getElementById('questEditModal').classList.add('is-show');
 }

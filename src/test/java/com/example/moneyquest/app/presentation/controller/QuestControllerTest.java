@@ -101,7 +101,7 @@ class QuestControllerTest {
 			child.setUserId(CHILD_USER_ID);
 			child.setAuthority(CustomUserDetails.AUTHORITY_CHILD);
 
-			when(userService.getFamilyByParentId(PARENT_USER_ID)).thenReturn(List.of(child));
+			when(userService.getChildrenByParentId(PARENT_USER_ID)).thenReturn(List.of(child));
 			when(questService.getQuestsByChildAndStatuses(eq(CHILD_USER_ID), any())).thenReturn(List.of());
 			when(questService.getApprovalList()).thenReturn(List.of());
 			when(spendingService.getPendingLimits(PARENT_USER_ID)).thenReturn(List.of());
@@ -121,20 +121,20 @@ class QuestControllerTest {
 	class CreateQuest {
 
 		@Test
-		@DisplayName("入力エラーがある場合はサービスを呼ばずに保護者ホームへリダイレクトする")
+		@DisplayName("入力エラーがある場合はサービスを呼ばずに保護者ホームをエラー付きで再表示する")
 		void createQuest_validationError_skipsService() {
 			QuestSendForm form = new QuestSendForm();
 			BindingResult bindingResult = new BeanPropertyBindingResult(form, "questSendForm");
 			bindingResult.reject("error");
 
-			when(userService.getFamilyByParentId(PARENT_USER_ID)).thenReturn(List.of());
+			when(userService.getChildrenByParentId(PARENT_USER_ID)).thenReturn(List.of());
 			when(questService.getApprovalList()).thenReturn(List.of());
 			when(spendingService.getPendingLimits(PARENT_USER_ID)).thenReturn(List.of());
 			when(questTemplateService.findByParentUserId(PARENT_USER_ID)).thenReturn(List.of());
 
 			String view = controller.createQuest(parentLogin, form, bindingResult, model);
 
-			assertThat(view).isEqualTo("redirect:" + TransitionTargetPageNameKeyword.PARENT_HOME_HTML);
+			assertThat(view).isEqualTo(TransitionTargetPageNameKeyword.PARENT_HOME_HTML);
 			verify(questService, never()).createQuest(any(), any());
 		}
 
@@ -154,7 +154,7 @@ class QuestControllerTest {
 			form.setRewardAmount(100);
 			BindingResult bindingResult = new BeanPropertyBindingResult(form, "questSendForm");
 
-			when(userService.getFamilyByParentId(PARENT_USER_ID)).thenReturn(List.of(child1, child2));
+			when(userService.getChildrenByParentId(PARENT_USER_ID)).thenReturn(List.of(child1, child2));
 
 			String view = controller.createQuest(parentLogin, form, bindingResult, model);
 
@@ -169,7 +169,7 @@ class QuestControllerTest {
 			form.setChildUserId(CHILD_USER_ID);
 			BindingResult bindingResult = new BeanPropertyBindingResult(form, "questSendForm");
 
-			when(userService.getFamilyByParentId(PARENT_USER_ID)).thenReturn(List.of());
+			when(userService.getChildrenByParentId(PARENT_USER_ID)).thenReturn(List.of());
 
 			String view = controller.createQuest(parentLogin, form, bindingResult, model);
 
@@ -187,7 +187,7 @@ class QuestControllerTest {
 			form.setTitle("お手伝い");
 			BindingResult bindingResult = new BeanPropertyBindingResult(form, "questSendForm");
 
-			when(userService.getFamilyByParentId(PARENT_USER_ID)).thenReturn(List.of());
+			when(userService.getChildrenByParentId(PARENT_USER_ID)).thenReturn(List.of());
 
 			controller.createQuest(parentLogin, form, bindingResult, model);
 

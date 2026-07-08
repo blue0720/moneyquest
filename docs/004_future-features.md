@@ -73,6 +73,17 @@
 
 `./mvnw test`で`QuestServiceTest`(33件、失敗0件)を含む全テストが通ることを確認。特に「曜日未指定なら全曜日マスクで作成」「今日が対象曜日に含まれない場合は完了申請でIllegalArgumentException」の2点をユニットテストで検証。アプリを起動し、保護者がクエスト作成時に曜日を限定して送信し、対象外の曜日にログインした子供アカウントでは完了ボタンが出ず「実施できません」表示になること、対象の曜日ではボタンが表示され完了申請が通ることを確認。
 
+### 追加拡張: 特定日指定
+
+曜日指定に加えて、単一の特定日(one-off)を指定できるように拡張した。曜日指定と特定日指定が両方設定されている場合はAND条件(両方を満たす日のみ実施可能)。`quest_t`に列追加(`ALTER TABLE quest_t ADD COLUMN specific_date DATE NULL`)。未設定(null)なら日付による制限なし(既存クエストは全てnullのため後方互換)。
+
+- `infra/entity/QuestEntity.java`: `specificDate`列を追加。`isAvailableToday()`を拡張し、`specificDate`が設定されている場合はまずその日付と一致するかを判定してから曜日判定を行う(AND条件)
+- `presentation/form/QuestSendForm.java`: `specificDate`(`<input type="date">`からバインド、`@DateTimeFormat(pattern = "yyyy-MM-dd")`)を追加
+- `domain/service/QuestService.java`: `createQuest`/`updateQuest`双方で`specificDate`を単純上書き(曜日チェックボックスと異なり、編集モーダルは現在値を復元表示するため、空欄送信は「日付指定を解除する」という意図がとれる)
+- `templates/parent-home.html`: クエスト追加/編集モーダルに日付inputを追加。編集ボタンに`th:data-specific-date="${quest.specificDate}"`(`LocalDate#toString()`がISO8601形式でHTML5 date inputの値と一致)を付与し、`static/js/parent-home.js`で復元
+- `templates/child-home.html`: `#temporals`(Thymeleaf標準の日付フォーマットユーティリティ、Bean参照ではないためth:eachループ内でも制限に引っかからない)で「📅 じっしび: yyyy/MM/dd」を表示
+- `mcp-server/src/tools/quests.js`: `create_quest`/`update_quest`に`specificDate`(YYYY-MM-DD、`update_quest`は`null`で解除可能)を追加
+
 ## 対象箇所
 
 - 001_要件定義/最終要件定義書_Group1.docx(拡張性 節)

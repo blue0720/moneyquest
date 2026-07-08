@@ -20,7 +20,7 @@ public class QuestTemplateForm {
 	private String description;
 
 	@NotNull(message = "お小遣いは必須です")
-	@Min(value = 0, message = "\1以上の金額を入力してください")
+	@Min(value = 1, message = "¥1以上の金額を入力してください")
 	@Max(value = 100000, message = "金額は¥100,000以下の金額で入力してください")
 	private Integer rewardAmount;
 

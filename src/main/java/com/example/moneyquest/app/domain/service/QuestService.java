@@ -73,6 +73,7 @@ public class QuestService {
 		questEntity.setDescription(form.getDescription());
 		questEntity.setTitle(form.getTitle());
 		questEntity.setAvailableDays(toBitmask(form.getAvailableDays()));
+		questEntity.setSpecificDate(form.getSpecificDate());
 		questEntity.setStatus(4);
 		questEntity.setRegisteredDate(LocalDateTime.now());
 		questEntity.setUpdatedDate(LocalDateTime.now());
@@ -102,6 +103,7 @@ public class QuestService {
 		if (form.getAvailableDays() != null && !form.getAvailableDays().isEmpty()) {
 			questEntity.setAvailableDays(toBitmask(form.getAvailableDays()));
 		}
+		questEntity.setSpecificDate(form.getSpecificDate());
 		questEntity.setStatus(5);
 		questEntity.setUpdatedDate(LocalDateTime.now());
 
@@ -138,7 +140,7 @@ public class QuestService {
 			throw new IllegalArgumentException("この操作を行う権限がありません。");
 		}
 
-		if (!isAvailableToday(questEntity.getAvailableDays())) {
+		if (!questEntity.isAvailableToday()) {
 			throw new IllegalArgumentException("今日はこのクエストを実施できません。");
 		}
 

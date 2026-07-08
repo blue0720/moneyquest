@@ -533,6 +533,7 @@
 									th:data-description="${quest.description}"
 									th:data-child-id="${quest.childUser != null ? quest.childUser.userId : ''}"
 									th:data-available-days="${quest.availableDayCodes}"
+								th:data-specific-date="${quest.specificDate}"
 									onclick="openQuestEditModal(this)">✎</button>
 								<button type="button" class="quest-circle-btn quest-delete-circle"
 									th:data-id="${quest.questId}" th:data-title="${quest.title}"
@@ -578,6 +579,11 @@
 					<p class="quest-modal-note">
 						🗓 すべてチェックすると毎日実施できます。特定の曜日だけにしたい場合は、その曜日だけ残してチェックを外してください。
 					</p>
+					<label class="quest-modal-label">特定の実施日（任意）</label>
+					<input class="quest-modal-input" type="date" name="specificDate">
+					<p class="quest-modal-note">
+						📅 指定すると、その日だけ実施できるクエストになります（曜日指定と併用可）。
+					</p>
 					<label class="quest-modal-label">ほうび・お小遣い（円）</label>
 					<input class="quest-modal-input" type="text" inputmode="numeric" name="rewardAmount" value="50"
 						maxlength="6" required>
@@ -621,6 +627,8 @@
 							<span th:text="${day.label}">月</span>
 						</label>
 					</div>
+					<label class="quest-modal-label">特定の実施日（任意）</label>
+					<input class="quest-modal-input" type="date" id="editQuestSpecificDate" name="specificDate">
 					<label class="quest-modal-label">ほうび・お小遣い（円）</label>
 					<input class="quest-modal-input" type="text" inputmode="numeric" id="editQuestReward"
 						name="rewardAmount" maxlength="6" required>

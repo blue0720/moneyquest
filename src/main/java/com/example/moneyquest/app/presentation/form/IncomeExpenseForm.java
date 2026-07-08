@@ -53,7 +53,7 @@ public class IncomeExpenseForm {
 	 */
 	@NotNull(message = "金額を入力してください")
 	@Min(value = 1, message = "金額は1以上の整数で入力してください")
-	@Max(value = 1000000, message = "金額は100,000以下の整数で入力してください")
+	@Max(value = 100000, message = "金額は100,000以下の整数で入力してください")
 	private Integer amount;
 
 	/**

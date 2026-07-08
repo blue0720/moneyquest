@@ -145,6 +145,42 @@ class QuestServiceTest {
 		}
 
 		@Test
+		@DisplayName("specificDateが未指定の場合はnullで作成される（日付による制限なし）")
+		void createQuest_defaultSpecificDate() {
+			QuestSendForm form = new QuestSendForm();
+			form.setChildUserId(CHILD_USER_ID);
+			form.setTitle("お手伝い");
+			form.setRewardAmount(100);
+
+			when(userRepository.findByParentUserId(PARENT_USER_ID)).thenReturn(List.of(childUser));
+			when(questRepository.save(any(QuestEntity.class)))
+					.thenAnswer(invocation -> invocation.getArgument(0));
+
+			QuestEntity result = questService.createQuest(form, PARENT_USER_ID);
+
+			assertThat(result.getSpecificDate()).isNull();
+		}
+
+		@Test
+		@DisplayName("specificDateが指定された場合はその日付で作成される")
+		void createQuest_specificDate() {
+			LocalDate date = LocalDate.of(2026, 8, 15);
+			QuestSendForm form = new QuestSendForm();
+			form.setChildUserId(CHILD_USER_ID);
+			form.setTitle("お手伝い");
+			form.setRewardAmount(100);
+			form.setSpecificDate(date);
+
+			when(userRepository.findByParentUserId(PARENT_USER_ID)).thenReturn(List.of(childUser));
+			when(questRepository.save(any(QuestEntity.class)))
+					.thenAnswer(invocation -> invocation.getArgument(0));
+
+			QuestEntity result = questService.createQuest(form, PARENT_USER_ID);
+
+			assertThat(result.getSpecificDate()).isEqualTo(date);
+		}
+
+		@Test
 		@DisplayName("指定した子供が自分の子ではない場合はIllegalArgumentExceptionを投げる")
 		void createQuest_childNotOwned_throws() {
 			QuestSendForm form = new QuestSendForm();
@@ -290,6 +326,51 @@ class QuestServiceTest {
 
 			assertThat(result.getAvailableDays()).isEqualTo(QuestDay.SAT.getBit() | QuestDay.SUN.getBit());
 		}
+
+		@Test
+		@DisplayName("specificDateを指定すると上書きされる")
+		void updateQuest_specificDateSpecified_overwrites() {
+			QuestEntity quest = new QuestEntity();
+			quest.setQuestId(123);
+			quest.setChildUser(childUser);
+			quest.setSpecificDate(LocalDate.of(2026, 1, 1));
+
+			LocalDate newDate = LocalDate.of(2026, 8, 15);
+			QuestSendForm form = new QuestSendForm();
+			form.setQuestId(123);
+			form.setTitle("更新後タイトル");
+			form.setRewardAmount(200);
+			form.setSpecificDate(newDate);
+
+			when(questRepository.findById(123)).thenReturn(Optional.of(quest));
+			when(questRepository.save(any(QuestEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+			QuestEntity result = questService.updateQuest(form, PARENT_USER_ID);
+
+			assertThat(result.getSpecificDate()).isEqualTo(newDate);
+		}
+
+		@Test
+		@DisplayName("specificDateを未指定(null)で更新すると日付指定が解除される")
+		void updateQuest_specificDateCleared() {
+			QuestEntity quest = new QuestEntity();
+			quest.setQuestId(123);
+			quest.setChildUser(childUser);
+			quest.setSpecificDate(LocalDate.of(2026, 1, 1));
+
+			QuestSendForm form = new QuestSendForm();
+			form.setQuestId(123);
+			form.setTitle("更新後タイトル");
+			form.setRewardAmount(200);
+			form.setSpecificDate(null);
+
+			when(questRepository.findById(123)).thenReturn(Optional.of(quest));
+			when(questRepository.save(any(QuestEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+			QuestEntity result = questService.updateQuest(form, PARENT_USER_ID);
+
+			assertThat(result.getSpecificDate()).isNull();
+		}
 	}
 
 	@Nested
@@ -406,6 +487,40 @@ class QuestServiceTest {
 			DayOfWeek today = LocalDate.now().getDayOfWeek();
 			int maskWithoutToday = QuestDay.ALL_DAYS_MASK & ~QuestDay.fromDayOfWeek(today).getBit();
 			quest.setAvailableDays(maskWithoutToday);
+
+			when(questRepository.findById(123)).thenReturn(Optional.of(quest));
+
+			assertThatThrownBy(() -> questService.requestComplete(123, CHILD_USER_ID))
+					.isInstanceOf(IllegalArgumentException.class)
+					.hasMessageContaining("実施できません");
+
+			verify(questRepository, never()).save(any());
+		}
+
+		@Test
+		@DisplayName("specificDateが今日の場合は完了申請できる")
+		void requestComplete_specificDateToday_success() {
+			QuestEntity quest = new QuestEntity();
+			quest.setQuestId(123);
+			quest.setChildUser(childUser);
+			quest.setSpecificDate(LocalDate.now());
+
+			when(questRepository.findById(123)).thenReturn(Optional.of(quest));
+			when(questRepository.save(any(QuestEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+			questService.requestComplete(123, CHILD_USER_ID);
+
+			assertThat(quest.getStatus()).isEqualTo(1);
+		}
+
+		@Test
+		@DisplayName("specificDateが今日ではない場合はIllegalArgumentExceptionを投げる（曜日が一致していても）")
+		void requestComplete_specificDateNotToday_throws() {
+			QuestEntity quest = new QuestEntity();
+			quest.setQuestId(123);
+			quest.setChildUser(childUser);
+			quest.setSpecificDate(LocalDate.now().plusDays(1));
+			quest.setAvailableDays(QuestDay.ALL_DAYS_MASK);
 
 			when(questRepository.findById(123)).thenReturn(Optional.of(quest));
 

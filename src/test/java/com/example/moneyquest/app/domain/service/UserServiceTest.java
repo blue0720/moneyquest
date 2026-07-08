@@ -24,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.example.moneyquest.app.domain.model.UserDto;
 import com.example.moneyquest.app.infra.entity.UserEntity;
 import com.example.moneyquest.app.infra.repository.CharacterRepository;
 import com.example.moneyquest.app.infra.repository.IncomeExpenseRepository;
@@ -130,6 +131,44 @@ class UserServiceTest {
 			userService.createUser(CustomUserDetails.AUTHORITY_CHILD, form);
 
 			verify(characterService, times(1)).createCharacter(any(), any());
+		}
+	}
+
+	@Nested
+	@DisplayName("getChildrenByParentId")
+	class GetChildrenByParentId {
+
+		@Test
+		@DisplayName("家族一覧のうち子供アカウントのみを返す（保護者自身は除外）")
+		void getChildrenByParentId_excludesParentThemselves() {
+			UserEntity parent = new UserEntity();
+			parent.setUserId(PARENT_USER_ID);
+			parent.setAuthority(CustomUserDetails.AUTHORITY_PARENT);
+
+			UserEntity child = new UserEntity();
+			child.setUserId(CHILD_USER_ID);
+			child.setAuthority(CustomUserDetails.AUTHORITY_CHILD);
+
+			when(userRepository.findById(PARENT_USER_ID)).thenReturn(Optional.of(parent));
+			when(userRepository.findByParentUserId(PARENT_USER_ID)).thenReturn(List.of(child));
+
+			List<UserDto> children = userService.getChildrenByParentId(PARENT_USER_ID);
+
+			assertThat(children).hasSize(1);
+			assertThat(children.get(0).getUserId()).isEqualTo(CHILD_USER_ID);
+		}
+
+		@Test
+		@DisplayName("子供が1人もいない場合は空リストを返す")
+		void getChildrenByParentId_noChildren_returnsEmpty() {
+			UserEntity parent = new UserEntity();
+			parent.setUserId(PARENT_USER_ID);
+			parent.setAuthority(CustomUserDetails.AUTHORITY_PARENT);
+
+			when(userRepository.findById(PARENT_USER_ID)).thenReturn(Optional.of(parent));
+			when(userRepository.findByParentUserId(PARENT_USER_ID)).thenReturn(List.of());
+
+			assertThat(userService.getChildrenByParentId(PARENT_USER_ID)).isEmpty();
 		}
 	}
 

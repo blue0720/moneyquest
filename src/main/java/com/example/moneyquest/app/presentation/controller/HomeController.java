@@ -122,11 +122,7 @@ public class HomeController {
 		final Integer loginParentUserId = loginUser.getUserId();
 
 		var templateList = questTemplateService.findByParentUserId(loginParentUserId);
-		var familyList = userService.getFamilyByParentId(loginParentUserId);
-
-		var childList = familyList.stream()
-				.filter(user -> CustomUserDetails.AUTHORITY_CHILD == user.getAuthority())
-				.toList();
+		var childList = userService.getChildrenByParentId(loginParentUserId);
 
 		Integer questApprovalCount = questService.getApprovalList().stream()
 				.filter(quest -> quest.getChildUser() != null)
@@ -190,10 +186,7 @@ public class HomeController {
 		final Integer loginParentUserId = loginUser.getUserId();
 
 		var templateList = questTemplateService.findByParentUserId(loginParentUserId);
-		var familyList = userService.getFamilyByParentId(loginParentUserId);
-		var childList = familyList.stream()
-				.filter(user -> CustomUserDetails.AUTHORITY_CHILD == user.getAuthority())
-				.toList();
+		var childList = userService.getChildrenByParentId(loginParentUserId);
 
 		Integer questApprovalCount = questService.getApprovalList().stream()
 				.filter(quest -> quest.getChildUser() != null)

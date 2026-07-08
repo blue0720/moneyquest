@@ -49,9 +49,7 @@ public class QuestTemplateController {
 		Integer parentUserId = loginUser.getUserId();
 
 		var templateList = questTemplateService.findByParentUserId(parentUserId);
-		var childList = userService.getFamilyByParentId(parentUserId).stream()
-				.filter(user -> CustomUserDetails.AUTHORITY_CHILD == user.getAuthority())
-				.toList();
+		var childList = userService.getChildrenByParentId(parentUserId);
 
 		ParentModelHelper.setDefaults(model,
 				loginUser,
@@ -129,9 +127,7 @@ public class QuestTemplateController {
 		Integer parentUserId = loginUser.getUser().getUserId();
 
 		if (form.getChildUserId() != null && form.getChildUserId() == 0) {
-			var childList = userService.getFamilyByParentId(parentUserId).stream()
-					.filter(user -> CustomUserDetails.AUTHORITY_CHILD == user.getAuthority())
-					.toList();
+			var childList = userService.getChildrenByParentId(parentUserId);
 
 			for (var child : childList) {
 				QuestSendForm childForm = new QuestSendForm();

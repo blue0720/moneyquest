@@ -1,5 +1,6 @@
 package com.example.moneyquest.app.infra.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -50,6 +51,10 @@ public class QuestEntity {
 	@Column(name = "available_days")
 	private Integer availableDays;
 
+	/** 実施可能な特定の日付。nullなら日付による制限なし(曜日指定のみで判定)。 */
+	@Column(name = "specific_date")
+	private LocalDate specificDate;
+
 	@Column(name = "status")
 	private Integer status;
 
@@ -60,10 +65,14 @@ public class QuestEntity {
 	private LocalDateTime updatedDate;
 
 	/**
-	 * 今日が実施可能曜日か。テンプレート(child-home.html)からBean参照(@questService)を
-	 * th:eachループ内で呼ぶとThymeleafが解析エラーにするため、Entityのメソッド経由で公開する。
+	 * 今日が実施可能か。曜日指定・特定日指定の両方が設定されている場合はAND条件（両方を満たす日のみ）。
+	 * テンプレート(child-home.html)からBean参照(@questService)をth:eachループ内で呼ぶと
+	 * Thymeleafが解析エラーにするため、Entityのメソッド経由で公開する。
 	 */
 	public boolean isAvailableToday() {
+		if (specificDate != null && !specificDate.isEqual(LocalDate.now())) {
+			return false;
+		}
 		return QuestDay.isAvailableToday(availableDays);
 	}
 

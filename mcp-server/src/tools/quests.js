@@ -8,12 +8,15 @@ const STATUS_DESC =
 const AVAILABLE_DAYS_DESC =
   "availableDays: 実施可能曜日のビットマスク(月=1,火=2,水=4,木=8,金=16,土=32,日=64を合計)。127=毎日実施可能(既定値)。";
 
+const SPECIFIC_DATE_DESC =
+  "specificDate: 実施可能な特定の日付(YYYY-MM-DD、任意)。availableDaysと両方設定されている場合はAND条件(両方を満たす日のみ実施可能)。未設定(null)なら日付による制限なし。";
+
 export function registerQuestTools(server) {
   server.registerTool(
     "list_quests",
     {
       title: "クエスト一覧取得",
-      description: `quest_t からクエスト一覧を取得する。${STATUS_DESC} ${AVAILABLE_DAYS_DESC}`,
+      description: `quest_t からクエスト一覧を取得する。${STATUS_DESC} ${AVAILABLE_DAYS_DESC} ${SPECIFIC_DATE_DESC}`,
       inputSchema: {
         childUserId: z.number().int().optional().describe("この子供に紐づくクエストのみ取得"),
         status: z.number().int().min(0).max(5).optional(),
@@ -60,7 +63,7 @@ export function registerQuestTools(server) {
     {
       title: "クエスト新規作成",
       description:
-        `保護者が子供にクエストを送信する。status は既定で 4(新規/未読) になる。${AVAILABLE_DAYS_DESC}`,
+        `保護者が子供にクエストを送信する。status は既定で 4(新規/未読) になる。${AVAILABLE_DAYS_DESC} ${SPECIFIC_DATE_DESC}`,
       inputSchema: {
         childUserId: z.number().int(),
         title: z.string().min(1).max(100),
@@ -69,17 +72,18 @@ export function registerQuestTools(server) {
         exp: z.number().int().min(0).default(5),
         limitAmount: z.number().int().optional(),
         availableDays: z.number().int().min(0).max(127).default(127),
+        specificDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
       },
     },
-    withErrorHandling(async ({ childUserId, title, description, rewardAmount, exp, limitAmount, availableDays }) => {
+    withErrorHandling(async ({ childUserId, title, description, rewardAmount, exp, limitAmount, availableDays, specificDate }) => {
       const trimmedTitle = title.trim();
       if (trimmedTitle.length === 0) {
         return textResult({ error: "title は空白のみでは登録できません。" });
       }
       const result = await execute(
-        `INSERT INTO quest_t (child_user_id, title, description, reward_amount, exp, limit_amount, available_days, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, 4)`,
-        [childUserId, trimmedTitle, description ?? null, rewardAmount ?? 0, exp ?? 5, limitAmount ?? null, availableDays ?? 127]
+        `INSERT INTO quest_t (child_user_id, title, description, reward_amount, exp, limit_amount, available_days, specific_date, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 4)`,
+        [childUserId, trimmedTitle, description ?? null, rewardAmount ?? 0, exp ?? 5, limitAmount ?? null, availableDays ?? 127, specificDate ?? null]
       );
       return textResult({ questId: result.insertId, message: "作成しました。" });
     })
@@ -89,7 +93,7 @@ export function registerQuestTools(server) {
     "update_quest",
     {
       title: "クエスト更新",
-      description: `既存クエストを更新する(削除は不可)。${STATUS_DESC} ${AVAILABLE_DAYS_DESC}`,
+      description: `既存クエストを更新する(削除は不可)。${STATUS_DESC} ${AVAILABLE_DAYS_DESC} ${SPECIFIC_DATE_DESC} specificDateにnullを渡すと日付指定を解除できる。`,
       inputSchema: {
         questId: z.number().int(),
         title: z.string().min(1).max(100).optional(),
@@ -98,11 +102,12 @@ export function registerQuestTools(server) {
         exp: z.number().int().min(0).optional(),
         limitAmount: z.number().int().optional(),
         availableDays: z.number().int().min(0).max(127).optional(),
+        specificDate: z.union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/), z.null()]).optional(),
         status: z.number().int().min(0).max(5).optional(),
       },
     },
     withErrorHandling(
-      async ({ questId, title, description, rewardAmount, exp, limitAmount, availableDays, status }) => {
+      async ({ questId, title, description, rewardAmount, exp, limitAmount, availableDays, specificDate, status }) => {
         const sets = [];
         const params = [];
         if (title !== undefined) {
@@ -131,6 +136,10 @@ export function registerQuestTools(server) {
         if (availableDays !== undefined) {
           sets.push("available_days = ?");
           params.push(availableDays);
+        }
+        if (specificDate !== undefined) {
+          sets.push("specific_date = ?");
+          params.push(specificDate);
         }
         if (status !== undefined) {
           sets.push("status = ?");

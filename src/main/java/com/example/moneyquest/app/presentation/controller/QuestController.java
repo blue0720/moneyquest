@@ -81,10 +81,7 @@ public class QuestController {
 		Integer parentUserId = loginUser.getUserId();
 
 		// 保護者に紐づく子供一覧を取得
-		List<UserDto> familyList = userService.getFamilyByParentId(parentUserId);
-		var childList = familyList.stream()
-				.filter(user -> CustomUserDetails.AUTHORITY_CHILD == user.getAuthority())
-				.toList();
+		var childList = userService.getChildrenByParentId(parentUserId);
 
 		// 子供全員のクエストを取得
 		List<Integer> targetStatuses=List.of(0,1,4,5);
@@ -113,9 +110,7 @@ public class QuestController {
 
 		Integer parentUserId = loginUser.getUserId();
 
-		var childList = userService.getFamilyByParentId(parentUserId).stream()
-				.filter(user -> CustomUserDetails.AUTHORITY_CHILD == user.getAuthority())
-				.toList();
+		var childList = userService.getChildrenByParentId(parentUserId);
 
 		if (bindingResult.hasErrors()) {
 			List<QuestEntity> questList = childList.stream()
@@ -131,7 +126,7 @@ public class QuestController {
 			model.addAttribute("childList", childList);
 			model.addAttribute("activeTab", "quest");
 
-			return "redirect:"+TransitionTargetPageNameKeyword.PARENT_HOME_HTML;
+			return TransitionTargetPageNameKeyword.PARENT_HOME_HTML;
 		}
 
 		if (questSendForm.getChildUserId() != null && questSendForm.getChildUserId() == 0) {
@@ -144,6 +139,7 @@ public class QuestController {
 				form.setDescription(questSendForm.getDescription());
 				form.setLimitAmount(questSendForm.getLimitAmount());
 				form.setAvailableDays(questSendForm.getAvailableDays());
+				form.setSpecificDate(questSendForm.getSpecificDate());
 
 				questService.createQuest(form,loginUser.getUser().getUserId());
 			}
@@ -226,10 +222,7 @@ public class QuestController {
 		List<Integer> approvalStatus = List.of(1);
 
 		// 保護者に紐づく全子供を取得
-		var familyList = userService.getFamilyByParentId(parentUserId);
-		var childList = familyList.stream()
-				.filter(user -> CustomUserDetails.AUTHORITY_CHILD == user.getAuthority())
-				.toList();
+		var childList = userService.getChildrenByParentId(parentUserId);
 
 		// 全子供のクエスト申請を取得
 		List<QuestEntity> approvalList = childList.stream()
