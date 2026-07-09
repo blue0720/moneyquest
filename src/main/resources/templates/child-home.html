@@ -632,9 +632,9 @@
 					</form>
 					<form th:if="${item.owned and !item.equipped}" th:action="@{/child/shop/{code}/equip(code=${item.code})}"
 						method="post">
-						<button type="submit" class="shop-equip-btn">そうちゅうする</button>
+						<button type="submit" class="shop-equip-btn">そうびする</button>
 					</form>
-					<span th:if="${item.equipped}" class="shop-equipped-badge">そうちゅうちゅう</span>
+					<span th:if="${item.equipped}" class="shop-equipped-badge">そうびする</span>
 				</div>
 			</div>
 
@@ -650,9 +650,9 @@
 					</form>
 					<form th:if="${item.owned and !item.equipped}" th:action="@{/child/shop/{code}/equip(code=${item.code})}"
 						method="post">
-						<button type="submit" class="shop-equip-btn">そうちゅうする</button>
+						<button type="submit" class="shop-equip-btn">そうびする</button>
 					</form>
-					<span th:if="${item.equipped}" class="shop-equipped-badge">そうちゅうちゅう</span>
+					<span th:if="${item.equipped}" class="shop-equipped-badge">そうびする</span>
 				</div>
 			</div>
 		</section>
