@@ -518,6 +518,8 @@
 											th:text="${quest.exp != null ? quest.exp : 5}">5</span> XP</span>
 									<span class="quest-money">ほうび ¥<span
 											th:text="${quest.rewardAmount}">50</span></span>
+									<span class="quest-coin" th:if="${quest.coinReward != null and quest.coinReward > 0}">🪙
+										<span th:text="${quest.coinReward}">10</span></span>
 								</div>
 							</div>
 						</div>
@@ -530,6 +532,7 @@
 								<button type="button" class="quest-circle-btn" th:data-id="${quest.questId}"
 									th:data-title="${quest.title}" th:data-reward="${quest.rewardAmount}"
 									th:data-exp="${quest.exp != null ? quest.exp : 5}"
+									th:data-coin-reward="${quest.coinReward != null ? quest.coinReward : 0}"
 									th:data-description="${quest.description}"
 									th:data-child-id="${quest.childUser != null ? quest.childUser.userId : ''}"
 									th:data-available-days="${quest.availableDayCodes}"
@@ -590,6 +593,12 @@
 					<p class="quest-modal-note">
 						★ クリアで 5 EXP（一律）クリアして承認されると、この金額が子供の残高に追加されます。
 					</p>
+					<label class="quest-modal-label">コイン報酬（任意）</label>
+					<input class="quest-modal-input" type="text" inputmode="numeric" name="coinReward" value="0"
+						maxlength="4">
+					<p class="quest-modal-note">
+						🪙 クリアして承認されると、この枚数のコインがコインショップで使えるようになります。
+					</p>
 					<label class="quest-modal-label">備考・メモ（任意）</label>
 					<input class="quest-modal-input" type="text" name="description" placeholder="例：机の上もきれいにしてね"
 						maxlength="50">
@@ -635,6 +644,9 @@
 					<p class="quest-modal-note">
 						★ クリアで 5 EXP（一律）クリアして承認されると、この金額が子供の残高に追加されます。
 					</p>
+					<label class="quest-modal-label">コイン報酬（任意）</label>
+					<input class="quest-modal-input" type="text" inputmode="numeric" id="editQuestCoinReward"
+						name="coinReward" maxlength="4">
 					<label class="quest-modal-label">備考・メモ（任意）</label>
 					<input class="quest-modal-input" type="text" id="editQuestDescription" name="description"
 						placeholder="例：机の上もきれいにしてね" maxlength="50">

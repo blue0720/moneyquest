@@ -286,4 +286,106 @@ class CharacterServiceTest {
 			verify(characterRepository, times(1)).save(character);
 		}
 	}
+
+	@Nested
+	@DisplayName("addCoins")
+	class AddCoins {
+
+		@Test
+		@DisplayName("amountがnullまたは0以下の場合は何もしない")
+		void addCoins_nonPositiveAmount_doesNothing() {
+			characterService.addCoins(CHILD_USER_ID, null);
+			characterService.addCoins(CHILD_USER_ID, 0);
+
+			verify(characterRepository, never()).findByChildUserId(any());
+		}
+
+		@Test
+		@DisplayName("コイン残高がnullの場合は0として扱われ加算される")
+		void addCoins_fromNull() {
+			character.setCoinBalance(null);
+			when(characterRepository.findByChildUserId(CHILD_USER_ID)).thenReturn(List.of(character));
+
+			characterService.addCoins(CHILD_USER_ID, 10);
+
+			assertThat(character.getCoinBalance()).isEqualTo(10);
+		}
+
+		@Test
+		@DisplayName("コイン残高が加算される")
+		void addCoins_success() {
+			character.setCoinBalance(20);
+			when(characterRepository.findByChildUserId(CHILD_USER_ID)).thenReturn(List.of(character));
+
+			characterService.addCoins(CHILD_USER_ID, 15);
+
+			assertThat(character.getCoinBalance()).isEqualTo(35);
+			verify(characterRepository, times(1)).save(character);
+		}
+	}
+
+	@Nested
+	@DisplayName("spendCoins")
+	class SpendCoins {
+
+		@Test
+		@DisplayName("amountがnullまたは0以下の場合は何もしない")
+		void spendCoins_nonPositiveAmount_doesNothing() {
+			characterService.spendCoins(CHILD_USER_ID, null);
+			characterService.spendCoins(CHILD_USER_ID, 0);
+
+			verify(characterRepository, never()).findByChildUserId(any());
+		}
+
+		@Test
+		@DisplayName("残高不足の場合はIllegalArgumentExceptionを投げ、保存しない")
+		void spendCoins_insufficientBalance_throws() {
+			character.setCoinBalance(10);
+			when(characterRepository.findByChildUserId(CHILD_USER_ID)).thenReturn(List.of(character));
+
+			assertThatThrownBy(() -> characterService.spendCoins(CHILD_USER_ID, 20))
+					.isInstanceOf(IllegalArgumentException.class);
+
+			verify(characterRepository, never()).save(any());
+		}
+
+		@Test
+		@DisplayName("残高が足りる場合は消費される")
+		void spendCoins_success() {
+			character.setCoinBalance(50);
+			when(characterRepository.findByChildUserId(CHILD_USER_ID)).thenReturn(List.of(character));
+
+			characterService.spendCoins(CHILD_USER_ID, 20);
+
+			assertThat(character.getCoinBalance()).isEqualTo(30);
+			verify(characterRepository, times(1)).save(character);
+		}
+	}
+
+	@Nested
+	@DisplayName("updateEquippedFrame / updateEquippedTitle")
+	class UpdateEquipped {
+
+		@Test
+		@DisplayName("装備中のフレームが更新される")
+		void updateEquippedFrame_success() {
+			when(characterRepository.findByChildUserId(CHILD_USER_ID)).thenReturn(List.of(character));
+
+			characterService.updateEquippedFrame(CHILD_USER_ID, "FRAME_GOLD");
+
+			assertThat(character.getEquippedFrame()).isEqualTo("FRAME_GOLD");
+			verify(characterRepository, times(1)).save(character);
+		}
+
+		@Test
+		@DisplayName("装備中の称号が更新される")
+		void updateEquippedTitle_success() {
+			when(characterRepository.findByChildUserId(CHILD_USER_ID)).thenReturn(List.of(character));
+
+			characterService.updateEquippedTitle(CHILD_USER_ID, "TITLE_HERO");
+
+			assertThat(character.getEquippedTitle()).isEqualTo("TITLE_HERO");
+			verify(characterRepository, times(1)).save(character);
+		}
+	}
 }

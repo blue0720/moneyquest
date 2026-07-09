@@ -11,5 +11,8 @@ public class CharacterDto {
 	private Integer currentExp;
 	private Integer nextLevelExp;
 	private Integer totalAchievementCount;
+	private Integer coinBalance;
+	private String equippedFrame;
+	private String equippedTitle;
 
 }

@@ -31,6 +31,9 @@ public class CharacterService {
 	private static final int INITIAL_LEVEL = 0;
 	/** キャラ名の初期値（character_name は NOT NULL のため必ずセットする）。 */
 	private static final String DEFAULT_NAME = "タネ";
+	/** 装備の初期値（未購入状態）。ショップ機能で使用。 */
+	private static final String DEFAULT_FRAME = "FRAME_NONE";
+	private static final String DEFAULT_TITLE = "TITLE_NONE";
 
 	private final CharacterRepository characterRepository;
 
@@ -53,6 +56,9 @@ public class CharacterService {
 		character.setLevel(INITIAL_LEVEL);
 		character.setCurrentExp(0);
 		character.setTotalAchievementCount(0);
+		character.setCoinBalance(0);
+		character.setEquippedFrame(DEFAULT_FRAME);
+		character.setEquippedTitle(DEFAULT_TITLE);
 
 		characterRepository.save(character);
 	}
@@ -71,6 +77,9 @@ public class CharacterService {
 		dto.setCurrentExp(character.getCurrentExp());
 		dto.setNextLevelExp(XP_PER_LEVEL);
 		dto.setTotalAchievementCount(character.getTotalAchievementCount());
+		dto.setCoinBalance(character.getCoinBalance());
+		dto.setEquippedFrame(character.getEquippedFrame());
+		dto.setEquippedTitle(character.getEquippedTitle());
 		return dto;
 	}
 
@@ -127,6 +136,53 @@ public class CharacterService {
 		CharacterEntity character = getEntity(childUserId);
 		int count = character.getTotalAchievementCount() == null ? 0 : character.getTotalAchievementCount();
 		character.setTotalAchievementCount(count + 1);
+		characterRepository.save(character);
+	}
+
+	/**
+	 * コイン加算。クエスト承認時の報酬・NPC対戦の勝利報酬から呼ばれる。
+	 */
+	public void addCoins(Integer childUserId, Integer amount) {
+		if (amount == null || amount <= 0) {
+			return;
+		}
+		CharacterEntity character = getEntity(childUserId);
+		int balance = character.getCoinBalance() == null ? 0 : character.getCoinBalance();
+		character.setCoinBalance(balance + amount);
+		characterRepository.save(character);
+	}
+
+	/**
+	 * コイン消費。ショップでの購入時に呼ばれる。残高不足なら例外。
+	 */
+	public void spendCoins(Integer childUserId, Integer amount) {
+		if (amount == null || amount <= 0) {
+			return;
+		}
+		CharacterEntity character = getEntity(childUserId);
+		int balance = character.getCoinBalance() == null ? 0 : character.getCoinBalance();
+		if (balance < amount) {
+			throw new IllegalArgumentException("コインが足りません。");
+		}
+		character.setCoinBalance(balance - amount);
+		characterRepository.save(character);
+	}
+
+	/**
+	 * 装備中のフレームを変更する。ショップでの購入・装備切替時に呼ばれる。
+	 */
+	public void updateEquippedFrame(Integer childUserId, String frameCode) {
+		CharacterEntity character = getEntity(childUserId);
+		character.setEquippedFrame(frameCode);
+		characterRepository.save(character);
+	}
+
+	/**
+	 * 装備中の称号を変更する。ショップでの購入・装備切替時に呼ばれる。
+	 */
+	public void updateEquippedTitle(Integer childUserId, String titleCode) {
+		CharacterEntity character = getEntity(childUserId);
+		character.setEquippedTitle(titleCode);
 		characterRepository.save(character);
 	}
 

@@ -2,7 +2,7 @@
 
 - 種別: 追加機能
 - 優先度: 低(将来対応)
-- ステータス: 対応中(3/5 完了)
+- ステータス: 対応中(5/5 完了)
 
 ## 背景・現状
 
@@ -14,8 +14,10 @@
       → クエスト達成数(`character_t.total_achievement_count`)に応じた6段階のバッジを実装済み。詳細は「実施内容」参照。
 - [〇] 2. キャラクターの種類追加(現在1種類のキャラクターに加えて、選択可能な複数キャラクターを用意する)
       → 4種類(くさ/ほのお/みず/かみなり)を実装済み。詳細は「実施内容」参照。
-- [ ] 3. NPCとの対戦機能(育成したキャラクターでNPCと対戦できる要素の追加)
-- [ ] 4. コインショップ機能(貯めたお金やコインでアイテム・キャラクター装飾等と交換できる仕組み)
+- [〇] 3. NPCとの対戦機能(育成したキャラクターでNPCと対戦できる要素の追加)
+      → レベル差に応じた確率判定で5体のNPCと対戦できる仕組みを実装済み。詳細は「実施内容」参照。
+- [〇] 4. コインショップ機能(貯めたお金やコインでアイテム・キャラクター装飾等と交換できる仕組み)
+      → クエスト報酬・対戦勝利で貯まるコインでフレーム/称号を購入・装備できる仕組みを実装済み。詳細は「実施内容」参照。
 - [〇] 5. 曜日指定クエスト機能(特定の曜日のみ実施可能なクエストを設定できる仕組み)
       → クエスト(quest_t)単位で実施可能曜日をビットマスクで持たせる方式を実装済み。詳細は「実施内容」参照。
 
@@ -84,6 +86,46 @@
 - `templates/child-home.html`: `#temporals`(Thymeleaf標準の日付フォーマットユーティリティ、Bean参照ではないためth:eachループ内でも制限に引っかからない)で「📅 じっしび: yyyy/MM/dd」を表示
 - `mcp-server/src/tools/quests.js`: `create_quest`/`update_quest`に`specificDate`(YYYY-MM-DD、`update_quest`は`null`で解除可能)を追加
 
+## 実施内容(3. NPCとの対戦機能)
+
+対戦結果は永続化せず、NPCロースター自体もバッジ機能と同様にハードコードで持たせる方針とした(新規テーブルは対戦用には作っていない)。何回でも挑戦・報酬受け取り可能(周回可、1日制限などなし)。
+
+- `domain/model/NpcDto.java`(新規)・`domain/model/BattleResultDto.java`(新規): NPC1体分の表示用DTOと、対戦1回分の結果DTO(勝敗・獲得コイン・勝率)
+- `domain/service/BattleService.java`(新規): NPC5体(スライムン/ゴブジャー/ロックゴーレム/フレイムウルフ/ドラゴニア、必要レベル0/10/25/40/70、コイン報酬5/10/20/35/60)を保持。`getNpcList(childUserId)`でキャラのレベルに応じた解放状態・勝率を、`challenge(childUserId, npcCode)`で対戦結果を返す
+  - 解放条件: キャラレベル >= NPCの必要レベル。未解放または存在しないNPCコードへの挑戦は例外
+  - 勝率: `min(90, 50 + (レベル差) * 5)`(％)。1〜100の乱数がこの値以下なら勝利
+  - 勝利時のみ`CharacterService.addCoins`でNPC固有のコインを加算
+- `CharacterService`に`addCoins(childUserId, amount)`を追加(既存`addExp`と同じ形)
+- `presentation/controller/BattleController.java`(新規): 他の子供用タブと同じ組み立て方(`ParentModelHelper.setDefaults`+character/badgeList等を手動配線)。`GET /child/battle`でタブ表示、`POST /child/battle/{code}/challenge`で対戦しRedirectAttributesのflash属性で結果を1回だけ画面へ渡す
+- `templates/child-home.html`: 「たいせん」タブを追加。NPCカード一覧(解放前はグレーアウトしボタン非表示、解放後は勝率・コイン報酬・「ちょうせんする」ボタンを表示)、直前の対戦結果バナー
+- `static/css/child-battle.css`(新規)
+
+### 検証方法
+
+`./mvnw test`で`BattleServiceTest`(乱数を固定できるテスト用コンストラクタで解放判定・勝率計算・勝敗判定・コイン加算を検証)を含む全テストが通ることを確認。アプリを起動し、レベルの低い子供アカウントで`/child/battle`にアクセスして上位NPCがグレーアウトしていること、解放済みNPCに複数回挑戦して勝敗とコイン残高の増減が反映されることを確認した。
+
+## 実施内容(4. コインショップ機能)
+
+コインは`character_t.coin_balance`に保持し、クエスト報酬(`quest_t.coin_reward`)とNPC対戦の勝利報酬の両方から貯まる。購入済みアイテムは新規テーブル`character_item_t`で管理し、現在装備中のものは`character_t.equipped_frame`/`equipped_title`で別管理する(画像素材が無いためCSSのみのコスメ表示)。
+
+- `infra/entity/CharacterItemEntity.java`(新規、`character_item_t`)・`infra/repository/CharacterItemRepository.java`(新規)
+- `domain/model/ShopItemDto.java`(新規): 商品1件分の表示用DTO(コード・カテゴリ・名前・コスト・所持/装備フラグ)
+- `domain/service/ShopService.java`(新規): カタログをハードコードで保持
+  - フレーム: ノーマル(無料・常時所持)/シルバー(20)/ゴールド(50)/レインボー(100)
+  - 称号: なし(無料・常時所持)/きらきら(15)/ゆうしゃ(40)/レジェンド(100)
+  - `purchase(childUserId, itemCode)`: 未所持かつコイン残高が足りればコイン消費→購入記録保存→自動装備。所持済みなら何もしない
+  - `equip(childUserId, itemCode)`: 所持済み(またはNONE系デフォルト)のみ装備切替可能。未所持は例外
+- `CharacterService`に`spendCoins`(残高不足なら例外)・`updateEquippedFrame`・`updateEquippedTitle`を追加。`CharacterDto`に`coinBalance`/`equippedFrame`/`equippedTitle`を追加
+- `QuestEntity`/`QuestSendForm`/`QuestService`に`coinReward`を追加。クエスト承認時に`rewardAmount`(お小遣い)・`exp`と並行してコインも加算されるようにした
+- `presentation/controller/ShopController.java`(新規): 他の子供用タブと同じ組み立て方。`GET /child/shop`でタブ表示、`POST /child/shop/{code}/purchase`・`POST /child/shop/{code}/equip`で購入・装備切替
+- `templates/child-home.html`: 「ショップ」タブを追加(コイン残高・フレーム/称号カード一覧・購入/装備ボタン)。ホームタブのキャラクターカードに装備中フレーム(枠の色)・称号(名前横のチップ)を反映
+- `templates/parent-home.html`: クエスト追加/編集モーダルに「コイン報酬」入力欄を追加
+- `static/css/child-shop.css`(新規、フレーム装飾・称号チップのスタイルも含む)
+
+### 検証方法
+
+`./mvnw test`で`ShopServiceTest`(所持/装備判定、購入時のコイン消費・自動装備、未所持アイテムの装備拒否)・`QuestServiceTest`の`coinReward`関連ケースを含む全テストが通ることを確認。アプリを起動し、保護者がクエストにコイン報酬を設定→子供が完了申請→承認後にコイン残高が増えること、NPC対戦の勝利でもコインが増えること、`/child/shop`で残高に応じて購入可否が切り替わり購入後にホームタブの見た目(フレーム/称号)に反映されることを確認した。
+
 ## 対象箇所
 
 - 001_要件定義/最終要件定義書_Group1.docx(拡張性 節)
@@ -98,4 +140,10 @@
 - `src/main/resources/static/css/{child-home-hometab,parent-family,parent-quest,child-quest}.css`(変更)
 - `src/main/resources/static/js/{child-home,parent-home}.js`(変更)
 - `mcp-server/src/tools/{characters,quests}.js`(変更)
-- 3〜4(NPC対戦・コインショップ)は実装時に `domain/model`, `domain/service`, `infra/entity`, `presentation/controller` の各層への機能追加が必要になる見込み(詳細設計は着手前に別途検討)
+- `src/main/java/com/example/moneyquest/app/domain/model/{NpcDto,BattleResultDto,ShopItemDto}.java`(新規)
+- `src/main/java/com/example/moneyquest/app/domain/service/{BattleService,ShopService}.java`(新規)
+- `src/main/java/com/example/moneyquest/app/infra/entity/CharacterItemEntity.java`(新規)
+- `src/main/java/com/example/moneyquest/app/infra/repository/CharacterItemRepository.java`(新規)
+- `src/main/java/com/example/moneyquest/app/presentation/controller/{BattleController,ShopController}.java`(新規)
+- `src/main/resources/static/css/{child-battle,child-shop}.css`(新規)
+- `mcp-server/src/tools/characterItems.js`(新規)

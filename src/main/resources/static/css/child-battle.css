@@ -1,0 +1,93 @@
+@charset "UTF-8";
+
+/* =========================
+   たいせんタブ
+========================= */
+.child-battle-tab {
+	padding: 0;
+}
+
+.battle-result-banner {
+	margin-bottom: 16px;
+	padding: 14px 16px;
+	border-radius: 16px;
+	font-size: 14px;
+	font-weight: 900;
+	text-align: center;
+}
+
+.battle-result-banner.is-win {
+	background: #fff1e0;
+	color: #ff6b1a;
+	box-shadow: 0 2px 8px rgba(255, 124, 24, 0.18);
+}
+
+.battle-result-banner.is-lose {
+	background: #f2f2f2;
+	color: #8a5a34;
+}
+
+.battle-npc-list {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.battle-npc-card {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 14px 16px;
+	border-radius: 16px;
+	background: #fff;
+	border: 1px solid #ffeedd;
+	box-shadow: 0 2px 8px rgba(255, 124, 24, 0.08);
+}
+
+.battle-npc-card.is-locked {
+	opacity: 0.5;
+	filter: grayscale(1);
+}
+
+.battle-npc-icon {
+	font-size: 30px;
+	line-height: 1;
+	flex: 0 0 auto;
+}
+
+.battle-npc-main {
+	flex: 1;
+}
+
+.battle-npc-name {
+	margin: 0 0 4px;
+	color: #2f2118;
+	font-size: 15px;
+	font-weight: 900;
+}
+
+.battle-npc-req,
+.battle-npc-stats {
+	margin: 0;
+	color: #a9784e;
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.battle-challenge-btn {
+	height: 36px;
+	padding: 0 16px;
+	border: none;
+	border-radius: 999px;
+	background: #ff6b1a;
+	color: #fff;
+	font-size: 13px;
+	font-weight: 900;
+	cursor: pointer;
+	flex: 0 0 auto;
+}
+
+.battle-locked-badge {
+	font-size: 20px;
+	flex: 0 0 auto;
+}

@@ -48,6 +48,15 @@ public class CharacterEntity {
 	@Column(name = "current_exp")
 	private Integer currentExp;
 
+	@Column(name = "coin_balance")
+	private Integer coinBalance;
+
+	@Column(name = "equipped_frame")
+	private String equippedFrame;
+
+	@Column(name = "equipped_title")
+	private String equippedTitle;
+
 	public Integer getCharacterId() {
 		return characterId;
 	}

@@ -35,6 +35,9 @@ public class QuestSendForm {
 
 	private Integer exp;
 
+	/** コイン報酬（任意）。未指定は0扱い（コインショップ機能用）。 */
+	private Integer coinReward;
+
 	@NotNull(message = "タイトルは必須です")
 	@Size(max = 30, message = "タイトルは30字以内で入力してください")
 	private String title;

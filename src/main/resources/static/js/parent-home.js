@@ -114,6 +114,7 @@ function openQuestEditModal(button) {
 	document.getElementById('editQuestTitle').value = button.dataset.title || '';
 	document.getElementById('editQuestReward').value = button.dataset.reward || 0;
 	document.getElementById('editQuestExp').value = button.dataset.exp || 5;
+	document.getElementById('editQuestCoinReward').value = button.dataset.coinReward || 0;
 	document.getElementById('editQuestDescription').value = button.dataset.description || '';
 
 	const selectedDays = (button.dataset.availableDays || '').split(',').filter(Boolean);

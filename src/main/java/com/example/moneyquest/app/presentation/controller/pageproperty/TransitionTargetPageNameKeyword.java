@@ -78,6 +78,17 @@ public class TransitionTargetPageNameKeyword {
 	/** 上限申請タブ */
 	public static final String CHILD_LIMIT = "/child/limit";
 
+	/** たいせんタブ */
+	public static final String CHILD_BATTLE = "/child/battle";
+	/** {code} = NPCコード */
+	public static final String CHILD_BATTLE_CHALLENGE = "/child/battle/{code}/challenge";
+
+	/** ショップタブ */
+	public static final String CHILD_SHOP = "/child/shop";
+	/** {code} = アイテムコード */
+	public static final String CHILD_SHOP_PURCHASE = "/child/shop/{code}/purchase";
+	public static final String CHILD_SHOP_EQUIP = "/child/shop/{code}/equip";
+
 	// ----- 保護者 ----- 
 	/** ホームタブ */
 	public static final String PARENT_HOME = "/parent/home";

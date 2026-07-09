@@ -1,0 +1,133 @@
+@charset "UTF-8";
+
+/* =========================
+   ショップタブ
+========================= */
+.child-shop-tab {
+	padding: 0;
+}
+
+.shop-coin-balance {
+	display: inline-flex;
+	align-items: center;
+	height: 26px;
+	padding: 0 12px;
+	border-radius: 999px;
+	background: #fff1e0;
+	color: #ff6b1a;
+	font-size: 13px;
+	font-weight: 900;
+}
+
+.shop-section-title {
+	margin: 16px 0 10px;
+	color: #8a5a34;
+	font-size: 13px;
+	font-weight: 900;
+}
+
+.shop-item-list {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.shop-item-card {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px 16px;
+	border-radius: 16px;
+	background: #fff;
+	border: 1px solid #ffeedd;
+	box-shadow: 0 2px 8px rgba(255, 124, 24, 0.08);
+}
+
+.shop-item-card.is-equipped {
+	background: #fff1e0;
+	box-shadow: 0 2px 8px rgba(255, 124, 24, 0.18);
+}
+
+.shop-item-name {
+	flex: 1;
+	margin: 0;
+	color: #2f2118;
+	font-size: 14px;
+	font-weight: 900;
+}
+
+.shop-item-cost {
+	margin: 0;
+	color: #a9784e;
+	font-size: 12px;
+	font-weight: 700;
+	flex: 0 0 auto;
+}
+
+.shop-buy-btn,
+.shop-equip-btn {
+	height: 34px;
+	padding: 0 14px;
+	border: none;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 900;
+	cursor: pointer;
+	flex: 0 0 auto;
+}
+
+.shop-buy-btn {
+	background: #ff6b1a;
+	color: #fff;
+}
+
+.shop-equip-btn {
+	background: #fff1e0;
+	color: #ff6b1a;
+}
+
+.shop-equipped-badge {
+	color: #ff6b1a;
+	font-size: 12px;
+	font-weight: 900;
+	flex: 0 0 auto;
+}
+
+/* =========================
+   ホームタブ：称号チップ（キャラ名の横）
+========================= */
+.character-title-chip {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	height: 20px;
+	padding: 0 8px;
+	border-radius: 999px;
+	background: #ffe4c4;
+	color: #a9540f;
+	font-size: 10px;
+	font-weight: 900;
+}
+
+/* =========================
+   ホームタブ：フレーム装飾（キャラクター画像の枠）
+========================= */
+.character-frame-silver {
+	border-radius: 999px;
+	border: 4px solid #c0c0c0;
+	box-shadow: 0 0 10px rgba(192, 192, 192, 0.6);
+}
+
+.character-frame-gold {
+	border-radius: 999px;
+	border: 4px solid #ffd700;
+	box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+}
+
+.character-frame-rainbow {
+	border-radius: 999px;
+	border: 4px solid transparent;
+	background: linear-gradient(#fff, #fff) padding-box,
+		linear-gradient(90deg, #ff6b1a, #ffd54f, #00c07a, #29b6f6, #ff6b1a) border-box;
+	box-shadow: 0 0 14px rgba(255, 107, 26, 0.4);
+}

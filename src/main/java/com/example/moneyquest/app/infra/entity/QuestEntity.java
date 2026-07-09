@@ -45,6 +45,9 @@ public class QuestEntity {
 	@Column(name = "exp")
 	private Integer exp;
 
+	@Column(name = "coin_reward")
+	private Integer coinReward;
+
 	@Column(name = "limit_amount")
 	private Integer limitAmount;
 

@@ -10,6 +10,8 @@
 	<link rel="stylesheet" th:href="@{/css/child-graph.css}">
 	<link rel="stylesheet" th:href="@{/css/child-spending.css}">
 	<link rel="stylesheet" th:href="@{/css/child-home-hometab.css}">
+	<link rel="stylesheet" th:href="@{/css/child-battle.css}">
+	<link rel="stylesheet" th:href="@{/css/child-shop.css}">
 
 </head>
 
@@ -44,6 +46,10 @@
 				th:href="@{/child/limit}">上限</a>
 			<a class="child-tabs__item" th:classappend="${activeTab == 'graph'} ? ' is-active'"
 				th:href="@{/child/graph}">グラフ</a>
+			<a class="child-tabs__item" th:classappend="${activeTab == 'battle'} ? ' is-active'"
+				th:href="@{/child/battle}">たいせん</a>
+			<a class="child-tabs__item" th:classappend="${activeTab == 'shop'} ? ' is-active'"
+				th:href="@{/child/shop}">ショップ</a>
 		</nav>
 
 		<!-- ========== ホームタブ ========== -->
@@ -58,6 +64,11 @@
 					<span class="character-name" th:text="${character.characterName}">ぴよすけ</span>
 					<span class="character-type-badge" th:if="${character.characterType != null}"
 						th:text="${character.characterType.displayName}">くさタイプ</span>
+					<span class="character-title-chip"
+						th:if="${character.equippedTitle != null and character.equippedTitle != 'TITLE_NONE'}"
+						th:text="${character.equippedTitle == 'TITLE_SHINE'} ? 'きらきら'
+							: (${character.equippedTitle == 'TITLE_HERO'} ? 'ゆうしゃ'
+							: (${character.equippedTitle == 'TITLE_LEGEND'} ? 'レジェンド' : ''))">きらきら</span>
 					<span class="character-exp-label">
 						<span th:text="${character.currentExp}">10</span>
 						/
@@ -72,7 +83,8 @@
 					</div>
 				</div>
 
-				<div class="character-avatar">
+				<div class="character-avatar"
+					th:classappend="${character.equippedFrame != null and character.equippedFrame != 'FRAME_NONE'} ? ('character-frame-' + ${#strings.toLowerCase(#strings.replace(character.equippedFrame, 'FRAME_', ''))})">
 					<img th:src="${character.level == 0} ? '/images/Lv_0.png'
 			            : (${character.level < 10} ? '/images/Lv_1~10.png'
 			            : (${character.level < 20} ? '/images/Lv_10~20.png'
@@ -222,6 +234,9 @@
 							</span>
 							<span class="child-quest-exp">
 								★ <span th:text="${quest.exp != null ? quest.exp : 5}">5</span> EXP
+							</span>
+							<span class="child-quest-coin" th:if="${quest.coinReward != null and quest.coinReward > 0}">
+								🪙 <span th:text="${quest.coinReward}">10</span>
 							</span>
 						</p>
 
@@ -550,6 +565,96 @@
 				<p>グラフデータがありません</p>
 			</div>
 
+		</section>
+
+		<!-- ========== たいせんタブ ========== -->
+		<section class="tab-content child-battle-tab" th:classappend="${activeTab == 'battle'} ? ' is-show'"
+			id="battle">
+
+			<div class="child-tab-header">
+				<h2 class="child-tab-title">⚔️ NPCとたいせん</h2>
+			</div>
+
+			<div class="battle-result-banner" th:if="${battleResult != null}"
+				th:classappend="${battleResult.win} ? ' is-win' : ' is-lose'">
+				<span th:if="${battleResult.win}"
+					th:text="|🎉 ${battleResult.npcIcon} ${battleResult.npcName}にかった！ コイン+${battleResult.coinsAwarded}|">
+					🎉 かった！
+				</span>
+				<span th:unless="${battleResult.win}"
+					th:text="|😢 ${battleResult.npcIcon} ${battleResult.npcName}にまけた… またちょうせんしよう|">
+					😢 まけた…
+				</span>
+			</div>
+
+			<div class="battle-npc-list" th:if="${npcList != null}">
+				<div class="battle-npc-card" th:each="npc : ${npcList}"
+					th:classappend="${npc.unlocked} ? ' is-unlocked' : ' is-locked'">
+					<div class="battle-npc-icon" th:text="${npc.icon}">🟢</div>
+					<div class="battle-npc-main">
+						<p class="battle-npc-name" th:text="${npc.name}">スライムン</p>
+						<p class="battle-npc-req" th:if="${!npc.unlocked}"
+							th:text="|Lv.${npc.requiredLevel}で ちょうせんできるよ|">
+							Lv.10で ちょうせんできるよ
+						</p>
+						<p class="battle-npc-stats" th:if="${npc.unlocked}"
+							th:text="|かちめ ${npc.winProbability}% ／ コイン+${npc.coinReward}|">
+							かちめ 60% ／ コイン+5
+						</p>
+					</div>
+					<form th:if="${npc.unlocked}"
+						th:action="@{/child/battle/{code}/challenge(code=${npc.code})}" method="post">
+						<button type="submit" class="battle-challenge-btn">ちょうせんする</button>
+					</form>
+					<span th:unless="${npc.unlocked}" class="battle-locked-badge">🔒</span>
+				</div>
+			</div>
+		</section>
+
+		<!-- ========== ショップタブ ========== -->
+		<section class="tab-content child-shop-tab" th:classappend="${activeTab == 'shop'} ? ' is-show'" id="shop">
+
+			<div class="child-tab-header">
+				<h2 class="child-tab-title">🛒 コインショップ</h2>
+				<span class="shop-coin-balance" th:if="${character != null}"
+					th:text="|🪙 ${character.coinBalance}|">🪙 0</span>
+			</div>
+
+			<h3 class="shop-section-title">🖼️ フレーム</h3>
+			<div class="shop-item-list">
+				<div class="shop-item-card" th:each="item : ${shopItems}" th:if="${item.category == 'FRAME'}"
+					th:classappend="${item.equipped} ? ' is-equipped' : ''">
+					<p class="shop-item-name" th:text="${item.name}">ノーマル</p>
+					<p class="shop-item-cost" th:if="${item.cost > 0}" th:text="|🪙 ${item.cost}|">🪙 20</p>
+					<form th:if="${!item.owned}" th:action="@{/child/shop/{code}/purchase(code=${item.code})}"
+						method="post">
+						<button type="submit" class="shop-buy-btn">こうにゅうする</button>
+					</form>
+					<form th:if="${item.owned and !item.equipped}" th:action="@{/child/shop/{code}/equip(code=${item.code})}"
+						method="post">
+						<button type="submit" class="shop-equip-btn">そうちゅうする</button>
+					</form>
+					<span th:if="${item.equipped}" class="shop-equipped-badge">そうちゅうちゅう</span>
+				</div>
+			</div>
+
+			<h3 class="shop-section-title">🏷️ しょうごう</h3>
+			<div class="shop-item-list">
+				<div class="shop-item-card" th:each="item : ${shopItems}" th:if="${item.category == 'TITLE'}"
+					th:classappend="${item.equipped} ? ' is-equipped' : ''">
+					<p class="shop-item-name" th:text="${item.name}">なし</p>
+					<p class="shop-item-cost" th:if="${item.cost > 0}" th:text="|🪙 ${item.cost}|">🪙 15</p>
+					<form th:if="${!item.owned}" th:action="@{/child/shop/{code}/purchase(code=${item.code})}"
+						method="post">
+						<button type="submit" class="shop-buy-btn">こうにゅうする</button>
+					</form>
+					<form th:if="${item.owned and !item.equipped}" th:action="@{/child/shop/{code}/equip(code=${item.code})}"
+						method="post">
+						<button type="submit" class="shop-equip-btn">そうちゅうする</button>
+					</form>
+					<span th:if="${item.equipped}" class="shop-equipped-badge">そうちゅうちゅう</span>
+				</div>
+			</div>
 		</section>
 
 

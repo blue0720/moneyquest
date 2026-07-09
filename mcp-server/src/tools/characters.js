@@ -7,7 +7,9 @@ export function registerCharacterTools(server) {
     "get_character",
     {
       title: "キャラクター情報取得",
-      description: "子供の user_id を指定してキャラクター情報(character_t)を1件取得する。",
+      description:
+        "子供の user_id を指定してキャラクター情報(character_t)を1件取得する。coin_balance はコインショップ(character_item_t)で使えるコインの残高、" +
+        "equipped_frame/equipped_title は現在装備中のフレーム/称号のアイテムコード(未購入時はそれぞれ'FRAME_NONE'/'TITLE_NONE')。",
       inputSchema: { childUserId: z.number().int() },
     },
     withErrorHandling(async ({ childUserId }) => {
@@ -60,7 +62,7 @@ export function registerCharacterTools(server) {
     {
       title: "キャラクター更新",
       description:
-        `キャラクター名・種類・レベル・経験値・累計達成数を更新する(削除は不可)。クエスト承認時のexp加算・達成数加算はアプリ側のロジック(CharacterService)に準ずるため、通常はこのToolで直接レベルやexpを操作するのではなく、確認・手動補正用途で使う。${CHARACTER_TYPE_DESC}`,
+        `キャラクター名・種類・レベル・経験値・累計達成数・コイン残高・装備中フレーム/称号を更新する(削除は不可)。クエスト承認時のexp/コイン加算・達成数加算、NPC対戦のコイン加算、ショップでの購入・装備切替はアプリ側のロジック(CharacterService/BattleService/ShopService)に準ずるため、通常はこのToolで直接操作するのではなく、確認・手動補正用途で使う。${CHARACTER_TYPE_DESC} equippedFrame/equippedTitleは'FRAME_NONE'/'TITLE_NONE'(未装備)またはコインショップのアイテムコード。`,
       inputSchema: {
         childUserId: z.number().int(),
         characterName: z.string().min(1).max(50).optional(),
@@ -68,10 +70,23 @@ export function registerCharacterTools(server) {
         level: z.number().int().min(0).optional(),
         currentExp: z.number().int().min(0).optional(),
         totalAchievementCount: z.number().int().min(0).optional(),
+        coinBalance: z.number().int().min(0).optional(),
+        equippedFrame: z.string().min(1).max(30).optional(),
+        equippedTitle: z.string().min(1).max(30).optional(),
       },
     },
     withErrorHandling(
-      async ({ childUserId, characterName, characterType, level, currentExp, totalAchievementCount }) => {
+      async ({
+        childUserId,
+        characterName,
+        characterType,
+        level,
+        currentExp,
+        totalAchievementCount,
+        coinBalance,
+        equippedFrame,
+        equippedTitle,
+      }) => {
         const sets = [];
         const params = [];
         if (characterName !== undefined) {
@@ -96,6 +111,18 @@ export function registerCharacterTools(server) {
         if (totalAchievementCount !== undefined) {
           sets.push("total_achievement_count = ?");
           params.push(totalAchievementCount);
+        }
+        if (coinBalance !== undefined) {
+          sets.push("coin_balance = ?");
+          params.push(coinBalance);
+        }
+        if (equippedFrame !== undefined) {
+          sets.push("equipped_frame = ?");
+          params.push(equippedFrame);
+        }
+        if (equippedTitle !== undefined) {
+          sets.push("equipped_title = ?");
+          params.push(equippedTitle);
         }
         if (sets.length === 0) {
           return textResult({ error: "更新する項目がありません。" });

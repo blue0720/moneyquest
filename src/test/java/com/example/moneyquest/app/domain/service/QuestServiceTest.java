@@ -110,6 +110,41 @@ class QuestServiceTest {
 		}
 
 		@Test
+		@DisplayName("coinRewardが未指定の場合は0で作成される")
+		void createQuest_defaultCoinReward() {
+			QuestSendForm form = new QuestSendForm();
+			form.setChildUserId(CHILD_USER_ID);
+			form.setTitle("お手伝い");
+			form.setRewardAmount(100);
+
+			when(userRepository.findByParentUserId(PARENT_USER_ID)).thenReturn(List.of(childUser));
+			when(questRepository.save(any(QuestEntity.class)))
+					.thenAnswer(invocation -> invocation.getArgument(0));
+
+			QuestEntity result = questService.createQuest(form, PARENT_USER_ID);
+
+			assertThat(result.getCoinReward()).isEqualTo(0);
+		}
+
+		@Test
+		@DisplayName("coinRewardが指定された場合はその値で作成される")
+		void createQuest_specificCoinReward() {
+			QuestSendForm form = new QuestSendForm();
+			form.setChildUserId(CHILD_USER_ID);
+			form.setTitle("お手伝い");
+			form.setRewardAmount(100);
+			form.setCoinReward(15);
+
+			when(userRepository.findByParentUserId(PARENT_USER_ID)).thenReturn(List.of(childUser));
+			when(questRepository.save(any(QuestEntity.class)))
+					.thenAnswer(invocation -> invocation.getArgument(0));
+
+			QuestEntity result = questService.createQuest(form, PARENT_USER_ID);
+
+			assertThat(result.getCoinReward()).isEqualTo(15);
+		}
+
+		@Test
 		@DisplayName("availableDaysが未指定の場合は全曜日(127)で作成される")
 		void createQuest_defaultAvailableDays() {
 			QuestSendForm form = new QuestSendForm();
@@ -575,6 +610,7 @@ class QuestServiceTest {
 			quest.setChildUser(childUser);
 			quest.setRewardAmount(150);
 			quest.setExp(30);
+			quest.setCoinReward(20);
 			quest.setTitle("宿題");
 			quest.setDescription("算数ドリル");
 
@@ -590,6 +626,7 @@ class QuestServiceTest {
 			verify(incomeExpenseService, times(1)).createRecord(any(), eq(parentUser), eq(CHILD_USER_ID));
 			verify(characterService, times(1)).addExp(CHILD_USER_ID, 30);
 			verify(characterService, times(1)).incrementAchievement(CHILD_USER_ID);
+			verify(characterService, times(1)).addCoins(CHILD_USER_ID, 20);
 		}
 
 		@Test
@@ -610,6 +647,26 @@ class QuestServiceTest {
 			questService.approveQuest(new QuestSendForm(), 123, parentUser);
 
 			verify(characterService, times(1)).addExp(CHILD_USER_ID, 5);
+		}
+
+		@Test
+		@DisplayName("coinRewardがnullのクエストを承認した場合はコインが加算されない(0扱い)")
+		void approveQuest_nullCoinReward() {
+			QuestEntity quest = new QuestEntity();
+			quest.setQuestId(123);
+			quest.setChildUser(childUser);
+			quest.setRewardAmount(150);
+			quest.setCoinReward(null);
+
+			UserEntity parentUser = new UserEntity();
+			parentUser.setUserId(PARENT_USER_ID);
+
+			when(questRepository.findById(123)).thenReturn(Optional.of(quest));
+			when(questRepository.save(any(QuestEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+			questService.approveQuest(new QuestSendForm(), 123, parentUser);
+
+			verify(characterService, times(1)).addCoins(CHILD_USER_ID, 0);
 		}
 	}
 

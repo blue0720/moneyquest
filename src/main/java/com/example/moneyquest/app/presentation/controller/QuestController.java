@@ -136,6 +136,7 @@ public class QuestController {
 				form.setTitle(questSendForm.getTitle());
 				form.setRewardAmount(questSendForm.getRewardAmount());
 				form.setExp(questSendForm.getExp());
+				form.setCoinReward(questSendForm.getCoinReward());
 				form.setDescription(questSendForm.getDescription());
 				form.setLimitAmount(questSendForm.getLimitAmount());
 				form.setAvailableDays(questSendForm.getAvailableDays());

@@ -15,6 +15,7 @@ import { registerQuestTemplateTools } from "./tools/questTemplates.js";
 import { registerIncomeExpenseTools } from "./tools/incomeExpense.js";
 import { registerSpendingLimitTools } from "./tools/spendingLimits.js";
 import { registerCharacterTools } from "./tools/characters.js";
+import { registerCharacterItemTools } from "./tools/characterItems.js";
 
 const server = new McpServer({
   name: "moneyquest-mcp",
@@ -27,6 +28,7 @@ registerQuestTemplateTools(server);
 registerIncomeExpenseTools(server);
 registerSpendingLimitTools(server);
 registerCharacterTools(server);
+registerCharacterItemTools(server);
 
 const transport = new StdioServerTransport();
 await server.connect(transport);

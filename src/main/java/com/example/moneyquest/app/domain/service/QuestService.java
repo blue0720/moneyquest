@@ -69,6 +69,7 @@ public class QuestService {
 		questEntity.setChildUser(user);
 		questEntity.setRewardAmount(form.getRewardAmount());
 		questEntity.setExp(form.getExp() == null ? 5 : form.getExp());
+		questEntity.setCoinReward(form.getCoinReward() == null ? 0 : form.getCoinReward());
 		questEntity.setLimitAmount(form.getLimitAmount());
 		questEntity.setDescription(form.getDescription());
 		questEntity.setTitle(form.getTitle());
@@ -98,6 +99,7 @@ public class QuestService {
 
 		questEntity.setRewardAmount(form.getRewardAmount());
 		questEntity.setExp(form.getExp() == null ? questEntity.getExp() : form.getExp());
+		questEntity.setCoinReward(form.getCoinReward() == null ? questEntity.getCoinReward() : form.getCoinReward());
 		questEntity.setDescription(form.getDescription());
 		questEntity.setTitle(form.getTitle());
 		if (form.getAvailableDays() != null && !form.getAvailableDays().isEmpty()) {
@@ -188,6 +190,9 @@ public class QuestService {
 		Integer exp = questEntity.getExp() == null ? 5 : questEntity.getExp();
 		characterService.addExp(questEntity.getChildUser().getUserId(), exp);
 		characterService.incrementAchievement(questEntity.getChildUser().getUserId());
+
+		Integer coinReward = questEntity.getCoinReward() == null ? 0 : questEntity.getCoinReward();
+		characterService.addCoins(questEntity.getChildUser().getUserId(), coinReward);
 	}
 
 	/**
