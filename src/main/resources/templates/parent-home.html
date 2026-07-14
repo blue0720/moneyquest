@@ -544,6 +544,13 @@
 							</th:block>
 						</div>
 					</div>
+					<p class="quest-card-description" th:if="${quest.limitAmount == null}">
+						🗓 じっしできる曜日: <span th:text="${quest.availableDaysDisplay}">毎日</span>
+					</p>
+					<p class="quest-card-description"
+						th:if="${quest.limitAmount == null and quest.specificDate != null}">
+						📅 じっしび: <span th:text="${#temporals.format(quest.specificDate, 'yyyy/MM/dd')}">2026/08/15</span>のみ
+					</p>
 					<p class="quest-card-description"
 						th:if="${quest.description != null and !#strings.isEmpty(quest.description)}">
 						📝 <span th:text="${quest.description}">机の上もきれいにしてね</span>

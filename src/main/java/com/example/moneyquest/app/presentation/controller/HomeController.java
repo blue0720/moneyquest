@@ -7,9 +7,12 @@ import java.util.Map;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import jakarta.validation.Valid;
 
 import com.example.moneyquest.app.domain.model.IncomeExpenseDto;
 import com.example.moneyquest.app.domain.service.BadgeService;
@@ -103,7 +106,12 @@ public class HomeController {
 	@PostMapping(TransitionTargetPageNameKeyword.CHILD_CHARACTER_TYPE)
 	public String updateCharacterType(
 			@AuthenticationPrincipal CustomUserDetails loginUser,
-			CharacterTypeForm form) {
+			@Valid CharacterTypeForm form,
+			BindingResult bindingResult) {
+
+		if (bindingResult.hasErrors()) {
+			return "redirect:" + TransitionTargetPageNameKeyword.CHILD_HOME;
+		}
 
 		Integer childUserId = loginUser.getUserId();
 
